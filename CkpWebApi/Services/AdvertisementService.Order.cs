@@ -26,7 +26,7 @@ namespace CkpWebApi.Services
         private IEnumerable<OrderPosition> GetOrderPositionsByIds(int[] orderPositionIds)
         {
             var orderPositions = _context.OrderPositions
-                .Include(op => op.ChildOrderPositions)
+                .Include(op => op.ChildOrderPositions).ThenInclude(cop => cop.PositionIm.PositionImType.OrderImType)
                 .Include(op => op.Supplier).ThenInclude(su => su.Company)
                 .Include(op => op.Supplier).ThenInclude(su => su.City)
                 .Include(op => op.Price)

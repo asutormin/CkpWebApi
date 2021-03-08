@@ -54,6 +54,9 @@ namespace CkpWebApi.DAL.Model
         [Column("manager_id", TypeName = "int")]
         public int ManagerId { get; set; }
 
+        [ForeignKey("ManagerId")]
+        public User Manager { get; set; }
+
         [Column("visa", TypeName = "bit")]
         public bool IsNeedVisa { get; set; }
 

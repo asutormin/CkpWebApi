@@ -22,12 +22,13 @@ namespace CkpWebApi.DAL.Model
         [Column("cash_id", TypeName = "int")]
         public int CashId { get; set; }
 
+        [ForeignKey("CashId")]
+        public Cash Cash { get; set; }
+
         [ForeignKey("LegalPersonId")]
         public LegalPerson LegalPerson { get; set; }
 
         [Column("accounts_with_nds", TypeName = "bit")]
         public bool AccountsWithNds { get; set; }
-
-        
     }
 }

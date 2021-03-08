@@ -63,9 +63,9 @@ namespace CkpWebApi.Services
             if (taskFileDate != null)
                 CreateSampleImage(orderPositionId, (DateTime)taskFileDate, bytes, "ImgTask");
 
-            var maketFileDate = CreateModulePositionImMaketVersion(orderId, orderPositionId, taskFileDate, dbTran);
-            if (maketFileDate != null)
-                CreateSampleImage(orderPositionId, (DateTime)maketFileDate, bytes, "ImgMaket");
+            //var maketFileDate = CreateModulePositionImMaketVersion(orderId, orderPositionId, taskFileDate, dbTran);
+            //if (maketFileDate != null)
+            //    CreateSampleImage(orderPositionId, (DateTime)maketFileDate, bytes, "ImgMaket");
         }
 
         private void CreateSampleImage(int orderPositionId, DateTime version, byte[] bytes, string name)
@@ -85,8 +85,22 @@ namespace CkpWebApi.Services
 
         private void CreateModule(int orderPositionId, byte[] bytes)
         {
-            var filePath = new OrderImFileNameProvider(_positionImFileTemplate)
+            var filePath = new OrderImFilePathProvider(_positionImFilePathTemplate)
                 .GetByValue(orderPositionId);
+
+            var fileInfo = new FileInfo(filePath);
+            fileInfo.Directory.Create();
+
+            File.WriteAllBytes(filePath, bytes);
+        }
+
+        private void CreateModuleGraphics(int orderPositionId, string fileName, byte[] bytes)
+        {
+            var folderPath = new OrderImGraphicsFolderPathProvider(_positionImGraphicsFolderPathTemplate)
+                .GetByValue(orderPositionId);
+
+            var filePath = new OrderImGraphicsFilePathProvider(folderPath)
+                .GetByValue(fileName);
 
             var fileInfo = new FileInfo(filePath);
             fileInfo.Directory.Create();
@@ -99,8 +113,11 @@ namespace CkpWebApi.Services
             return base64String.Substring(base64String.LastIndexOf(',') + 1);
         }
 
-        private byte[] GetModuleBytes(string base64String)
+        private byte[] GetBase64Bytes(string base64String)
         {
+            if (base64String == null)
+                return null;
+
             var proccessedBase64String = ProccessBase64String(base64String);
             var bytes = Convert.FromBase64String(proccessedBase64String);
 
@@ -123,13 +140,13 @@ namespace CkpWebApi.Services
 
         private void UpdateModule(int orderPositionId, DateTime updateDate, AdvModule advModule)
         {
-            var existsFilePath = new OrderImFileNameProvider(_positionImFileTemplate)
+            var existsFilePath = new OrderImFilePathProvider(_positionImFilePathTemplate)
+               .GetByValue(orderPositionId);
+
+            var tmpFilePath = new OrderImFilePathProvider(_positionImTmpFileTemplate)
                 .GetByValue(orderPositionId);
 
-            var tmpFilePath = new OrderImFileNameProvider(_positionImTmpFileTemplate)
-                .GetByValue(orderPositionId);
-            
-            var bytes = GetModuleBytes(advModule.Base64String);
+            var bytes = GetBase64Bytes(advModule.Base64String);
             File.WriteAllBytes(tmpFilePath, bytes);
 
             var existsFileInfo = new FileInfo(existsFilePath);
@@ -140,13 +157,81 @@ namespace CkpWebApi.Services
                 return;
             }
 
-            var existsFilePathToDelete = new OrderImDeletedFileNameProvider(_positionImFileTemplate)
+            var existsFilePathToDelete = new OrderImDeletedFileNameProvider(_positionImFilePathTemplate)
                 .GetByValue(updateDate);
             File.Move(existsFilePath, existsFilePathToDelete);
 
             File.Move(tmpFilePath, existsFilePath);
 
+
+
             //CreateFileInVerstkaFolder(orderPositionId, advModule.Bytes);
+        }
+
+        private void UpdateModuleGraphics(int orderPositionId, DateTime updateDate, AdvModule advModule)
+        {
+            var bytes = GetBase64Bytes(advModule.Base64String);
+
+            var folderPath = new OrderImGraphicsFolderPathProvider(_positionImGraphicsFolderPathTemplate)
+                .GetByValue(orderPositionId);
+
+            DirectoryInfo directoryInfo = new DirectoryInfo(folderPath);
+
+            if (directoryInfo.Exists)
+            {
+                FileInfo[] existsFiles = directoryInfo.GetFiles();
+
+                // Проверяем, есть ли в папке файлы с таким же названием
+                var updateFileInfo = existsFiles.Where(f => f.Name == advModule.Name).SingleOrDefault();
+
+                // Если файл с таким же названием не найден
+                if (updateFileInfo == null)
+                {
+                    // Помечаем все файлы как удалённые.
+                    foreach (var fileInfo in existsFiles)
+                    {
+                        var existsFilePathToDelete = new OrderImDeletedFileNameProvider(fileInfo.FullName)
+                            .GetByValue(updateDate);
+                        File.Move(fileInfo.FullName, existsFilePathToDelete);
+                    }
+
+                    // Создаём новый файл
+                    CreateModuleGraphics(orderPositionId, advModule.Name, bytes);
+                }
+                else
+                {
+                    // Получаем временное название файла
+                    var tmpFilePath = folderPath + "\\~" + updateFileInfo.Name;
+
+                    File.WriteAllBytes(tmpFilePath, bytes);
+
+                    var tmpFileInfo = new FileInfo(tmpFilePath);
+
+                    if (FileComparer.FilesAreEqual_OneByte(updateFileInfo, tmpFileInfo))
+                    {
+                        File.Delete(tmpFilePath);
+                        return;
+                    }
+
+                    var existsFilePathToDelete = new OrderImDeletedFileNameProvider(updateFileInfo.FullName)
+                        .GetByValue(updateDate);
+                    File.Move(updateFileInfo.FullName, existsFilePathToDelete);
+
+                    File.Move(tmpFilePath, updateFileInfo.FullName);
+
+                    // Помечаем все остальные файлы как удалённые.
+                    var filesToDelete = existsFiles.Where(f => f.Name != advModule.Name);
+
+                    foreach (var fileInfo in filesToDelete)
+                    {
+                        var filePathToDelete = new OrderImDeletedFileNameProvider(fileInfo.FullName)
+                            .GetByValue(updateDate);
+                        File.Move(fileInfo.FullName, filePathToDelete);
+                    }
+                }
+            }
+            else
+                CreateModuleGraphics(orderPositionId, advModule.Name, bytes);
         }
 
         #endregion
@@ -155,7 +240,7 @@ namespace CkpWebApi.Services
 
         private void DeleteModule(int orderPositionId, DateTime deleteDate)
         {
-            var existsFilePath = new OrderImFileNameProvider(_positionImFileTemplate)
+            var existsFilePath = new OrderImFilePathProvider(_positionImFilePathTemplate)
                 .GetByValue(orderPositionId);
 
             if (!File.Exists(existsFilePath))
@@ -167,6 +252,27 @@ namespace CkpWebApi.Services
             File.Move(existsFilePath, deletedFilePath);
 
             //DeleteFileInVerstkaFolder(orderPositionId);
+        }
+
+        private void DeleteModuleGraphics(int orderPositionId, DateTime deleteDate)
+        {
+            var folderPath = new OrderImGraphicsFolderPathProvider(_positionImGraphicsFolderPathTemplate)
+                .GetByValue(orderPositionId);
+
+            DirectoryInfo directoryInfo = new DirectoryInfo(folderPath);
+
+            if (directoryInfo.Exists)
+            {
+                FileInfo[] existsFiles = directoryInfo.GetFiles();
+
+                // Помечаем все файлы как удалённые.
+                foreach (var fileInfo in existsFiles)
+                {
+                    var existsFilePathToDelete = new OrderImDeletedFileNameProvider(fileInfo.FullName)
+                        .GetByValue(deleteDate);
+                    File.Move(fileInfo.FullName, existsFilePathToDelete);
+                }
+            }
         }
 
         private void DeleteFileInVerstkaFolder(int orderPositionId)

@@ -31,7 +31,8 @@ namespace CkpWebApi.Services
         private readonly IBPFinanceRepository _repository;
 
         private readonly string _positionImSampleTemplate;
-        private readonly string _positionImFileTemplate;
+        private readonly string _positionImFilePathTemplate;
+        private readonly string _positionImGraphicsFolderPathTemplate;
         private readonly string _positionImTmpFileTemplate;
         private readonly string _verstkaFolderPathTemplate;
 
@@ -52,8 +53,9 @@ namespace CkpWebApi.Services
             var orderImFolder = string.Format(orderImFolderTemplate, dbName);
             
             _positionImSampleTemplate = orderImFolder + "{0}\\{1}\\{2}_{3}\\{4}.jpg";
-            _positionImFileTemplate = orderImFolder + "{0}\\{1}\\{1}.tiff";
-            _positionImTmpFileTemplate = orderImFolder + "{0}\\~{1}.tiff";
+            _positionImFilePathTemplate = orderImFolder + "{0}\\{1}\\{1}.tif";
+            _positionImGraphicsFolderPathTemplate = orderImFolder + "{0}\\{1}\\Graphics";
+            _positionImTmpFileTemplate = orderImFolder + "{0}\\~{1}.tif";
             _verstkaFolderPathTemplate = string.Empty;
             //_verstkaFolderPathTemplate = "\\\\file-server.local\\Beta\\!SDACHA\\{0}\\" + dbName + "\\Rdv\\z{1} - {2}\\";
 
@@ -73,6 +75,7 @@ namespace CkpWebApi.Services
                 .Include(op => op.RubricPositions).ThenInclude(rp => rp.Rubric)
                 .Where(
                     op =>
+                        op.ParentOrderPositionId == null &&
                         op.Order.ClientLegalPersonId == clientLegalPersonId &&
                         op.Order.ActivityTypeId == 20 &&
                         op.Order.Description == _orderDescription &&
@@ -89,19 +92,19 @@ namespace CkpWebApi.Services
         {
             var advertisement = GetAdvertisement(orderPositionId);
 
-            var positionImTypeId = _context.OrderPositions
-                .Include(op => op.PositionIm)
+            var childOrderPositionIds = _context.OrderPositions
+                .Include(op => op.ChildOrderPositions)
                 .Single(op => op.Id == orderPositionId)
-                .PositionIm.PositionImTypeId;
+                .ChildOrderPositions
+                .Select(cop => cop.Id);
 
-            if (positionImTypeId == 1)
-            {
-                advertisement.String = GetAdvString(orderPositionId);
-            }
+            if (childOrderPositionIds.Any())
+                advertisement.Childs = new List<Advertisement>();
 
-            if (positionImTypeId == 2)
+            foreach (var childOrderPositionId in childOrderPositionIds)
             {
-                advertisement.Module = GetAdvModule(orderPositionId);
+                var childAdvertesement = GetAdvertisement(childOrderPositionId);
+                advertisement.Childs.Add(childAdvertesement);
             }
 
             return advertisement;
@@ -139,6 +142,22 @@ namespace CkpWebApi.Services
                             Graphics = GetAdvGraphics(op)
                         })
                 .Single();
+
+            var positionIm = _context.OrderPositions
+                .Include(op => op.PositionIm)
+                .Single(op => op.Id == orderPositionId)
+                .PositionIm;
+
+            if (positionIm != null)
+            {
+                var positionImTypeId = positionIm.PositionImTypeId;
+
+                if (positionImTypeId == 1)
+                    advertisement.String = GetAdvString(orderPositionId);
+
+                if (positionImTypeId == 2)
+                    advertisement.Module = GetAdvModule(orderPositionId);
+            }
 
             return advertisement;
         }
@@ -275,16 +294,37 @@ namespace CkpWebApi.Services
         {
             var module = new AdvModule();
 
-            var filePath = new OrderImFileNameProvider(_positionImFileTemplate)
+            //var filePath = new OrderImFilePathProvider(_positionImFilePathTemplate)
+            //    .GetByValue(orderPositionId);
+
+            var folderPath = new OrderImGraphicsFolderPathProvider(_positionImGraphicsFolderPathTemplate)
                 .GetByValue(orderPositionId);
 
-            byte[] bytes;
+            DirectoryInfo directoryInfo = new DirectoryInfo(folderPath);
 
-            if (File.Exists(filePath))
+            if (directoryInfo.Exists)
             {
-                bytes = File.ReadAllBytes(filePath);
-                module.Base64String = Convert.ToBase64String(bytes);
+                FileInfo[] files = directoryInfo.GetFiles("*.tif");
+
+                if (files.Length > 0)
+                {
+                    var file = files.First();
+                    var filePath = file.FullName;
+
+                    var bytes = File.ReadAllBytes(filePath);
+
+                    module.Base64String = Convert.ToBase64String(bytes);
+                    module.Name = file.Name;
+                }
             }
+
+            //byte[] bytes;
+
+            //if (File.Exists(filePath))
+            //{
+            //    bytes = File.ReadAllBytes(filePath);
+            //    module.Base64String = Convert.ToBase64String(bytes);
+            //}
 
             return module;
         }
@@ -307,7 +347,7 @@ namespace CkpWebApi.Services
                     : order.Id;
 
                 // Получааем скидку клиента
-                var clientDiscount = GetClientDiscount(adv.ClientLegalPersonId);
+                var clientDiscount = GetClientDiscount(adv.ClientLegalPersonId, adv.Format.FormatTypeId);
 
                 // Сохраняем позицию заказа
                 int orderPositionId = CreateFullOrderPosition(orderId, null, clientDiscount, adv, dbTran);
@@ -324,6 +364,23 @@ namespace CkpWebApi.Services
             }
         }
 
+        private void ChangeOrderPositionsOrder(IEnumerable<OrderPosition> orderPositions, int orderId, DbTransaction dbTran)
+        {
+            foreach (var orderPosition in orderPositions)
+            {
+                orderPosition.OrderId = orderId;
+
+                // Меняем статус позиции ИМ-а на "Вёрстка"
+                if (orderPosition.PositionIm != null)
+                    SetPositionImStatusVerstka(orderPosition.PositionIm, dbTran);
+
+                UpdateOrderPosition(orderPosition, dbTran);
+
+                if (orderPosition.ChildOrderPositions != null)
+                    ChangeOrderPositionsOrder(orderPosition.ChildOrderPositions, orderId, dbTran);
+            }
+        }
+
         public int CreateClientAccount(int[] orderPositionIds)
         {
             var accountId = 0;
@@ -337,21 +394,12 @@ namespace CkpWebApi.Services
                 var shoppingCartOrder = GetOrderById(orderPositions.First().OrderId);
                 var orderId = CreateOrder(shoppingCartOrder, orderPositions, dbTran);
 
-                //var shoppingCartOrder = GetOrderById(orderPositions.First().OrderId);
-
                 // Привязываем к заказу позиции
-                foreach (var orderPosition in orderPositions)
-                {
-                    orderPosition.OrderId = orderId;
-
-                    // Меняем статус позиции ИМ-а на "Вёрстка"
-                    SetPositionImStatusVerstka(orderPosition.PositionIm, dbTran);
-
-                    UpdateOrderPosition(orderPosition, dbTran);
-                }
+                ChangeOrderPositionsOrder(orderPositions, orderId, dbTran);
 
                 // Обновляем ИМ-ы заказа-корзины
                 var orderImTypeIds = orderPositions
+                    .Where(op => op.PositionIm != null)
                     .GroupBy(op => op.PositionIm.PositionImType.OrderImType.Id)
                     .Select(g => g.Key)
                     .ToList();
@@ -361,13 +409,17 @@ namespace CkpWebApi.Services
                     // Создаём ИМ нового заказа
                     CreateOrderIm(orderId, orderImTypeId, dbTran);
 
-                    // Меняем статус ИМ-а заказа на "Вёрстка"
-                    SetOrderImStatusVerstka(orderId, orderImTypeId, dbTran);
+                    // Для строк меняем статус ИМ-а на "Готов"
+                    if (orderImTypeId == 1)
+                        SetOrderImStatusReady(orderId, orderImTypeId, dbTran);
+                    else
+                        // Для всех остальных (модули и пр.) меняем статус ИМ-а заказа на "Вёрстка"
+                        SetOrderImStatusVerstka(orderId, orderImTypeId, dbTran);
 
                     // Если ИМ заказа корзины больше не нужен - удаляем его
-                    var orderIm = GetOrderIm(shoppingCartOrder.Id, orderImTypeId);
-                    if (NeedDeleteOrderIm(orderIm))
-                        DeleteOrderIm(orderIm, dbTran);
+                    var shoppingCartOrderIm = GetOrderIm(shoppingCartOrder.Id, orderImTypeId);
+                    if (NeedDeleteOrderIm(shoppingCartOrderIm))
+                        DeleteOrderIm(shoppingCartOrderIm, dbTran);
                 }
 
                 // Обновляем заказ-корзину
@@ -465,16 +517,17 @@ namespace CkpWebApi.Services
                     .Include(op => op.ChildOrderPositions).ThenInclude(cop => cop.Price)
                     .Include(op => op.ChildOrderPositions).ThenInclude(cop => cop.RubricPositions)
                     .Include(op => op.ChildOrderPositions).ThenInclude(cop => cop.GraphicPositions).ThenInclude(cgp => cgp.Graphic)
-                    .Include(op => op.ChildOrderPositions).ThenInclude(cop => cop.PositionIm).ThenInclude(cpi => cpi.PositionImType)
+                    .Include(op => op.ChildOrderPositions).ThenInclude(cop => cop.PositionIm).ThenInclude(cpi => cpi.PositionImType).ThenInclude(pit => pit.OrderImType)
                     .SingleOrDefault(op => op.Id == orderPositionId);
 
                 if (orderPosition == null)
                     return;
 
-                var childOrderPositions = orderPosition.ChildOrderPositions;
+                var childOrderPositions = orderPosition.ChildOrderPositions
+                    .ToList();
 
-                foreach (var childOrderPosition in childOrderPositions)
-                    DeleteFullOrderPosition(childOrderPosition, dbTran);
+                for (int i = childOrderPositions.Count - 1; i >= 0; i--)
+                    DeleteFullOrderPosition(childOrderPositions[i], dbTran);
 
                 DeleteFullOrderPosition(orderPosition, dbTran);
 

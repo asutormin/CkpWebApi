@@ -42,6 +42,13 @@ namespace CkpWebApi.Services
             UpdateOrderIm(orderIm, dbTran);
         }
 
+        private void SetOrderImStatusReady(int orderId, int orderImTypeId, DbTransaction dbTran)
+        {
+            var orderIm = GetOrderIm(orderId, orderImTypeId);
+            orderIm.MaketStatusId = 4;
+            UpdateOrderIm(orderIm, dbTran);
+        }
+
         #region Create
 
         private void CreateOrderIm(int orderId, int orderImTypeId, DbTransaction dbTran)

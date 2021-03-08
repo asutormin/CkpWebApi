@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -40,5 +41,14 @@ namespace CkpWebApi.DAL.Model
         public LoginSettings LoginSettings { get; set; }
 
         public virtual ICollection<LegalPersonBank> LegalPersonBanks { get; set; }
+
+        public virtual ICollection<LegalPersonSign> LegalPersonSigns { get; set; }
+
+        public virtual ICollection<LegalPersonPricePositionTypeDiscount> PricePositionTypeDiscounts { get; set; }
+
+        internal object Include(Func<object, object> p)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

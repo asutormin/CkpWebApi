@@ -11,6 +11,41 @@ namespace CkpWebApi.Services
 {
     public partial class AdvertisementService
     {
+        private AdvertisementGraphic GetPackageAdvGraphic(Advertisement adv)
+        {
+            // Получаем идентификаторы графиков позиций пакета
+            var graphicIds = adv.Childs
+                .SelectMany(c => c.Graphics)
+                .Select(g => g.Id);
+
+            // Находим минимальную дату выхода позиций пакета
+            var minOutDate = _context.Graphics
+                .Where(g => graphicIds.Contains(g.Id))
+                .Min(g => g.OutDate);
+
+            // Находим график выхода пакета - его дата выхода меньше
+            // или равна миминальной дате выхода позиций пакета
+            var graphic = _context.Graphics
+                .Where(g =>
+                    g.SupplierId == adv.SupplierId &&
+                    g.PricePositionTypeId == adv.Format.FormatTypeId &&
+                    g.OutDate <= minOutDate)
+                .OrderByDescending(g => g.OutDate)
+                .First();
+
+            var advGraphic = new AdvertisementGraphic { Id = graphic.Id, Childs = new List<int>() };
+
+            return advGraphic;
+        }
+
+        private List<AdvertisementGraphic> GetPackageAdvGraphics(Advertisement adv)
+        {
+            var advGraphics = new List<AdvertisementGraphic>();
+            advGraphics.Add(GetPackageAdvGraphic(adv));
+
+            return advGraphics;
+        }
+
         #region Create
 
         private bool NeedCreateGraphicPosition(IEnumerable<GraphicPosition> graphicPositions, int advGraphicId)
@@ -51,7 +86,6 @@ namespace CkpWebApi.Services
                 foreach (var childGraphicId in advGraphic.Childs)
                     // Добавляем новую дочернюю позицию графика
                     CreateGraphicPosition(orderPositionId, graphicPositionId, childGraphicId, dbTran);
-
             }
         }
 

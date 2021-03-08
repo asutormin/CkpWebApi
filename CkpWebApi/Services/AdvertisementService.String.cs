@@ -16,7 +16,7 @@ namespace CkpWebApi.Services
         public int CreateString(int companyId, int orderPositionId, AdvString advString, DbTransaction dbTran)
         {
             var stringId = 0;
-            var logoBytes = Encoding.ASCII.GetBytes(advString.Logo.Base64String);
+            var logoBytes = advString.Logo.Base64String == null ? null : Encoding.ASCII.GetBytes(advString.Logo.Base64String);
             var lastEditDate = DateTime.Now;
 
             _repository.SetString(
@@ -102,8 +102,7 @@ namespace CkpWebApi.Services
                 stringPosition.ContactFirstName != advString.Contact.FirstName ||
                 stringPosition.ContactSecondName != advString.Contact.SecondName ||
                 stringPosition.ContactLastName != advString.Contact.LastName ||
-                //stringPosition.Logo != Encoding.ASCII.GetBytes(ProccessBase64String(advString.Logo.Base64String)) ||
-                stringPosition.Logo != Encoding.ASCII.GetBytes(advString.Logo.Base64String) ||
+                stringPosition.Logo != GetBase64Bytes(advString.Logo.Base64String) ||
                 stringPosition.LogoFileName != advString.Logo.FileName;
         }
 
@@ -114,11 +113,7 @@ namespace CkpWebApi.Services
              
             var stringId = stringPosition.Id;
 
-            //var logoBytes = Encoding.ASCII.GetBytes(ProccessBase64String(advString.Logo.Base64String));
-            //var logoBytes = Encoding.ASCII.GetBytes(advString.Logo.Base64String);
-            var logoBytes = Convert.FromBase64String(ProccessBase64String(advString.Logo.Base64String));
-
-            var v = Convert.ToBase64String(logoBytes);
+            var logoBytes = GetBase64Bytes(advString.Logo.Base64String); 
 
             var lastEditDate = stringPosition.BeginDate;
 

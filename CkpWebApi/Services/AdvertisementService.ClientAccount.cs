@@ -96,7 +96,7 @@ namespace CkpWebApi.Services
                 id: ref accountSettingsId,
                 accountId: accountId,
                 legalPersonId: null,
-                bankId: legalPersonAccountSettings.BankId,
+                bankId: legalPersonAccountSettings.LegalPersonBankId,
                 unloadingDateMethod: legalPersonAccountSettings.UnloadingDateMethod,
                 additionalDescription: legalPersonAccountSettings.AdditionalDescription,
                 accountDescription: legalPersonAccountSettings.AccountDescription,

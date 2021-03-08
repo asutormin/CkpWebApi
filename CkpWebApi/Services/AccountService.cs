@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CkpWebApi.Services.Interfaces;
 using Microsoft.Extensions.Options;
+using CkpWebApi.DAL.Model;
 
 namespace CkpWebApi.Services
 {
@@ -29,7 +30,7 @@ namespace CkpWebApi.Services
             var account = await _context.Accounts
                 .Include(ac => ac.ClientLegalPerson)
                 .Include(ac => ac.BusinessUnit.LegalPerson)
-                .Include(ac => ac.AccountSettings.Bank)
+                .Include(ac => ac.AccountSettings.LegalPersonBank.Bank)
                 .Where(ac => ac.Id == accountId)
                 .Select(
                     ac =>
@@ -62,12 +63,12 @@ namespace CkpWebApi.Services
                             Bank =
                                 new LegalPersonBankInfo
                                 {
-                                    Name = ac.AccountSettings.Bank.Name,
-                                    Bik = ac.AccountSettings.Bank.Bik,
-                                    CorrespondentAccount = ac.AccountSettings.Bank.CorrespondentAccount,
+                                    Name = ac.AccountSettings.LegalPersonBank.Bank.Name,
+                                    Bik = ac.AccountSettings.LegalPersonBank.Bank.Bik,
+                                    CorrespondentAccount = ac.AccountSettings.LegalPersonBank.Bank.CorrespondentAccount,
                                     SettlementAccount = ac.ClientLegalPerson
                                         .LegalPersonBanks
-                                        .Single(lpb => lpb.BankId == ac.AccountSettings.Bank.Id)
+                                        .Single(lpb => lpb.BankId == ac.AccountSettings.LegalPersonBank.Bank.Id)
                                         .SettlementAccount
                                 },
                             Sum = ac.Sum,
@@ -83,6 +84,7 @@ namespace CkpWebApi.Services
                 .Include(op => op.RubricPositions).ThenInclude(rp => rp.Rubric)
                 .Where(
                     op =>
+                        op.ParentOrderPositionId == null &&
                         op.Order.AccountOrder.AccountId == accountId)
                 .SelectPositions()
                 .ToListAsync();
@@ -111,9 +113,9 @@ namespace CkpWebApi.Services
                             Id = ac.Id,
                             Number = ac.Number,
                             Date = ac.Date,
-                            SupplierLegalPerson = 
-                                new LegalPersonInfo 
-                                { 
+                            SupplierLegalPerson =
+                                new LegalPersonInfo
+                                {
                                     Id = ac.BusinessUnit.LegalPersonId,
                                     Name = ac.BusinessUnit.LegalPerson.Name
                                 },
@@ -124,6 +126,22 @@ namespace CkpWebApi.Services
                 .ToListAsync();
 
             return accounts;
+        }
+
+        public async Task<ActionResult<Account>> GetAccountById(int accountId)
+        {
+            var account = await _context.Accounts
+                .Include(ac => ac.AccountSettings).ThenInclude(acs => acs.LegalPersonBank).ThenInclude(lpb => lpb.Bank)
+                .Include(ac => ac.AccountOrders).ThenInclude(ao => ao.Order).ThenInclude(o => o.Manager)
+                .Include(ac => ac.BusinessUnit).ThenInclude(bu => bu.LegalPerson).ThenInclude(lp => lp.LegalPersonSigns).ThenInclude(lps => lps.SignImages)
+                .Include(ac => ac.BusinessUnit).ThenInclude(bu => bu.LegalPerson).ThenInclude(lp => lp.AccountSettings)
+                .Include(ac => ac.BusinessUnit).ThenInclude(bu => bu.Cash).ThenInclude(c => c.LegalPersonBank).ThenInclude(lpb => lpb.Bank)
+                .Include(ac => ac.ClientLegalPerson).ThenInclude(lp => lp.LegalPersonBanks).ThenInclude(lpb => lpb.Bank)
+                .Include(ac => ac.AccountPositions)
+                .Where(ac => ac.Id == accountId)
+                .SingleOrDefaultAsync();
+
+            return account;
         }
     }
 }

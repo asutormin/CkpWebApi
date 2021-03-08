@@ -21,6 +21,7 @@ namespace DebtsWebApi.DAL
         public DbSet<Price> Prices { get; set; }
         public DbSet<Graphic> Graphics { get; set; }
         public DbSet<Account> Accounts { get; set; }
+        public DbSet<AccountPosition> AccountPositions { get; set; }
         public DbSet<AccountOrder> AccountOrders { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderPosition> OrderPositions { get; set; }
@@ -113,6 +114,10 @@ namespace DebtsWebApi.DAL
                 .WithOne(cgp => cgp.ParentGraphicPosition);
 
             modelBuilder.Entity<Account>()
+                .HasMany(ac => ac.AccountPositions)
+                .WithOne(ap => ap.Account);
+
+            modelBuilder.Entity<Account>()
                 .HasMany(ac => ac.AccountOrders)
                 .WithOne(ao => ao.Account);
 
@@ -145,7 +150,7 @@ namespace DebtsWebApi.DAL
                 .WithOne(ac => ac.AccountSettings);
 
             modelBuilder.Entity<AccountSettings>()
-                .HasOne(acs => acs.Bank);
+                .HasOne(acs => acs.LegalPersonBank);
 
             modelBuilder.Entity<LegalPerson>()
                 .HasOne(lp => lp.AccountSettings)

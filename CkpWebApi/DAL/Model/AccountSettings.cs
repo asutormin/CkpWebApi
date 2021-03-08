@@ -23,11 +23,11 @@ namespace CkpWebApi.DAL.Model
         [ForeignKey("LegalPersonId")]
         public LegalPerson LegalPerson { get; set; }
 
-        [Column("bank_id", TypeName = "int")]
-        public int BankId { get; set; }
+		[Column("bank_id", TypeName = "int")]
+		public int LegalPersonBankId { get; set; }
 
-        [ForeignKey("BankId")]
-        public Bank Bank { get; set; }
+        [ForeignKey("LegalPersonBankId")]
+        public LegalPersonBank LegalPersonBank { get; set; }
 
 		[Column("unloading_date_method", TypeName = "int")]
 		public int UnloadingDateMethod { get; set; }

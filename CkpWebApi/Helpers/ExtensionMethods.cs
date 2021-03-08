@@ -200,15 +200,18 @@ namespace CkpWebApi.Helpers
             var maxExitDate = orderPositions.Count() == 0
                 ? (DateTime?)null
                 : orderPositions
-                    .Select(op => op.GraphicPositions.Max(gp => gp.Graphic.OutDate))
-                    .Max();
+                    .SelectMany(op => op.GraphicPositions)
+                    .Select(gp => gp.Graphic)
+                    .Max(g => g.OutDate);
 
             return maxExitDate;
         }
 
         public static float GetClientSum(this IEnumerable<OrderPosition> orderPositions)
         {
-            var clientSum = orderPositions.Sum(op => op.GetClientSum());
+            var clientSum = orderPositions
+                .Where(op => op.ParentOrderPositionId == null)
+                .Sum(op => op.GetClientSum());
 
             return clientSum;
         }

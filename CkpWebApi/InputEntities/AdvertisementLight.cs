@@ -25,11 +25,9 @@ namespace CkpWebApi.InputEntities
 
         [Required]
         public int PriceId { get; set; }
-
-        [Required]
+                
         public AdvertisementRubric Rubric { get; set; }
 
-        [Required]
         public List<AdvertisementGraphic> Graphics { get; set; }
     }
 }

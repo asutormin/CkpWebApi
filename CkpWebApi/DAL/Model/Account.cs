@@ -37,8 +37,16 @@ namespace CkpWebApi.DAL.Model
         [Column("account_sum", TypeName = "money")]
         public float Sum { get; set; }
 
+        [Column("prepaid_sum", TypeName = "money")]
+        public float Prepaid { get; set; }
+
         [Column("debt_sum", TypeName = "money")]
         public float Debt { get; set; }
+
+        [Column("request", TypeName = "varchar(max)")]
+        public string Request { get; set; }
+
+        public ICollection<AccountPosition> AccountPositions { get; set; }
 
         public AccountSettings AccountSettings { get; set; }
 

@@ -148,10 +148,11 @@ namespace CkpWebApi.Services
 
             if (adv.Module != null)
             {
-                var bytes = GetModuleBytes(adv.Module.Base64String);
+                var bytes = GetBase64Bytes(adv.Module.Base64String);
 
                 CreateModulePositionIm(orderId, orderPositionId, bytes, dbTran);
-                CreateModule(orderPositionId, bytes);
+                //CreateModule(orderPositionId, bytes);
+                CreateModuleGraphics(orderPositionId, adv.Module.Name, bytes);
                 CreateOrUpdateOrderIm(orderId, orderImTypeId: 2, dbTran);
             }
         }
@@ -220,7 +221,8 @@ namespace CkpWebApi.Services
                 UpdateFullString(positionIm.OrderPositionId, adv.String, dbTran);
 
             if (CanUpdateModule(positionIm))
-                UpdateModule(positionIm.OrderPositionId, DateTime.Now, adv.Module);
+                //UpdateModule(positionIm.OrderPositionId, DateTime.Now, adv.Module);
+                UpdateModuleGraphics(positionIm.OrderPositionId, DateTime.Now, adv.Module);
         }
 
         #endregion
@@ -278,7 +280,8 @@ namespace CkpWebApi.Services
             if (CanDeleteFullString(positionIm))
                 DeleteFullString(positionIm.OrderPositionId, dbTran);
 
-            DeleteModule(positionIm.OrderPositionId, DateTime.Now);
+            //DeleteModule(positionIm.OrderPositionId, DateTime.Now);
+            DeleteModuleGraphics(positionIm.OrderPositionId, DateTime.Now);
 
             var orderIm = GetOrderIm(positionIm.OrderId, positionIm.PositionImType.OrderImTypeId);
 

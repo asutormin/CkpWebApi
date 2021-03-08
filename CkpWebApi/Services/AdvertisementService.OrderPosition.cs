@@ -1,5 +1,6 @@
 ﻿using CkpWebApi.DAL.Model;
 using CkpWebApi.InputEntities;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
@@ -61,7 +62,15 @@ namespace CkpWebApi.Services
             DbTransaction dbTran)
         {
             var orderPositionId = CreateOrderPosition(orderId, parentOrderPositionId, clientDiscount, adv, dbTran);
-            CreateRubricPosition(orderPositionId, adv.Rubric, dbTran);
+            
+            // Если рубрика не задана (пакет) - не сохраняем её
+            if (adv.Rubric != null)
+                CreateRubricPosition(orderPositionId, adv.Rubric, dbTran);
+
+            // Если графики не переданы - ищем график на основе пакетных позиций
+            if (!adv.Graphics.Any())
+                adv.Graphics = GetPackageAdvGraphics(adv);
+
             CreateGraphicPositions(orderPositionId, adv.Graphics, dbTran);
 
             CreateFullPositionIm(orderId, orderPositionId, adv, dbTran);
@@ -85,11 +94,17 @@ namespace CkpWebApi.Services
             return nds;
         }
 
-        private float GetClientDiscount(int legalPersonId)
+        private float GetClientDiscount(int legalPersonId, int pricePositionTypeId)
         {
-            var legalPerson = _context.LegalPersons.Single(lp => lp.Id == legalPersonId);
+            var pricePositionTypeDiscount = _context.LegalPersons
+                .Include(lp => lp.PricePositionTypeDiscounts)
+                .Single(lp => lp.Id == legalPersonId)
+                .PricePositionTypeDiscounts
+                .SingleOrDefault(pptd => pptd.PricePositionTypeId == pricePositionTypeId);
 
-            return legalPerson.DiscountPercent;
+            return pricePositionTypeDiscount == null 
+                ? 0
+                : pricePositionTypeDiscount.DiscountPercent;
         }
 
         #endregion
@@ -151,11 +166,6 @@ namespace CkpWebApi.Services
         {
             var orderPositionId = orderPosition.Id;
 
-            var parentOrderPositionId =
-                orderPosition.ParentOrderPositionId == null
-                ? 0
-                : (int)orderPosition.ParentOrderPositionId;
-
             var isUnloaded = IsOrderPositionUnloaded(orderPosition);
             var lastEditDate = orderPosition.BeginDate;
 
@@ -163,7 +173,7 @@ namespace CkpWebApi.Services
                 dbTran: dbTran,
                 id: ref orderPositionId,
                 orderId: orderPosition.OrderId,
-                parentOrderPositionId: parentOrderPositionId,
+                parentOrderPositionId: orderPosition.ParentOrderPositionId,
                 supplierId: orderPosition.SupplierId,
                 priceId: orderPosition.PriceId,
                 pricePositionId: orderPosition.PricePositionId,
@@ -187,7 +197,17 @@ namespace CkpWebApi.Services
         private void UpdateFullOrderPosition(OrderPosition orderPosition, Advertisement adv, DbTransaction dbTran)
         {
             UpdateOrderPosition(orderPosition, adv, dbTran);
-            UpdateRubricPosition(orderPosition.Id, orderPosition.RubricPositions, adv.Rubric, dbTran);
+
+            // Если рубрика не задана - удаляем все позиции рубрик
+            if (adv.Rubric != null)
+                DeleteRubricPositions(orderPosition.RubricPositions, dbTran);
+            else
+                UpdateRubricPosition(orderPosition.Id, orderPosition.RubricPositions, adv.Rubric, dbTran);
+
+            // Если графики не переданы - ищем график на основе пакетных позиций
+            if (adv.Graphics == null)
+                adv.Graphics = GetPackageAdvGraphics(adv);
+
             UpdateGraphicPositions(orderPosition.Id, orderPosition.GraphicPositions, adv.Graphics, dbTran);
 
             UpdateFullPositionIm(orderPosition.PositionIm, adv, dbTran);

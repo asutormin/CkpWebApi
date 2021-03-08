@@ -1,13 +1,12 @@
 ﻿using CkpWebApi.Infrastructure.Providers.Interfaces;
-using System.Linq;
 
 namespace CkpWebApi.Helpers.Providers
 {
-    public class OrderImFileNameProvider : IKeyedProvider<int, string>
+    public class OrderImFilePathProvider : IKeyedProvider<int, string>
     {
         private readonly string _template;
 
-        public OrderImFileNameProvider(string template)
+        public OrderImFilePathProvider(string template)
         {
             _template = template;
         }
