@@ -4,14 +4,12 @@ using CkpWebApi.Helpers.FileNameProviders;
 using CkpWebApi.Helpers.Providers;
 using CkpWebApi.Infrastructure;
 using CkpWebApi.Infrastructure.Providers;
-using CkpWebApi.InputEntities;
 using CkpWebApi.InputEntities.Module;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Data.Common;
 using System.IO;
 using System.Linq;
-using System.Text;
 
 namespace CkpWebApi.Services
 {
@@ -162,8 +160,6 @@ namespace CkpWebApi.Services
             File.Move(existsFilePath, existsFilePathToDelete);
 
             File.Move(tmpFilePath, existsFilePath);
-
-
 
             //CreateFileInVerstkaFolder(orderPositionId, advModule.Bytes);
         }
