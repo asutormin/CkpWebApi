@@ -21,7 +21,6 @@ using System.Data.Common;
 using CkpWebApi.Helpers.Providers;
 using System.IO;
 using System;
-using System.Text;
 
 namespace CkpWebApi.Services
 {
@@ -131,7 +130,9 @@ namespace CkpWebApi.Services
                             {
                                 Id = op.PricePositionId,
                                 Version = op.PricePositionVersion,
-                                FormatTypeId = op.PricePosition.PricePositionTypeId
+                                FormatTypeId = op.PricePosition.PricePositionTypeId,
+                                FirstSize = op.PricePosition.FirstSize,
+                                SecondSize = op.PricePosition.SecondSize
                             },
                             PriceId = op.PriceId,
                             Rubric = new AdvertisementRubric
@@ -370,11 +371,19 @@ namespace CkpWebApi.Services
             {
                 orderPosition.OrderId = orderId;
 
-                // Меняем статус позиции ИМ-а на "Вёрстка"
-                if (orderPosition.PositionIm != null)
-                    SetPositionImStatusVerstka(orderPosition.PositionIm, dbTran);
-
                 UpdateOrderPosition(orderPosition, dbTran);
+
+                var positionIm = orderPosition.PositionIm;
+                if (positionIm != null)
+                {
+                    // Меняем заказ позиции ИМ-а
+                    positionIm.OrderId = orderId;
+
+                    // Меняем статус позиции ИМ-а на "Вёрстка"
+                    positionIm.MaketStatusId = 3;
+
+                    UpdatePositionIm(positionIm, dbTran);
+                }
 
                 if (orderPosition.ChildOrderPositions != null)
                     ChangeOrderPositionsOrder(orderPosition.ChildOrderPositions, orderId, dbTran);
@@ -397,7 +406,7 @@ namespace CkpWebApi.Services
                 // Привязываем к заказу позиции
                 ChangeOrderPositionsOrder(orderPositions, orderId, dbTran);
 
-                // Обновляем ИМ-ы заказа-корзины
+                // Обновляем ИМ-ы из заказа-корзины
                 var orderImTypeIds = orderPositions
                     .Where(op => op.PositionIm != null)
                     .GroupBy(op => op.PositionIm.PositionImType.OrderImType.Id)

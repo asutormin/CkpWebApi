@@ -7,12 +7,6 @@ namespace CkpWebApi.Services
 {
     public partial class AdvertisementService
     {
-        private void SetPositionImStatusVerstka(PositionIm positionIm, DbTransaction dbTran)
-        {
-            positionIm.MaketStatusId = 3;
-            UpdatePositionIm(positionIm, dbTran);
-        }
-
         #region Create
 
         private bool NeedReCreatePositionIm(PositionIm positionIm, Advertisement adv)
