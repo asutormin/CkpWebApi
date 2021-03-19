@@ -1,10 +1,7 @@
 ﻿using CkpWebApi.DAL.Model;
 using CkpWebApi.Helpers;
 using System;
-using System.Collections.Generic;
 using System.Data.Common;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace CkpWebApi.Services
 {
@@ -49,7 +46,7 @@ namespace CkpWebApi.Services
                 printed: false,
                 unloadedTo1C: false,
                 prepaidSum: 0,
-                debtSum: sum,
+                debtSum: 0,
                 paymentAgentId: 1, // Отсутствует
                 paymentAgentCommissionSum: 0,
                 isActual: true,
