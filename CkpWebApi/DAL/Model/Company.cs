@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -16,5 +17,7 @@ namespace CkpWebApi.DAL.Model
 
         [Column("begin_date", TypeName = "datetime")]
         public DateTime BeginDate { get; set; }
+
+        public virtual ICollection<BusinessUnitCompanyManager> BusinessUnitManagers { get; set; }
     }
 }

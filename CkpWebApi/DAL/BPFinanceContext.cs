@@ -28,6 +28,8 @@ namespace DebtsWebApi.DAL
         public DbSet<GraphicPosition> GraphicPositions { get; set; }
         public DbSet<RubricPosition> RubricPositions { get; set; }
         public DbSet<BusinessUnit> BusinessUnits { get; set; }
+        public DbSet<BusinessUnitCompanyManager> BusinessUnitCompanyManagers { get; set; }
+
         public DbSet<LegalPerson> LegalPersons { get; set; }
         public DbSet<LoginSettings> LoginSettings { get; set; }
         public DbSet<UnloadingPosition> UnloadingPositions { get; set; }

@@ -68,6 +68,16 @@ namespace CkpWebApi.Services
             var supplierLegalPersonId = _context.BusinessUnits
                 .Single(bu => bu.Id == _orderBusinessUnitId).LegalPersonId;
 
+            var businessUnitCompanyManager = _context.BusinessUnitCompanyManagers
+                .SingleOrDefault(
+                    bucm =>
+                        bucm.CompanyId == clientCompanyId &&
+                        bucm.BusinessUnitId == _orderBusinessUnitId);
+
+            var managerId = businessUnitCompanyManager == null
+                ? _managerId
+                : businessUnitCompanyManager.ManagerId;
+
             var maxExitDate = _context.Graphics
                 .Where(gr => adv.GetGraphicsWithChildren().Contains(gr.Id))
                 .Max(gr => gr.OutDate);
@@ -106,7 +116,7 @@ namespace CkpWebApi.Services
                     paymentArbitaryPrognosisDate: null,
                     description: _orderDescription,
                     request: string.Empty,
-                    managerId: _managerId,
+                    managerId: managerId,
                     editUserId: _editUserId,
                     isActual: true,
                     lastEditDate: ref lastEditDate);
@@ -260,7 +270,7 @@ namespace CkpWebApi.Services
                 paymentArbitaryPrognosisDate: null,
                 description: string.Empty,
                 request: string.Empty,
-                managerId: _managerId,
+                managerId: shoppingCartOrder.ManagerId,
                 editUserId: _editUserId,
                 isActual: true,
                 lastEditDate: ref lastEditDate);
