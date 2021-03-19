@@ -13,5 +13,9 @@ namespace CkpWebApi.InputEntities
         
         [Required]
         public int FormatTypeId { get; set; }
+
+        public float? FirstSize { get; set; }
+
+        public float? SecondSize { get; set; }
     }
 }
