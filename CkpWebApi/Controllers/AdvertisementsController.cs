@@ -1,12 +1,8 @@
-﻿using CkpWebApi.InputEntities;
-using CkpWebApi.OutputEntities;
-using CkpWebApi.Services.Interfaces;
-using Microsoft.AspNetCore.Cors;
-using Microsoft.AspNetCore.Http;
+﻿using CkpEntities.Input;
+using CkpEntities.Output;
+using CkpServices.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;

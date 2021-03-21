@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
-using CkpWebApi.OutputEntities;
 using Microsoft.AspNetCore.Mvc;
-using CkpWebApi.Services.Interfaces;
-using CkpWebApi.OutputEntities.String;
 using System;
+using CkpServices.Interfaces;
+using CkpEntities.Output;
+using CkpEntities.Output.String;
 
 namespace CkpWebApi.Controllers
 {

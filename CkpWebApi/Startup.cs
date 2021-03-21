@@ -1,7 +1,5 @@
 using System.Text;
-using CkpWebApi.Helpers;
 using CkpWebApi.Services;
-using DebtsWebApi.DAL;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -10,7 +8,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.EntityFrameworkCore;
-using CkpWebApi.Services.Interfaces;
+using CkpDAL;
+using CkpEntities.Configuration;
+using CkpServices.Interfaces;
+using CkpServices;
 
 namespace CkpWebApi
 {

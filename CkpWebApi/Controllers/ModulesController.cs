@@ -1,12 +1,10 @@
-﻿using CkpWebApi.InputEntities.Module;
-using CkpWebApi.OutputEntities;
-using CkpWebApi.Services.Interfaces;
+﻿using CkpEntities.Input.Module;
+using CkpEntities.Output;
+using CkpServices.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Text;
 
 namespace CkpWebApi.Controllers
 {

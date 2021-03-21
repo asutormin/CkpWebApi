@@ -1,5 +1,5 @@
-﻿using CkpWebApi.InputEntities;
-using CkpWebApi.Services.Interfaces;
+﻿using CkpEntities.Input;
+using CkpServices.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
