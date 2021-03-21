@@ -117,16 +117,14 @@ namespace CkpServices
             ChangeOrderPositionsOrder(orderPositionsWithChildren, clientOrder.Id, dbTran);
 
             // Привязываем к новому заказу позиции ИМ-ов
-            var positionsIm = orderPositionsWithChildren
+            var positionIms = orderPositionsWithChildren
                 .Where(op => op.PositionIm != null)
                 .Select(op => op.PositionIm);
 
-            ChangePositionImsOrder(positionsIm, clientOrder.Id, dbTran);
+            ChangePositionImsOrder(positionIms, clientOrder.Id, dbTran);
 
-            var orderImTypeIds = orderPositions
-                .SelectMany(op => op.ChildOrderPositions)
-                .Where(op => op.PositionIm != null)
-                .GroupBy(op => op.PositionIm.PositionImType.OrderImType.Id)
+            var orderImTypeIds = positionIms
+                .GroupBy(pims => pims.PositionImType.OrderImType.Id)
                 .Select(g => g.Key)
                 .ToList();
 
