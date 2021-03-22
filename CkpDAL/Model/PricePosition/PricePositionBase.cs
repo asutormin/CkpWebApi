@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using CkpDAL.Model.PricePosition;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CkpDAL.Model
@@ -8,6 +9,9 @@ namespace CkpDAL.Model
         [Key]
         [Column("price_position_id", TypeName = "int")]
         public int Id { get; set; }
+
+        [ForeignKey("Id")]
+        public PricePositionEx PricePositionEx { get; set; }
 
         [Column("price_position_name", TypeName = "varchar(150)")]
         public string Name { get; set; }

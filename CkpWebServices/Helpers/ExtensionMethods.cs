@@ -218,7 +218,7 @@ namespace CkpServices.Helpers
 
         public static string GetAccountPositionName(this OrderPosition orderPosition)
         {
-            var pricePositionName = orderPosition.PricePosition.PricePositionType.IsEnableSecondSize
+            var pricePositionName = orderPosition.PricePosition.PricePositionType.EnableSecondSize
             ? string.Format("{0} ({1}x{2} {3})",
                 orderPosition.PricePosition.Name,
                 orderPosition.PricePosition.FirstSize,
@@ -248,7 +248,7 @@ namespace CkpServices.Helpers
 
             if (orderPosition.PricePosition.IsShowSize)
             {
-                nomenclature = orderPosition.PricePosition.PricePositionType.IsEnableSecondSize
+                nomenclature = orderPosition.PricePosition.PricePositionType.EnableSecondSize
                     ? string.Format("{0} - {1} {2} ({3}x{4} {5}) {6}",
                         orderPosition.Supplier.Company.Name,
                         orderPosition.Supplier.City.Name,

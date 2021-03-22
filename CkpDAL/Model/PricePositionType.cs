@@ -22,7 +22,7 @@ namespace CkpDAL.Model
         public PositionImType PositionImType { get; set; }
 
         [Column("is_enable_second_size", TypeName = "bit")]
-        public bool IsEnableSecondSize { get; set; }
+        public bool EnableSecondSize { get; set; }
 
         public virtual ICollection<PricePositionActual> PricePositions { get; set; }
 

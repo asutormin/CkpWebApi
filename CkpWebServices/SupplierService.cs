@@ -101,6 +101,7 @@ namespace CkpWebApi.Services
             // Находим все рубрики поставщика
             rubrics = _context.RubricsActual
                 .Where(r => r.SupplierId == price.PricePosition.SupplierId)
+                .OrderBy(r => r.OrderBy)
                 .Select(
                     r =>
                         new RubricInfo
@@ -127,6 +128,7 @@ namespace CkpWebApi.Services
                 // Отфильтровываем из общего списка рубрик
                 rubrics = rubrics
                     .Where(r => projectRubricIds.Contains(r.Id))
+                    .OrderBy(r => r.OrderBy)
                     .ToList();
             }
 
@@ -540,6 +542,7 @@ namespace CkpWebApi.Services
             var now = DateTime.Now;
 
             var tarifs = _context.Prices
+                .Include(p => p.PricePosition).ThenInclude(pp => pp.PricePositionEx)
                 .Include(p => p.PricePosition).ThenInclude(pp => pp.PricePositionType)
                 .Include(p => p.PricePosition.Supplier.Company)
                 .Include(p => p.PricePosition.Supplier.City)
@@ -552,6 +555,7 @@ namespace CkpWebApi.Services
                         p.ActualBegin <= now &&
                         p.ActualEnd >= now &&
                         (p.PermissionFlag & _pricePermissionFlag) > 0)
+                .OrderBy(p => p.PricePosition.PricePositionEx.OrderBy)
                 .Select(
                         p =>
                             new TariffInfo
@@ -568,6 +572,9 @@ namespace CkpWebApi.Services
                                     PackageLength = p.PricePosition.PackageLength,
                                     FirstSize = p.PricePosition.FirstSize,
                                     SecondSize = p.PricePosition.SecondSize,
+                                    EnableSecondSize = p.PricePosition.PricePositionType.EnableSecondSize,
+                                    UnitName = p.PricePosition.Unit.Name,
+                                    Description = p.PricePosition.Description,
                                     Version = p.PricePosition.BeginDate,
                                     Type =
                                         new FormatTypeLight
@@ -678,6 +685,7 @@ namespace CkpWebApi.Services
                 .Where(
                     r =>
                         r.SupplierId == supplierId)
+                .OrderBy(r => r.OrderBy)
                 .Select(
                     r => new RubricInfo
                     {
