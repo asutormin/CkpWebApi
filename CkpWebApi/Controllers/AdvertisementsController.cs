@@ -116,16 +116,7 @@ namespace CkpWebApi.Controllers
             return Ok();
         }
 
-        [HttpPost("account/create")]
-        public IActionResult CreateAccount([FromBody] int[] orderPositionIds)
-        {
-            if (orderPositionIds.Count() == 0)
-                return BadRequest(new { message = "Идентификаторы позиций счёта не переданы." });
 
-            var accountId = _advertisementService.CreateClientAccount(orderPositionIds);
-
-            return Ok(accountId);
-        }
 
 
     }

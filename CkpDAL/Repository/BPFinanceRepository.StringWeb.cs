@@ -3,12 +3,51 @@ using System;
 using System.Data;
 using System.Data.Common;
 using Microsoft.Data.SqlClient;
+using CkpDAL.Model.String;
 
 namespace CkpDAL.Repository
 {
     public partial class BPFinanceRepository
     {
-        public void SetStringCompanyWeb(
+        public Web SetWeb(Web web, bool isActual, DbTransaction dbTran)
+        {
+            var webId = web.Id;
+
+            SetStringCompanyWeb(
+                dbTran: dbTran,
+                id: ref webId,
+                companyId: web.CompanyId,
+                webTypeId: web.WebTypeId,
+                webResponse: web.WebResponse,
+                webValue: web.WebValue,
+                description: web.Description,
+                isActual: isActual,
+                editUserId: _editUserId);
+
+            web.Id = webId;
+
+            return web;
+        }
+
+        public StringWeb SetStringWeb(StringWeb stringWeb, bool isActual, DbTransaction dbTran)
+        {
+            SetStringWeb(
+                dbTran: dbTran,
+                stringId: stringWeb.StringId,
+                webId: stringWeb.WebId,
+                webTypeId: stringWeb.WebTypeId,
+                webResponse: stringWeb.WebResponse,
+                webValue: stringWeb.WebValue,
+                description: stringWeb.Description,
+                orderBy: stringWeb.OrderBy,
+                isActual: isActual);
+
+            return stringWeb;
+        }
+
+        #region SQL StoredProcedures
+
+        private void SetStringCompanyWeb(
           DbTransaction dbTran,
           ref int id,
           int companyId,
@@ -199,5 +238,7 @@ namespace CkpDAL.Repository
                 cmd.ExecuteNonQuery();
             }
         }
+
+        #endregion
     }
 }

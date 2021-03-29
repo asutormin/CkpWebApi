@@ -65,7 +65,7 @@ namespace CkpServices.Helpers.Builders.AccountDocumentBuilders
             // Плательщик заголовок
             var payerHeaderCell = CreateDetailsCell(RpDetailsBold, "Плательщик");
 
-            var clientLegalPerson = Account.ClientLegalPerson;
+            var clientLegalPerson = Account.LegalPerson;
 
             // Наименование плательщика
             var payerNameCell = CreateDetailsCell(RpDetails, clientLegalPerson.Name);

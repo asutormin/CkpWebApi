@@ -75,6 +75,9 @@ namespace CkpDAL.Model
         [Column("begin_date", TypeName = "datetime")]
         public DateTime BeginDate { get; set; }
 
+        [Column("edit_user_id", TypeName = "int")]
+        public int EditUserId { get; set; }
+
         public PositionIm PositionIm { get; set; }
 
         public virtual ICollection<OrderPosition> ChildOrderPositions { get; set; }

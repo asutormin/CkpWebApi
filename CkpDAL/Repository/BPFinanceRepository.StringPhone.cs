@@ -3,12 +3,55 @@ using System;
 using System.Data;
 using System.Data.Common;
 using Microsoft.Data.SqlClient;
+using CkpDAL.Model.String;
 
 namespace CkpDAL.Repository
 {
     public partial class BPFinanceRepository
     {
-        public void SetStringCompanyPhone(
+        public Phone SetPhone(Phone phone, bool isActual, DbTransaction dbTran)
+        {
+            var phoneId = phone.Id;
+
+            SetStringCompanyPhone(
+                dbTran: dbTran,
+                id: ref phoneId,
+                companyId: phone.CompanyId,
+                phoneTypeId: phone.PhoneTypeId,
+                countryCode: phone.CountryCode,
+                code: phone.Code,
+                number: phone.Number,
+                additionalNumber: phone.AdditionalNumber,
+                description: phone.Description,
+                isActual: isActual,
+                editUserId: _editUserId);
+
+            phone.Id = phoneId;
+
+            return phone;
+        }
+
+        public StringPhone SetStringPhone(StringPhone stringPhone, bool isActual, DbTransaction dbTran)
+        {
+            SetStringPhone(
+                dbTran: dbTran,
+                stringId: stringPhone.StringId,
+                phoneId: stringPhone.PhoneId,
+                phoneTypeId: stringPhone.PhoneTypeId,
+                countryCode: stringPhone.CountryCode,
+                code: stringPhone.Code,
+                number: stringPhone.Number,
+                additionalNumber: stringPhone.AdditionalNumber,
+                description: stringPhone.Description,
+                orderBy: stringPhone.OrderBy,
+                isActual: isActual);
+
+            return stringPhone;
+        }
+
+        #region SQL StoredProcedures
+
+        private void SetStringCompanyPhone(
             DbTransaction dbTran,
             ref int id,
             int companyId,
@@ -128,7 +171,7 @@ namespace CkpDAL.Repository
             }
         }
 
-        public void SetStringPhone(
+        private void SetStringPhone(
             DbTransaction dbTran,
             int stringId,
             int phoneId,
@@ -245,5 +288,7 @@ namespace CkpDAL.Repository
                 cmd.ExecuteNonQuery();
             }
         }
+
+        #endregion
     }
 }

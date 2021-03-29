@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using CkpEntities.Output;
 using CkpServices.Interfaces;
 using CkpServices.Helpers;
+using System.Linq;
 
 namespace CkpWebApi.Controllers
 {
@@ -21,7 +22,7 @@ namespace CkpWebApi.Controllers
         [HttpGet("{accountId}")]
         public async Task<ActionResult<AccountInfo>> GetAccount(int accountId)
         {
-            var account = await _accountService.GetAccountAsync(accountId);
+            var account = await _accountService.GetAccountByIdAsync(accountId);
 
             return account;
 
@@ -35,7 +36,18 @@ namespace CkpWebApi.Controllers
 
             return accounts;
         }
-  
+
+        [HttpPost("create")]
+        public IActionResult CreateAccount([FromBody] int[] orderPositionIds)
+        {
+            if (orderPositionIds.Count() == 0)
+                return BadRequest(new { message = "Идентификаторы позиций счёта не переданы." });
+
+            var accountId = _accountService.CreateClientAccount(orderPositionIds);
+
+            return Ok(accountId);
+        }
+
         [HttpGet("document/{accountId}")]
         public async Task<IActionResult> GetAccountDocument(int accountId)
         {

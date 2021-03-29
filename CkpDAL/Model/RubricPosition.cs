@@ -20,6 +20,12 @@ namespace CkpDAL.Model
         [Column("rubric_id", TypeName = "int")]
         public int RubricId { get; set; }
 
+        [Column("begin_date", TypeName = "datetime")]
+        public DateTime BeginDate { get; set; }
+
+        [Column("edit_user_id", TypeName = "int")]
+        public int EditUserId { get; set; }
+
         [Column("rubric_version_date", TypeName = "datetime")]
         public DateTime RubricVersion { get; set; }
 

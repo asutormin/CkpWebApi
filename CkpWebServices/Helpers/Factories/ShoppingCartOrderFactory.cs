@@ -8,13 +8,11 @@ namespace CkpServices.Helpers.Factories
     {
         private readonly int _orderBusinessUnitId;
         private readonly string _orderDescription;
-        private readonly int _editUserId;
 
-        public ShoppingCartOrderFactory(int orderBusinessUnitId, string orderDescription, int editUserId)
+        public ShoppingCartOrderFactory(int orderBusinessUnitId, string orderDescription)
         {
             _orderBusinessUnitId = orderBusinessUnitId;
             _orderDescription = orderDescription;
-            _editUserId = editUserId;
         }
 
         public Order Create(
@@ -53,7 +51,6 @@ namespace CkpServices.Helpers.Factories
                 Description = _orderDescription,
                 Request = string.Empty,
                 ManagerId = managerId,
-                EditUserId = _editUserId,
                 BeginDate = DateTime.Now
             };
 

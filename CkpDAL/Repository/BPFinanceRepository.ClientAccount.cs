@@ -3,15 +3,153 @@ using System;
 using System.Data;
 using System.Data.Common;
 using Microsoft.Data.SqlClient;
+using CkpDAL.Model;
 
 namespace CkpDAL.Repository
 {
     public partial class BPFinanceRepository
     {
+        public string GetAccountNumber(int legalPersonId, DbTransaction dbTran)
+        {
+            var accountNumber = string.Empty;
+
+            GetLegalPersonAccountNumber(
+                dbTran: dbTran,
+                legalPersonId: legalPersonId,
+                accountNumber: ref accountNumber);
+
+            return accountNumber;
+        }
+
+        public Account SetAccount(Account account, bool isActual, DbTransaction dbTran)
+        {
+            var accountId = account.Id;
+            var lastEditDate = DateTime.Now;
+
+            SetAccount(
+                dbTran: dbTran,
+                id: ref accountId,
+                number: account.Number,
+                accountDate: account.Date,
+                companyId: account.CompanyId,
+                legalPersonId: account.LegalPersonId,
+                cashId: account.CashId,
+                businessUnitId: account.BusinessUnitId,
+                accountStatusId: account.StatusId,
+                accountTypeId: account.TypeId,
+                accountSum: account.Sum,
+                nds: account.Nds,
+                description: account.Description,
+                additionalDescription: account.AdditionalDescription,
+                request: account.Request,
+                accountSettings: null,
+                printed: account.Printed,
+                unloadedTo1C: account.UnloadedTo1C,
+                prepaidSum: account.Prepaid,
+                debtSum: account.Debt,
+                paymentAgentId: account.PaymentAgentId, // Отсутствует
+                paymentAgentCommissionSum: account.PaymentAgentCommissionSum,
+                isActual: isActual,
+                lastEditDate: ref lastEditDate,
+                editUserId: _editUserId);
+
+            account.Id = accountId;
+            account.BeginDate = lastEditDate;
+
+            return account;
+        }
+
+        public AccountPosition SetAccountPosition(AccountPosition accountPosition, bool isActual, DbTransaction dbTran)
+        {
+            var accountPositionId = accountPosition.Id;
+            var lastEditDate = accountPosition.BeginDate;
+
+            SetAccountPosition(
+                dbTran: dbTran,
+                id: ref accountPositionId,
+                accountId: accountPosition.AccountId,
+                nomenclature: accountPosition.Nomenclature,
+                positionName: accountPosition.Name,
+                positionCount: accountPosition.Count,
+                positionCost: accountPosition.Cost,
+                positionSum: accountPosition.Sum,
+                positionDiscount: accountPosition.Discount,
+                firstOutDate: accountPosition.FirstOutDate,
+                isActual: isActual,
+                lastEditDate: ref lastEditDate,
+                editUserId: _editUserId);
+
+            accountPosition.Id = accountPositionId;
+            accountPosition.BeginDate = lastEditDate;
+
+            return accountPosition;
+        }
+
+        public AccountSettings SetAccountSettings(AccountSettings accountSettings, bool isActual, DbTransaction dbTran)
+        {
+            var accountSettingsId = accountSettings.Id;
+            var lastEditDate = accountSettings.BeginDate;
+
+            SetAccountSettings(
+                dbTran: dbTran,
+                id: ref accountSettingsId,
+                accountId: accountSettings.AccountId,
+                legalPersonId: accountSettings.LegalPersonId,
+                bankId: accountSettings.LegalPersonBankId,
+                unloadingDateMethod: accountSettings.UnloadingDateMethod,
+                additionalDescription: accountSettings.AdditionalDescription,
+                accountDescription: accountSettings.AccountDescription,
+                actDescription: accountSettings.ActDescription,
+                shortAccountPositionFormulation: accountSettings.ShortAccountPositionFormulation,
+                advanceAccountPositionFormulation: accountSettings.AdvanceAccountPositionFormulation,
+                contractNumber: accountSettings.ContractNumber,
+                contractDate: accountSettings.ContractDate,
+                showAdditionalDescription: accountSettings.ShowAdditionalDescription,
+                showDetailed: accountSettings.ShowDetailed,
+                showContractInCaption: accountSettings.ShowContractInCaption,
+                showOkpo: accountSettings.ShowOkpo,
+                showSupplier: accountSettings.ShowSupplier,
+                showPositionName: accountSettings.ShowPositionName,
+                showExitDate: accountSettings.ShowExitDate,
+                showExitNumber: accountSettings.ShowExitNumber,
+                showContract: accountSettings.ShowContract,
+                showDiscount: accountSettings.ShowDiscount,
+                isActual: isActual,
+                lastEditDate: ref lastEditDate,
+                editUserId: _editUserId);
+
+            accountSettings.Id = accountSettingsId;
+            accountSettings.BeginDate = lastEditDate;
+
+            return accountSettings;
+        }
+
+        public AccountOrder SetAccountOrder(AccountOrder accountOrder, bool isActual, DbTransaction dbTran)
+        {
+            var accountOrderId = accountOrder.Id;
+            var lastEditDate = accountOrder.BeginDate;
+
+            SetAccountOrder(
+                dbTran: dbTran,
+                id: ref accountOrderId,
+                accountId: accountOrder.AccountId,
+                orderId: accountOrder.OrderId,
+                isActual: isActual,
+                lastEditDate: ref lastEditDate,
+                editUserId: _editUserId);
+
+            accountOrder.Id = accountOrderId;
+            accountOrder.BeginDate = lastEditDate;
+
+            return accountOrder;
+        }
+
+        #region SQL StoredProcedures
+
         public void GetLegalPersonAccountNumber(
-            DbTransaction dbTran,
             int legalPersonId,
-            ref string accountNumber)
+            ref string accountNumber,
+            DbTransaction dbTran)
         {
             using (var cmd = _context.Database.GetDbConnection().CreateCommand())
             {
@@ -44,7 +182,7 @@ namespace CkpDAL.Repository
             }
         }
 
-        public void SetAccount(
+        private void SetAccount(
             DbTransaction dbTran,
             ref int id,
             string number,
@@ -302,7 +440,143 @@ namespace CkpDAL.Repository
             }
         }
 
-        public void SetAccountSettings(
+        public void SetAccountPosition(
+    DbTransaction dbTran,
+    ref int id,
+    int accountId,
+    string nomenclature,
+    string positionName,
+    int positionCount,
+    float positionCost,
+    float positionSum,
+    float positionDiscount,
+    DateTime? firstOutDate,
+    bool isActual,
+    ref DateTime lastEditDate,
+    int editUserId)
+        {
+            using (var cmd = _context.Database.GetDbConnection().CreateCommand())
+            {
+                cmd.CommandText = "spSetAccountPosition";
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Transaction = dbTran;
+
+                cmd.Parameters.Add(
+                    new SqlParameter
+                    {
+                        ParameterName = "@Id",
+                        SqlDbType = SqlDbType.Int,
+                        Direction = ParameterDirection.InputOutput,
+                        SqlValue = id
+                    });
+
+                cmd.Parameters.Add(
+                    new SqlParameter
+                    {
+                        ParameterName = "@AccountId",
+                        SqlDbType = SqlDbType.Int,
+                        Direction = ParameterDirection.Input,
+                        SqlValue = accountId
+                    });
+
+                cmd.Parameters.Add(
+                    new SqlParameter
+                    {
+                        ParameterName = "@Nomenclature",
+                        SqlDbType = SqlDbType.VarChar,
+                        Direction = ParameterDirection.Input,
+                        SqlValue = nomenclature
+                    });
+
+                cmd.Parameters.Add(
+                    new SqlParameter
+                    {
+                        ParameterName = "@PositionName",
+                        SqlDbType = SqlDbType.VarChar,
+                        Direction = ParameterDirection.Input,
+                        SqlValue = positionName
+                    });
+
+                cmd.Parameters.Add(
+                    new SqlParameter
+                    {
+                        ParameterName = "@PositionCount",
+                        SqlDbType = SqlDbType.Int,
+                        Direction = ParameterDirection.Input,
+                        SqlValue = positionCount
+                    });
+
+                cmd.Parameters.Add(
+                    new SqlParameter
+                    {
+                        ParameterName = "@PositionCost",
+                        SqlDbType = SqlDbType.Money,
+                        Direction = ParameterDirection.Input,
+                        SqlValue = positionCost
+                    });
+
+                cmd.Parameters.Add(
+                    new SqlParameter
+                    {
+                        ParameterName = "@PositionSum",
+                        SqlDbType = SqlDbType.Money,
+                        Direction = ParameterDirection.Input,
+                        SqlValue = positionSum
+                    });
+
+                cmd.Parameters.Add(
+                    new SqlParameter
+                    {
+                        ParameterName = "@PositionDiscount",
+                        SqlDbType = SqlDbType.Float,
+                        Direction = ParameterDirection.Input,
+                        SqlValue = positionDiscount
+                    });
+
+                cmd.Parameters.Add(
+                    new SqlParameter
+                    {
+                        ParameterName = "@FirstOutDate",
+                        SqlDbType = SqlDbType.DateTime,
+                        Direction = ParameterDirection.Input,
+                        SqlValue = (object)firstOutDate ?? DBNull.Value
+                    });
+
+                cmd.Parameters.Add(
+                    new SqlParameter
+                    {
+                        ParameterName = "@IsActual",
+                        SqlDbType = SqlDbType.Bit,
+                        Direction = ParameterDirection.Input,
+                        SqlValue = isActual
+                    });
+
+                cmd.Parameters.Add(
+                    new SqlParameter
+                    {
+                        ParameterName = "@LastEditDate",
+                        SqlDbType = SqlDbType.DateTime,
+                        Direction = ParameterDirection.InputOutput,
+                        SqlValue = lastEditDate
+                    });
+
+                cmd.Parameters.Add(
+                    new SqlParameter
+                    {
+                        ParameterName = "@EditUserId",
+                        SqlDbType = SqlDbType.Int,
+                        Direction = ParameterDirection.Input,
+                        SqlValue = editUserId
+                    });
+
+                cmd.ExecuteNonQuery();
+
+                id = Convert.ToInt32(cmd.Parameters["@Id"].Value);
+                lastEditDate = Convert.ToDateTime(cmd.Parameters["@LastEditDate"].Value);
+            }
+        }
+
+        private void SetAccountSettings(
             DbTransaction dbTran,
             ref int id,
             int? accountId,
@@ -651,140 +925,6 @@ namespace CkpDAL.Repository
             }
         }
 
-        public void SetAccountPosition(
-            DbTransaction dbTran,
-            ref int id,
-            int accountId,
-            string nomenclature,
-            string positionName,
-            int positionCount,
-            float positionCost,
-            float positionSum,
-            float positionDiscount,
-            DateTime? firstOutDate,
-            bool isActual,
-            ref DateTime lastEditDate,
-            int editUserId)
-        {
-            using (var cmd = _context.Database.GetDbConnection().CreateCommand())
-            {
-                cmd.CommandText = "spSetAccountPosition";
-                cmd.CommandType = CommandType.StoredProcedure;
-                cmd.Transaction = dbTran;
-
-                cmd.Parameters.Add(
-                    new SqlParameter
-                    {
-                        ParameterName = "@Id",
-                        SqlDbType = SqlDbType.Int,
-                        Direction = ParameterDirection.InputOutput,
-                        SqlValue = id
-                    });
-
-                cmd.Parameters.Add(
-                    new SqlParameter
-                    {
-                        ParameterName = "@AccountId",
-                        SqlDbType = SqlDbType.Int,
-                        Direction = ParameterDirection.Input,
-                        SqlValue = accountId
-                    });
-
-                cmd.Parameters.Add(
-                    new SqlParameter
-                    {
-                        ParameterName = "@Nomenclature",
-                        SqlDbType = SqlDbType.VarChar,
-                        Direction = ParameterDirection.Input,
-                        SqlValue = nomenclature
-                    });
-
-                cmd.Parameters.Add(
-                    new SqlParameter
-                    {
-                        ParameterName = "@PositionName",
-                        SqlDbType = SqlDbType.VarChar,
-                        Direction = ParameterDirection.Input,
-                        SqlValue = positionName
-                    });
-
-                cmd.Parameters.Add(
-                    new SqlParameter
-                    {
-                        ParameterName = "@PositionCount",
-                        SqlDbType = SqlDbType.Int,
-                        Direction = ParameterDirection.Input,
-                        SqlValue = positionCount
-                    });
-
-                cmd.Parameters.Add(
-                    new SqlParameter
-                    {
-                        ParameterName = "@PositionCost",
-                        SqlDbType = SqlDbType.Money,
-                        Direction = ParameterDirection.Input,
-                        SqlValue = positionCost
-                    });
-
-                cmd.Parameters.Add(
-                    new SqlParameter
-                    {
-                        ParameterName = "@PositionSum",
-                        SqlDbType = SqlDbType.Money,
-                        Direction = ParameterDirection.Input,
-                        SqlValue = positionSum
-                    });
-
-                cmd.Parameters.Add(
-                    new SqlParameter
-                    {
-                        ParameterName = "@PositionDiscount",
-                        SqlDbType = SqlDbType.Float,
-                        Direction = ParameterDirection.Input,
-                        SqlValue = positionDiscount
-                    });
-
-                cmd.Parameters.Add(
-                    new SqlParameter
-                    {
-                        ParameterName = "@FirstOutDate",
-                        SqlDbType = SqlDbType.DateTime,
-                        Direction = ParameterDirection.Input,
-                        SqlValue = (object)firstOutDate ?? DBNull.Value
-                    });
-
-                cmd.Parameters.Add(
-                    new SqlParameter
-                    {
-                        ParameterName = "@IsActual",
-                        SqlDbType = SqlDbType.Bit,
-                        Direction = ParameterDirection.Input,
-                        SqlValue = isActual
-                    });
-
-                cmd.Parameters.Add(
-                    new SqlParameter
-                    {
-                        ParameterName = "@LastEditDate",
-                        SqlDbType = SqlDbType.DateTime,
-                        Direction = ParameterDirection.InputOutput,
-                        SqlValue = lastEditDate
-                    });
-
-                cmd.Parameters.Add(
-                    new SqlParameter
-                    {
-                        ParameterName = "@EditUserId",
-                        SqlDbType = SqlDbType.Int,
-                        Direction = ParameterDirection.Input,
-                        SqlValue = editUserId
-                    });
-
-                cmd.ExecuteNonQuery();
-
-                id = Convert.ToInt32(cmd.Parameters["@Id"].Value);
-                lastEditDate = Convert.ToDateTime(cmd.Parameters["@LastEditDate"].Value);
-            }
-        }
+        #endregion
     }
 }

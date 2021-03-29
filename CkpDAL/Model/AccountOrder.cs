@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CkpDAL.Model
@@ -21,5 +22,11 @@ namespace CkpDAL.Model
 
         [ForeignKey("OrderId")]
         public Order Order { get; set; }
+
+        [Column("account_order_begin_date", TypeName = "datetime")]
+        public DateTime BeginDate { get; set; }
+
+        [Column("edit_user_id", TypeName = "int")]
+        public int EditUserId { get; set; }
     }
 }

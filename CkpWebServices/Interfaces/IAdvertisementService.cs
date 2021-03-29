@@ -13,6 +13,5 @@ namespace CkpServices.Interfaces
         void CreateAdvertisement(Advertisement advertisement);
         void UpdateAdvertisement(Advertisement advertisement);
         void DeleteAdvertisement(int orderPositionId);
-        int CreateClientAccount(int[] orderPositionIds);
     }
 }

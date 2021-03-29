@@ -3,12 +3,68 @@ using System;
 using System.Data;
 using System.Data.Common;
 using Microsoft.Data.SqlClient;
+using CkpDAL.Model.String;
 
 namespace CkpDAL.Repository
 {
     public partial class BPFinanceRepository
     {
-        public void SetString(
+        public StringPosition SetString(StringPosition stringPosition, bool isActual, DbTransaction dbTran)
+        {
+            var stringId = stringPosition.Id;
+            var lastEditDate = stringPosition.BeginDate;
+
+            SetString(
+                dbTran: dbTran,
+                stringId: ref stringId,
+                parentId: 0,
+                orderPositionId: stringPosition.OrderPositionId,
+                companyId: stringPosition.CompanyId,
+                anonymousCompanyName: stringPosition.AnonymousCompanyName,
+                businessUnitId: stringPosition.BusinessUnitId,
+                date: stringPosition.Date,
+                vacancyName: stringPosition.VacancyName,
+                vacancyAdditional: stringPosition.VacancyAdditional,
+                vacancyCode: stringPosition.VacancyCode,
+                responsibility: stringPosition.Responsibility,
+                requirement: stringPosition.Requirement,
+                ageFrom: stringPosition.AgeFrom,
+                ageTo: stringPosition.AgeTo,
+                genderId: stringPosition.GenderId,
+                educationId: stringPosition.EducationId,
+                experienceId: stringPosition.ExperienceId,
+                experienceValue: stringPosition.ExperienceValue,
+                citizenshipId: stringPosition.CitizenshipId,
+                condition: stringPosition.Condition,
+                salaryFrom: stringPosition.SalaryFrom,
+                salaryTo: stringPosition.SalaryTo,
+                salaryDescription: stringPosition.SalaryDescription,
+                currencyId: stringPosition.CurrencyId,
+                workGraphicId: stringPosition.WorkGraphicId,
+                workGraphicComm: stringPosition.WorkGraphic,
+                keywords: stringPosition.Keywords,
+                logo: stringPosition.Logo,
+                logoFileName: stringPosition.LogoFileName,
+                contactFirstName: stringPosition.ContactFirstName,
+                contactSecondName: stringPosition.ContactSecondName,
+                contactLastName: stringPosition.ContactLastName,
+                text: stringPosition.Text,
+                isSalaryPercent: stringPosition.IsSalaryPercent,
+                isHousing: stringPosition.IsHousing,
+                isFood: stringPosition.IsFood,
+                isActual: isActual,
+                editUserId: _editUserId,
+                lastEditDate: ref lastEditDate);
+
+            stringPosition.Id = stringId;
+            stringPosition.BeginDate = lastEditDate;
+
+            return stringPosition;
+        }
+
+        #region SQL StoredProcedures
+
+        private void SetString(
             DbTransaction dbTran,
             ref int stringId, // Идентификатор строки
             int parentId,
@@ -427,5 +483,7 @@ namespace CkpDAL.Repository
                 lastEditDate = Convert.ToDateTime(cmd.Parameters["@LastEditDate"].Value);
             }
         }
+
+        #endregion
     }
 }

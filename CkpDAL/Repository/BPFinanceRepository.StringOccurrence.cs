@@ -2,12 +2,29 @@
 using System.Data;
 using System.Data.Common;
 using Microsoft.Data.SqlClient;
+using CkpDAL.Model.String;
 
 namespace CkpDAL.Repository
 {
     public partial class BPFinanceRepository
     {
-        public void SetStringOccurrence(
+        public StringOccurrence SetStringOccurrence(StringOccurrence stringOccurrence, bool isActual, DbTransaction dbTran)
+        {
+            SetStringOccurrence(
+                dbTran: dbTran,
+                stringId: stringOccurrence.StringId,
+                occurrenceId: stringOccurrence.OccurrenceId,
+                typeId: stringOccurrence.TypeId,
+                orderBy: stringOccurrence.OrderBy,
+                isActual: isActual,
+                editUserId: _editUserId);
+
+            return stringOccurrence;
+        }
+
+        #region SQL StoredProcedures
+
+        private void SetStringOccurrence(
             DbTransaction dbTran,
             int stringId,
             int occurrenceId,
@@ -80,5 +97,7 @@ namespace CkpDAL.Repository
                 cmd.ExecuteNonQuery();
             }
         }
+
+        #endregion
     }
 }

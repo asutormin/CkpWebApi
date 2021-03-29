@@ -6,13 +6,6 @@ namespace CkpServices.Helpers.Factories
 {
     class OrderImFactory : IOrderImFactory
     {
-        private readonly int _editUserId;
-
-        public OrderImFactory(int editUserId)
-        {
-            _editUserId = editUserId;
-        }
-
         public OrderIm Create(int orderId, int orderImTypeId)
         {
             var orderIm = new OrderIm
@@ -29,8 +22,7 @@ namespace CkpServices.Helpers.Factories
                 Comments = null,
                 MaxClosingDate = null,
                 IsViewed = false,
-                BeginDate = DateTime.Now,
-                EditUserId = _editUserId
+                BeginDate = DateTime.Now
             };
 
             return orderIm;

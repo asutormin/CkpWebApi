@@ -18,7 +18,7 @@ namespace CkpDAL.Model
         public Account Account { get; set; }
 
 		[Column("legal_person_id", TypeName = "int")]
-		public int LegalPersonId { get; set; }
+		public int? LegalPersonId { get; set; }
 
         [ForeignKey("LegalPersonId")]
         public LegalPerson LegalPerson { get; set; }

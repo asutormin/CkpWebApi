@@ -3,12 +3,57 @@ using System;
 using System.Data;
 using System.Data.Common;
 using Microsoft.Data.SqlClient;
+using CkpDAL.Model.String;
 
 namespace CkpDAL.Repository
 {
     public partial class BPFinanceRepository
     {
-        public void SetStringCompanyAddress(
+        public Address SetAddress(Address address, bool isActual, DbTransaction dbTran)
+        {
+            var addressId = address.Id;
+
+            SetStringCompanyAddress(
+                dbTran: dbTran,
+                id: ref addressId,
+                companyId: address.CompanyId,
+                cityId: address.CityId,
+                metroId: address.MetroId,
+                street: address.Street,
+                house: address.House,
+                corps: address.Corps,
+                building: address.Building,
+                description: address.Description,
+                editUserId: _editUserId,
+                isActual: isActual);
+
+            address.Id = addressId;
+
+            return address;
+        }
+
+        public StringAddress SetStringAddress(StringAddress stringAddress, bool isActual, DbTransaction dbTran)
+        {
+            SetStringAddress(
+                dbTran: dbTran,
+                stringId: stringAddress.StringId,
+                addressId: stringAddress.AddressId,
+                cityId: stringAddress.CityId,
+                metroId: stringAddress.MetroId,
+                street: stringAddress.Street,
+                house: stringAddress.House,
+                corps: stringAddress.Corps,
+                building: stringAddress.Building,
+                description: stringAddress.Description,
+                orderBy: stringAddress.OrderBy,
+                isActual: isActual);
+
+            return stringAddress;
+        }
+
+        #region SQL StoredProcedures
+
+        private void SetStringCompanyAddress(
             DbTransaction dbTran,
             ref int id,
             int companyId,
@@ -266,5 +311,7 @@ namespace CkpDAL.Repository
                 cmd.ExecuteNonQuery();
             }
         }
+
+        #endregion
     }
 }

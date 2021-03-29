@@ -9,7 +9,8 @@ namespace CkpServices.Interfaces
     public interface IAccountService
     {
         Task<ActionResult<IEnumerable<AccountLight>>> GetAccountsAsync(int clientLegalPersonId, int startAccountId, int quantity);
-        Task<ActionResult<AccountInfo>> GetAccountAsync(int accountId);
+        Task<ActionResult<AccountInfo>> GetAccountByIdAsync(int accountId);
         Task<ActionResult<Account>> GetAccountById(int accountId);
+        int CreateClientAccount(int[] orderPositionIds);
     }
 }

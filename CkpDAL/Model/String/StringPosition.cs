@@ -18,7 +18,7 @@ namespace CkpDAL.Model.String
 		public int CompanyId { get; set; }
 
 		[Column("anonymous_company_name", TypeName = "varchar(100)")]
-		public string AnonimousCompanyName { get; set; }
+		public string AnonymousCompanyName { get; set; }
 
 		[Required]
 		[Column("business_unit_id", TypeName = "int")]

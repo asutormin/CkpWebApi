@@ -7,13 +7,6 @@ namespace CkpServices.Helpers.Factories
 {
     class ClientOrderFactory : IClientOrderFactory
     {
-        private readonly int _editUserId;
-
-        public ClientOrderFactory(int editUserId)
-        {
-            _editUserId = editUserId;
-        }
-
         public Order Create(Order shoppingCartOrder, IEnumerable<OrderPosition> orderPositions)
         {
             var sum = orderPositions.GetClientSum();
@@ -47,8 +40,7 @@ namespace CkpServices.Helpers.Factories
                 Description = string.Empty,
                 Request = string.Empty,
                 ManagerId = shoppingCartOrder.ManagerId,
-                BeginDate = DateTime.Now,
-                EditUserId = _editUserId
+                BeginDate = DateTime.Now
             };
 
             return order;
