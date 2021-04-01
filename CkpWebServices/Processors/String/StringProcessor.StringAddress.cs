@@ -48,11 +48,12 @@ namespace CkpServices.Processors.String
 
             if (address == null)
                 address = CreateCompanyAddress(companyId, value, dbTran);
-
-            // Привязываем телефон к строке
+            
             address = _repository.SetAddress(address, isActual: true, dbTran);
-
+            
+            // Привязываем телефон к строке
             var stringAddress = _stringAddressFactory.Create(stringId, address, orderBy);
+            stringAddress = _repository.SetStringAddress(stringAddress, isActual: true, dbTran);
 
             return stringAddress;
         }
