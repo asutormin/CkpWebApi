@@ -16,6 +16,7 @@ using System.Data.Common;
 using CkpServices.Processors;
 using CkpServices.Processors.String;
 using CkpDAL.Repository;
+using System;
 
 namespace CkpServices
 {
@@ -265,10 +266,8 @@ namespace CkpServices
             foreach (var orderImTypeId in orderImTypeIds)
             {
                 // Создаём ИМ нового заказа
-                var orderIm = _orderImProcessor.CreateOrderIm(order.Id, orderImTypeId, dbTran);
-
-                // Меняем статус ИМ-а
-                _orderImProcessor.ProcessOrderImStatus(orderIm, dbTran);
+                var orderIm = _orderImProcessor.CreateOrderIm(order.Id, orderImTypeId,
+                    _orderImProcessor.ProcessOrderImStatus, dbTran);
 
                 // Если ИМ заказа корзины больше не нужен - удаляем его
                 var shoppingCartOrderIm = _orderImProcessor.GetOrderIm(shoppingCartOrder.Id, orderImTypeId);

@@ -4,6 +4,7 @@ using CkpDAL.Repository;
 using CkpServices.Helpers.Factories;
 using CkpServices.Helpers.Factories.Interfaces;
 using CkpServices.Processors.Interfaces;
+using System;
 using System.Data.Common;
 using System.Linq;
 
@@ -41,9 +42,13 @@ namespace CkpServices.Processors
 
         #region Create
 
-        public OrderIm CreateOrderIm(int orderId, int orderImTypeId, DbTransaction dbTran)
+        public OrderIm CreateOrderIm(int orderId, int orderImTypeId, Action<OrderIm> processAction,  DbTransaction dbTran)
         {
             var orderIm = _orderImFactory.Create(orderId, orderImTypeId);
+
+            if (processAction != null)
+                processAction.Invoke(orderIm);
+
             orderIm = _repository.SetOrderIm(orderIm, isActual: true, dbTran);
 
             return orderIm;
@@ -83,7 +88,7 @@ namespace CkpServices.Processors
 
         #region Process
 
-        public void ProcessOrderImStatus(OrderIm orderIm, DbTransaction dbTran)
+        public void ProcessOrderImStatus(OrderIm orderIm)
         {
             if (orderIm.OrderImTypeId == 1)
             {
@@ -95,8 +100,6 @@ namespace CkpServices.Processors
                 // Для всех остальных (модули и пр.) меняем статус ИМ-а заказа на "Вёрстка"
                 orderIm.MaketStatusId = 3;
             }
-
-            _repository.SetOrderIm(orderIm, isActual: true, dbTran);
         }
 
         #endregion
