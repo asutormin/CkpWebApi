@@ -1,6 +1,8 @@
 ﻿using CkpEntities.Input.Module;
 using System;
 using System.Drawing;
+using System.Drawing.Text;
+using System.Runtime.InteropServices;
 
 namespace CkpServices.Helpers.Builders
 {
@@ -47,10 +49,12 @@ namespace CkpServices.Helpers.Builders
         protected void DrawMaketPart(ModulePartParamsInfo part, DrawCallBack drawCallBack)
         {
             var textBrush = GetBrush(part.TextColor);
-            var backBrush = GetBrush(part.BackgroundColor);
+            var backBrush = MaketParams.BackgroundBase64 == null
+                ? part.BackgroundColor == null ? new SolidBrush(Color.White) : GetBrush(part.BackgroundColor)
+                : part.BackgroundColor == null ? new SolidBrush(Color.Transparent) : GetBrush(part.BackgroundColor);
 
             var text = part.Text;
-            var font = GetFont(part.FontFamilyName, part.FontSize, part.FontStyleId);
+            var font = GetFont(part.FontFamilyName, part.FontSize, part.FontStyleName);
             var stringFormat = GetStringFormat(part.HorizontalAlignmentId, part.VerticalAlignmentId);
 
             drawCallBack(
@@ -64,20 +68,21 @@ namespace CkpServices.Helpers.Builders
             Brush backBrush, Brush textBrush, Brush borderBrush,
             string text, Font font, StringFormat stringFormat)
         {
-            var g = Graphics.FromImage(_bitmap);
+            using (var g = Graphics.FromImage(_bitmap))
+            {
+                var rectfOuter = new RectangleF(posX, posY, posX + width, posY + height);
+                g.FillRectangle(borderBrush, rectfOuter);
 
-            var rectfOuter = new RectangleF(posX, posY, posX + width, posY + height);
-            g.FillRectangle(borderBrush, rectfOuter);
+                var rectfInner = new RectangleF(posX + _padding, posY + _padding, posX + width - 2 * _padding, height - 2 * _padding);
+                g.FillRectangle(backBrush, rectfInner);
 
-            var rectfInner = new RectangleF(posX + _padding, posY + _padding, posX + width - 2 * _padding, height - 2 * _padding);
-            g.FillRectangle(backBrush, rectfInner);
-
-            g.DrawString(text, font, textBrush, rectfInner, stringFormat);
+                g.DrawString(text, font, textBrush, rectfInner, stringFormat);
+            }
         }
 
         private Color GetColor(ColorHolder colorHolder)
         {
-            var color = Color.FromArgb(255, colorHolder.R, colorHolder.G, colorHolder.B);
+            Color color = Color.FromArgb(255, colorHolder.R, colorHolder.G, colorHolder.B);
 
             return color;
         }
@@ -90,12 +95,30 @@ namespace CkpServices.Helpers.Builders
             return brush;
         }
 
-        private Font GetFont(string fontFamilyName, int fontSize, int fontStyleId)
-        {
-            var fontStyle = (FontStyle)fontStyleId;
-            var font = new Font(fontFamilyName, fontSize, fontStyle);
+        [DllImport("gdi32.dll")]
+        private static extern IntPtr AddFontMemResourceEx(IntPtr pbFont, uint cbFont, IntPtr pdv, [In] ref uint pcFonts);
 
-            return font;
+        private Font GetFont(string fontFamilyName, int fontSize, string fontStyleName)
+        {
+            var resourceManager = Properties.Resources.ResourceManager;
+            var ttf = resourceManager.GetObject(string.Format("{0}_{1}", fontFamilyName, fontStyleName), Properties.Resources.Culture) as byte[];
+
+            using (var pfc = new PrivateFontCollection())
+            {
+                unsafe
+                {
+                    fixed (Byte* pFontData = ttf)
+                    {
+                        pfc.AddMemoryFont((IntPtr)pFontData, ttf.Length);
+                        uint InstallCount = 1;
+                        AddFontMemResourceEx((IntPtr)pFontData, (uint)ttf.Length, IntPtr.Zero, ref InstallCount);
+                    }
+                }
+                
+                var font = new Font(pfc.Families[0], fontSize);
+
+                return font;
+            }
         }
 
         private StringFormat GetStringFormat(int horizontalAlignmentId, int verticalAlignmentId)

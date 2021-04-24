@@ -1,5 +1,8 @@
 ﻿using CkpEntities.Input.Module;
+using CkpServices.Helpers.Converters;
+using System;
 using System.Drawing;
+using System.IO;
 
 namespace CkpServices.Helpers.Builders
 {
@@ -12,52 +15,28 @@ namespace CkpServices.Helpers.Builders
             CalculatePadding();
 
             var maketInfo = MaketParams as ModuleParamsStandartInfo;
-            /*
-            var maketInfo = new ModuleParamsStandartInfo
-            {
-                HeightMM = 96,
-                WidthMM = 128,
-                Header =
-                    new ModulePartParamsInfo
-                    {
-                        FontFamilyName = "Abbat",
-                        FontSize = 20,
-                        FontStyleId = (int)FontStyle.Bold,
-                        HorizontalAlignmentId = (int)StringAlignment.Center,
-                        VerticalAlignmentId = (int)StringAlignment.Center,
-                        Text = "Header Text",
-                        TextColor = new ColorHolder(r: 150, g: 200, b: 250),
-                        BackgroundColor = new ColorHolder(r: 200, g: 150, b: 100)
-                    },
-                Body =
-                    new ModulePartParamsInfo
-                    {
-                        FontFamilyName = "Tahoma",
-                        FontSize = 18,
-                        FontStyleId = (int)FontStyle.Italic,
-                        HorizontalAlignmentId = (int)StringAlignment.Far,
-                        VerticalAlignmentId = (int)StringAlignment.Center,
-                        Text = "Body Text",
-                        TextColor = new ColorHolder(r: 100, g: 150, b: 200),
-                        BackgroundColor = new ColorHolder(r: 150, g: 100, b: 50)
-                    },
-                Footer =
-                    new ModulePartParamsInfo
-                    {
-                        FontFamilyName = "Times New Roman",
-                        FontSize = 18,
-                        FontStyleId = (int)FontStyle.Underline,
-                        HorizontalAlignmentId = (int)StringAlignment.Near,
-                        VerticalAlignmentId = (int)StringAlignment.Far,
-                        Text = "Footer Text",
-                        TextColor = new ColorHolder(r: 100, g: 150, b: 50),
-                        BackgroundColor = new ColorHolder(r: 150, g: 100, b: 150)
-                    }
-            };
-            */
+
+            if (maketInfo.BackgroundBase64 != null)
+                DrawBackground(maketInfo.BackgroundBase64);
+
             DrawMaketPart(maketInfo.Header, DrawHeader);
             DrawMaketPart(maketInfo.Body, DrawBody);
             DrawMaketPart(maketInfo.Footer, DrawFooter);
+        }
+
+        private void DrawBackground(string base64)
+        {
+            var bytes = Base64ToBytesConverter.Convert(base64);
+
+            using (var stream = new MemoryStream(bytes))
+            {
+                var image = Image.FromStream(stream);
+
+                using (var g = Graphics.FromImage(_bitmap))
+                {
+                    g.DrawImage(image, 0, 0, _bitmap.Width, _bitmap.Height);
+                }
+            }
         }
 
         private void DrawHeader(
