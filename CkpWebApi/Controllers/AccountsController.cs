@@ -5,6 +5,7 @@ using CkpEntities.Output;
 using CkpServices.Interfaces;
 using CkpServices.Helpers;
 using System.Linq;
+using System;
 
 namespace CkpWebApi.Controllers
 {
@@ -43,9 +44,15 @@ namespace CkpWebApi.Controllers
             if (orderPositionIds.Count() == 0)
                 return BadRequest(new { message = "Идентификаторы позиций счёта не переданы." });
 
-            var accountId = _accountService.CreateClientAccount(orderPositionIds);
-
-            return Ok(accountId);
+            try
+            {
+                var accountId = _accountService.CreateClientAccount(orderPositionIds);
+                return Ok(accountId);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
         [HttpGet("document/{accountId}")]
