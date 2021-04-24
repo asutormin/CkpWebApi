@@ -82,14 +82,6 @@ namespace CkpWebApi.Controllers
             return tariff;
         }
 
-        [HttpGet("{supplierId}/packagetariffs/{formatTypeId}/{formatId}")]
-        public IEnumerable<TariffInfo> GetPackageTariffs(int supplierId, int formatTypeId, int formatId)
-        {
-            var packageTariffs = _supplierService.GetPackageTariffs(supplierId, formatTypeId, formatId);
-
-            return packageTariffs;
-        }
-
         [HttpGet("{supplierId}/graphics/{formatTypeId}")]
         public IEnumerable<GraphicInfo> GetGraphics(int supplierId, int formatTypeId)
         {
@@ -104,14 +96,6 @@ namespace CkpWebApi.Controllers
             var graphic = _supplierService.GetGraphic(graphicId);
 
             return graphic;
-        }
-
-        [HttpGet("{supplierId}/handbooks/{formatTypeId}")]
-        public HandbookStorage GetHandbooks(int supplierId, int formatTypeId)
-        {
-            var handbooks = _supplierService.GetHandbooks(supplierId, formatTypeId);
-
-            return handbooks;
         }
 
         [HttpGet("{supplierId}/handbooks/{formatTypeId}/educations")]
