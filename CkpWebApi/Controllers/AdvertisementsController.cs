@@ -15,6 +15,7 @@ namespace CkpWebApi.Controllers
     public class AdvertisementsController : ControllerBase
     {
         private readonly IAdvertisementService _advertisementService;
+
         public AdvertisementsController(IAdvertisementService advertisementService)
         {
             _advertisementService = advertisementService;
