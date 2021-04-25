@@ -15,6 +15,9 @@ namespace CkpDAL.Model
         [Column("city_name", TypeName = "varchar(50)")]
         public string Name { get; set; }
 
+        [Column("parent_id", TypeName = "int")]
+        public int? ParentId { get; set; }
+
         [Required]
         [Column("type_id", TypeName = "int")]
         public int TypeId { get; set; }

@@ -489,18 +489,7 @@ namespace CkpWebApi.Services
                                     hc.City.IsShowForDistribution &&
                                     (hc.City.Id < 1000001 || hc.City.Id > 1000004))
                         .Select(hc => new Occurrence { Id = hc.City.Id, Name = hc.City.Name, TypeId = hc.City.TypeId }))
-                    .Union(
-                        _context.Cities
-                        .Where(
-                            c =>
-                                c.IsShowForDistribution &&
-                                (c.Id == 120001 || // Российская Федерация
-                                c.Id == 110005 || // Центральный Федеральный округ
-                                // c.Id == 1 || // Москва
-                                c.Id == 100050 || // Московская обл
-                                c.Id == 1001194 || // Москва(только для РДВ)
-                                c.Id == 1001195)) // Московская обл(только для РДВ))
-                        .Select(c => new Occurrence { Id = c.Id, Name = c.Name, TypeId = c.TypeId })).OrderBy(o => o.Name)
+                    .OrderBy(o => o.Name)
                     .ToList();
             }
             else
