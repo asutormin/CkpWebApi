@@ -24,7 +24,6 @@ namespace CkpWebApi
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<BPFinanceContext>(opt =>
@@ -33,7 +32,6 @@ namespace CkpWebApi
                 Configuration.GetSection("AppSettings").Bind(appSettings);
                 var dbName = appSettings.DatabaseName;
                 var connectionString = string.Format(Configuration.GetConnectionString("BPFinance"), dbName);
-                //opt.UseSqlServer(Configuration.GetConnectionString("BPFinance"))
 
                 opt.UseSqlServer(connectionString);
             });
@@ -98,11 +96,10 @@ namespace CkpWebApi
                 app.UseDeveloperExceptionPage();
             }
 
-            //app.UseHttpsRedirection();
+            app.UseGlobalExceptionMiddleware();
 
             app.UseRouting();
             app.UseCors(x => x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
-            //app.UseCors("AllowSpecificOrigin");
 
             app.UseAuthentication();
             app.UseAuthorization();

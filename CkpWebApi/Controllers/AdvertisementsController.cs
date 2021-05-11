@@ -3,13 +3,11 @@ using CkpEntities.Output;
 using CkpServices.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace CkpWebApi.Controllers
 {
-    //[EnableCors("AllowSpecificOrigin")]
     [Route("api/[controller]")]
     [ApiController]
     public class AdvertisementsController : ControllerBase
@@ -116,9 +114,5 @@ namespace CkpWebApi.Controllers
 
             return Ok();
         }
-
-
-
-
     }
 }
