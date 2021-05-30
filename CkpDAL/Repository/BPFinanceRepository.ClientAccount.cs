@@ -97,6 +97,8 @@ namespace CkpDAL.Repository
                 legalPersonId: accountSettings.LegalPersonId,
                 bankId: accountSettings.LegalPersonBankId,
                 unloadingDateMethod: accountSettings.UnloadingDateMethod,
+                unloadingTo1CTypeId: accountSettings.UnloadingTypeId,
+                unloadingTo1CDayNumber: accountSettings.UnloadingDayNumber,
                 additionalDescription: accountSettings.AdditionalDescription,
                 accountDescription: accountSettings.AccountDescription,
                 actDescription: accountSettings.ActDescription,
@@ -441,19 +443,19 @@ namespace CkpDAL.Repository
         }
 
         public void SetAccountPosition(
-    DbTransaction dbTran,
-    ref int id,
-    int accountId,
-    string nomenclature,
-    string positionName,
-    int positionCount,
-    float positionCost,
-    float positionSum,
-    float positionDiscount,
-    DateTime? firstOutDate,
-    bool isActual,
-    ref DateTime lastEditDate,
-    int editUserId)
+            DbTransaction dbTran,
+            ref int id,
+            int accountId,
+            string nomenclature,
+            string positionName,
+            int positionCount,
+            float positionCost,
+            float positionSum,
+            float positionDiscount,
+            DateTime? firstOutDate,
+            bool isActual,
+            ref DateTime lastEditDate,
+            int editUserId)
         {
             using (var cmd = _context.Database.GetDbConnection().CreateCommand())
             {
@@ -583,6 +585,8 @@ namespace CkpDAL.Repository
             int? legalPersonId,
             int bankId, // Идентификатор банка ЮЛ, выбранного по умолчанию
             int unloadingDateMethod, // Метод выбора даты выгрузки счета
+            int unloadingTo1CTypeId, // Тип выгрузки в 1С ("День в день", "По факту", "Раз в месяц")
+            int unloadingTo1CDayNumber, // Какого числа выгружать в 1С
             string additionalDescription,
             string accountDescription,
             string actDescription,
@@ -653,6 +657,24 @@ namespace CkpDAL.Repository
                         SqlDbType = SqlDbType.Int,
                         Direction = ParameterDirection.Input,
                         SqlValue = unloadingDateMethod
+                    });
+
+                cmd.Parameters.Add(
+                    new SqlParameter
+                    {
+                        ParameterName = "@UnloadingTo1CTypeId",
+                        SqlDbType = SqlDbType.Int,
+                        Direction = ParameterDirection.Input,
+                        SqlValue = unloadingTo1CTypeId
+                    });
+
+                cmd.Parameters.Add(
+                    new SqlParameter
+                    {
+                        ParameterName = "@UnloadingTo1CDayNumber",
+                        SqlDbType = SqlDbType.Int,
+                        Direction = ParameterDirection.Input,
+                        SqlValue = unloadingTo1CDayNumber
                     });
 
                 cmd.Parameters.Add(

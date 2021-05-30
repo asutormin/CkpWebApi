@@ -32,6 +32,12 @@ namespace CkpDAL.Model
 		[Column("unloading_date_method", TypeName = "int")]
 		public int UnloadingDateMethod { get; set; }
 
+		[Column("unloading_to_1C_type_id", TypeName = "int")]
+		public int UnloadingTypeId { get; set; }
+
+		[Column("unloading_to_1C_day_number", TypeName = "int")]
+		public int UnloadingDayNumber { get; set; }
+
 		[Column("additional_description", TypeName = "varchar(500)")]
 		public string AdditionalDescription { get; set; }
 
