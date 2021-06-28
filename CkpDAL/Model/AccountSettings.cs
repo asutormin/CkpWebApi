@@ -89,6 +89,9 @@ namespace CkpDAL.Model
 		[Column("show_discount", TypeName = "bit")]
 		public bool ShowDiscount { get; set; }
 
+		[Column("address_id", TypeName = "int")]
+		public int AddressId { get; set; }
+
 		[Column("begin_date", TypeName = "datetime")]
 		public DateTime BeginDate { get; set; }
 

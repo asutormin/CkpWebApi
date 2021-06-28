@@ -116,6 +116,7 @@ namespace CkpDAL.Repository
                 showExitNumber: accountSettings.ShowExitNumber,
                 showContract: accountSettings.ShowContract,
                 showDiscount: accountSettings.ShowDiscount,
+                addressId: accountSettings.AddressId,
                 isActual: isActual,
                 lastEditDate: ref lastEditDate,
                 editUserId: _editUserId);
@@ -604,6 +605,7 @@ namespace CkpDAL.Repository
             bool showExitNumber,
             bool showContract,
             bool showDiscount,
+            int addressId,
             bool isActual,
             ref DateTime lastEditDate,
             int editUserId)
@@ -835,6 +837,15 @@ namespace CkpDAL.Repository
                         SqlDbType = SqlDbType.Bit,
                         Direction = ParameterDirection.Input,
                         SqlValue = showDiscount
+                    });
+
+                cmd.Parameters.Add(
+                    new SqlParameter
+                    {
+                        ParameterName = "@AddressId",
+                        SqlDbType = SqlDbType.Int,
+                        Direction = ParameterDirection.Input,
+                        SqlValue = addressId
                     });
 
                 cmd.Parameters.Add(
