@@ -9,6 +9,7 @@ namespace CkpEntities.Input.String
     {
         public int Id { get; set; }
         public DateTime? Date { get; set; }
+        public string AnonymousCompanyName { get; set; }
         public string VacancyName { get; set; }
         public string VacancyAdditional { get; set; }
         public AdvRequirements Requirements { get; set; }

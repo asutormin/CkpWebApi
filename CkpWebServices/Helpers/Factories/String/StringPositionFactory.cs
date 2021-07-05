@@ -15,7 +15,7 @@ namespace CkpServices.Helpers.Factories.String
                 Id = 0, // Идентификатор строки
                 CompanyId = companyId, // Идентификатор компании
                 OrderPositionId = orderPositionId,
-                AnonymousCompanyName = null, // Название компании для анонимных вакансий
+                AnonymousCompanyName = advString.AnonymousCompanyName, // Название компании для анонимных вакансий
                 BusinessUnitId = businessUnitId, // Идентификатор бизнес еденицы
                 Date = null, // Дата создания строки
                 VacancyName = advString.VacancyName, // Название вакансии

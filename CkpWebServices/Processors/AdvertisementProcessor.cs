@@ -142,6 +142,7 @@ namespace CkpServices.Processors
                         {
                             Id = s.Id,
                             Date = s.Date,
+                            AnonymousCompanyName = s.AnonymousCompanyName,
                             VacancyName = s.VacancyName,
                             VacancyAdditional = s.VacancyAdditional,
                             Requirements = new AdvRequirements

@@ -42,6 +42,7 @@ namespace CkpServices.Processors.String
         private bool NeedUpdateStringPosition(StringPosition stringPosition, AdvString advString)
         {
             if (stringPosition.Date != advString.Date ||
+                stringPosition.AnonymousCompanyName != advString.AnonymousCompanyName ||
                 stringPosition.VacancyName != advString.VacancyName ||
                 stringPosition.VacancyAdditional != advString.VacancyAdditional ||
                 stringPosition.Requirement != advString.Requirements.Value ||
@@ -74,6 +75,7 @@ namespace CkpServices.Processors.String
             if (!NeedUpdateStringPosition(stringPosition, advString))
                 return stringPosition;
 
+            stringPosition.AnonymousCompanyName = advString.AnonymousCompanyName;
             stringPosition.VacancyName = advString.VacancyName;
             stringPosition.VacancyAdditional = advString.VacancyAdditional;
             stringPosition.VacancyCode = stringPosition.VacancyCode;

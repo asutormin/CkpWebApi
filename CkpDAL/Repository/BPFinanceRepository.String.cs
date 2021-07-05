@@ -184,7 +184,7 @@ namespace CkpDAL.Repository
                         SqlDbType = SqlDbType.VarChar,
                         Direction = ParameterDirection.Input,
                         Size = 100,
-                        SqlValue = vacancyAdditional
+                        SqlValue = string.IsNullOrEmpty(vacancyAdditional) ? DBNull.Value : (object)vacancyAdditional
                     });
 
                 cmd.Parameters.Add(
