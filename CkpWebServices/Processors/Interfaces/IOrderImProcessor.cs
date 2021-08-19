@@ -1,4 +1,4 @@
-﻿using CkpDAL.Model;
+﻿using CkpDAL.Entities;
 using System;
 using System.Data.Common;
 

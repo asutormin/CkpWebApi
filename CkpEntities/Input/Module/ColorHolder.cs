@@ -1,5 +1,5 @@
 ﻿
-namespace CkpEntities.Input.Module
+namespace CkpModel.Input.Module
 {
     public class ColorHolder
     {

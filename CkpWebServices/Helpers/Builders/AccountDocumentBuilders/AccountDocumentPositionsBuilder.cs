@@ -1,4 +1,4 @@
-﻿using CkpDAL.Model;
+﻿using CkpDAL.Entities;
 using CkpInfrastructure.Builders.Interfaces;
 using CkpInfrastructure.Converters;
 using CkpInfrastructure.Converters.Interfaces;

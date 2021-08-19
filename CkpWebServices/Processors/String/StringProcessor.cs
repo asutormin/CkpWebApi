@@ -1,7 +1,7 @@
 ﻿using CkpDAL;
-using CkpDAL.Model;
+using CkpDAL.Entities;
 using CkpDAL.Repository;
-using CkpEntities.Input.String;
+using CkpModel.Input.String;
 using CkpServices.Helpers.Factories.Interfaces.String;
 using CkpServices.Helpers.Factories.String;
 using CkpServices.Processors.Interfaces;
@@ -40,14 +40,14 @@ namespace CkpServices.Processors.String
 
         #region Create
 
-        public void CreateFullString(int businessUnitId, int companyId, int orderPositionId, AdvString advString, DbTransaction dbTran)
+        public void CreateFullString(int businessUnitId, int companyId, int orderPositionId, StringData stringData, DbTransaction dbTran)
         {
-            var stringPosition = CreateStringPosition(businessUnitId, companyId, orderPositionId, advString, dbTran);
+            var stringPosition = CreateStringPosition(businessUnitId, companyId, orderPositionId, stringData, dbTran);
 
-            CreateStringAddresses(stringPosition.Id, companyId, advString.Addresses, dbTran);
-            CreateStringOccurrences(stringPosition.Id, advString.Occurrences, dbTran);
-            CreateStringPhones(stringPosition.Id, companyId, advString.Phones, dbTran);
-            CreateStringEmails(stringPosition.Id, companyId, advString.Emails, dbTran);
+            CreateStringAddresses(stringPosition.Id, companyId, stringData.AddressesData, dbTran);
+            CreateStringOccurrences(stringPosition.Id, stringData.OccurrencesData, dbTran);
+            CreateStringPhones(stringPosition.Id, companyId, stringData.PhonesData, dbTran);
+            CreateStringEmails(stringPosition.Id, companyId, stringData.EmailsData, dbTran);
         }
 
         #endregion
@@ -59,19 +59,19 @@ namespace CkpServices.Processors.String
             return positionIm != null && positionIm.PositionImType.OrderImTypeId == 1;
         }
 
-        public void UpdateFullString(int orderPositionId, AdvString advString, DbTransaction dbTran)
+        public void UpdateFullString(int orderPositionId, StringData stringData, DbTransaction dbTran)
         {
             var stringPosition = GetString(orderPositionId);
 
             if (stringPosition == null)
                 return;
 
-            UpdateString(stringPosition, advString, dbTran);
+            UpdateString(stringPosition, stringData, dbTran);
 
-            UpdateStringAddresses(stringPosition.Id, stringPosition.CompanyId, stringPosition.Addresses, advString.Addresses, dbTran);
-            UpdateStringOccurences(stringPosition.Id, stringPosition.Occurrences, advString.Occurrences, dbTran);
-            UpdateStringPhones(stringPosition.Id, stringPosition.CompanyId, stringPosition.Phones, advString.Phones, dbTran);
-            UpdateStringEmails(stringPosition.Id, stringPosition.CompanyId, stringPosition.Webs, advString.Emails, dbTran);
+            UpdateStringAddresses(stringPosition.Id, stringPosition.CompanyId, stringPosition.Addresses, stringData.AddressesData, dbTran);
+            UpdateStringOccurences(stringPosition.Id, stringPosition.Occurrences, stringData.OccurrencesData, dbTran);
+            UpdateStringPhones(stringPosition.Id, stringPosition.CompanyId, stringPosition.Phones, stringData.PhonesData, dbTran);
+            UpdateStringEmails(stringPosition.Id, stringPosition.CompanyId, stringPosition.Webs, stringData.EmailsData, dbTran);
         }
 
         #endregion

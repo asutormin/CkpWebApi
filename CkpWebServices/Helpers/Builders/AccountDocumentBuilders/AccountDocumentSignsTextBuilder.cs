@@ -1,4 +1,4 @@
-﻿using CkpDAL.Model;
+﻿using CkpDAL.Entities;
 using CkpInfrastructure.Builders.Interfaces;
 using DocumentFormat.OpenXml.Wordprocessing;
 

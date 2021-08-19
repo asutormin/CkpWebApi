@@ -1,4 +1,4 @@
-﻿using CkpDAL.Model.String;
+﻿using CkpDAL.Entities.String;
 using CkpServices.Helpers.Factories.Interfaces.String;
 using System;
 

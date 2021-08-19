@@ -1,7 +1,7 @@
 ﻿using CkpDAL;
-using CkpDAL.Model;
+using CkpDAL.Entities;
 using CkpDAL.Repository;
-using CkpEntities.Input;
+using CkpModel.Input;
 using CkpServices.Helpers.Factories;
 using CkpServices.Helpers.Factories.Interfaces;
 using CkpServices.Processors.Interfaces;
@@ -74,35 +74,35 @@ namespace CkpServices.Processors
 
         #region Create
 
-        public int CreateFullOrderPosition(int orderId, int? parentOrderPositionId, float clientDiscount, Advertisement adv,
+        public int CreateFullOrderPosition(int orderId, int? parentOrderPositionId, float clientDiscount, OrderPositionData opd,
             DbTransaction dbTran)
         {
             // Создаём позицию заказа
-            var orderPosition = CreateOrderPosition(orderId, parentOrderPositionId, clientDiscount, adv,
+            var orderPosition = CreateOrderPosition(orderId, parentOrderPositionId, clientDiscount, opd,
                 dbTran);
 
             // Если рубрика не задана (пакет) - не сохраняем её
-            if (adv.Rubric != null)
-                _rubricProcessor.CreateRubricPosition(orderPosition.Id, adv.Rubric, dbTran);
+            if (opd.RubricData != null)
+                _rubricProcessor.CreateRubricPosition(orderPosition.Id, opd.RubricData, dbTran);
 
             // Если графики не переданы - ищем график на основе пакетных позиций
-            if (!adv.Graphics.Any())
-                adv.Graphics = _graphicProcessor.GetPackageAdvGraphics(adv);
+            if (!opd.GraphicsData.Any())
+                opd.GraphicsData = _graphicProcessor.GetPackageGraphicsData(opd);
 
-            _graphicProcessor.CreateGraphicPositions(orderPosition.Id, adv.Graphics, dbTran);
+            _graphicProcessor.CreateGraphicPositions(orderPosition.Id, opd.GraphicsData, dbTran);
 
-            _positionImProcessor.CreatePositionIm(_orderBusinessUnitId, orderId, orderPosition.Id, adv, dbTran);
+            _positionImProcessor.CreatePositionIm(_orderBusinessUnitId, orderId, orderPosition.Id, opd, dbTran);
 
             return orderPosition.Id;
         }
 
-        private OrderPosition CreateOrderPosition(int orderId, int? parentOrderPositionId, float clientDiscount, Advertisement adv,
+        private OrderPosition CreateOrderPosition(int orderId, int? parentOrderPositionId, float clientDiscount, OrderPositionData opd,
             DbTransaction dbTran)
         {
-            var markup = _context.Prices.Single(pr => pr.Id == adv.PriceId).Markup;
-            var nds = GetNds(_orderBusinessUnitId, adv.SupplierId);
+            var markup = _context.Prices.Single(pr => pr.Id == opd.PriceId).Markup;
+            var nds = GetNds(_orderBusinessUnitId, opd.SupplierId);
 
-            var orderPosition = _orderPositionFactory.Create(orderId, parentOrderPositionId, clientDiscount, markup, nds, adv);
+            var orderPosition = _orderPositionFactory.Create(orderId, parentOrderPositionId, clientDiscount, markup, nds, opd);
             orderPosition = _repository.SetOrderPosition(orderPosition, false, isActual: true, dbTran);
 
             return orderPosition;
@@ -117,35 +117,35 @@ namespace CkpServices.Processors
 
         #region Update
 
-        public void UpdateFullOrderPosition(OrderPosition orderPosition, Advertisement adv, DbTransaction dbTran)
+        public void UpdateFullOrderPosition(OrderPosition orderPosition, OrderPositionData opd, DbTransaction dbTran)
         {
-            UpdateOrderPosition(orderPosition, adv, dbTran);
+            UpdateOrderPosition(orderPosition, opd, dbTran);
 
             // Если рубрика не задана - удаляем все позиции рубрик
-            if (adv.Rubric == null || adv.Rubric.Id == 0)
+            if (opd.RubricData == null || opd.RubricData.Id == 0)
                 _rubricProcessor.DeleteRubricPositions(orderPosition.RubricPositions, dbTran);
             else
-                _rubricProcessor.UpdateRubricPosition(orderPosition.Id, orderPosition.RubricPositions, adv.Rubric, dbTran);
+                _rubricProcessor.UpdateRubricPosition(orderPosition.Id, orderPosition.RubricPositions, opd.RubricData, dbTran);
 
             // Если графики не переданы - ищем график на основе пакетных позиций
-            if (adv.Graphics == null)
-                adv.Graphics = _graphicProcessor.GetPackageAdvGraphics(adv);
+            if (opd.GraphicsData == null)
+                opd.GraphicsData = _graphicProcessor.GetPackageGraphicsData(opd);
 
-            _graphicProcessor.UpdateGraphicPositions(orderPosition.Id, orderPosition.GraphicPositions, adv.Graphics, dbTran);
+            _graphicProcessor.UpdateGraphicPositions(orderPosition.Id, orderPosition.GraphicPositions, opd.GraphicsData, dbTran);
 
-            _positionImProcessor.UpdatePositionIm(orderPosition.PositionIm, adv, dbTran);
+            _positionImProcessor.UpdatePositionIm(orderPosition.PositionIm, opd, dbTran);
         }
 
-        public void UpdateOrderPosition(OrderPosition orderPosition, Advertisement adv, DbTransaction dbTran)
+        public void UpdateOrderPosition(OrderPosition orderPosition, OrderPositionData opd, DbTransaction dbTran)
         {
-            if (!NeedUpdateOrderPosition(orderPosition, adv))
+            if (!NeedUpdateOrderPosition(orderPosition, opd))
                 return;
 
-            orderPosition.Id = adv.OrderPositionId;
-            orderPosition.SupplierId = adv.SupplierId;
-            orderPosition.PriceId = adv.PriceId;
-            orderPosition.PricePositionId = adv.Format.Id;
-            orderPosition.PricePositionVersion = adv.Format.Version;
+            orderPosition.Id = opd.OrderPositionId;
+            orderPosition.SupplierId = opd.SupplierId;
+            orderPosition.PriceId = opd.PriceId;
+            orderPosition.PricePositionId = opd.FormatData.Id;
+            orderPosition.PricePositionVersion = opd.FormatData.Version;
             orderPosition.BeginDate = DateTime.Now;
 
             var isUnloaded = IsUnloaded(orderPosition);
@@ -165,13 +165,13 @@ namespace CkpServices.Processors
             _repository.SetOrderPosition(orderPosition, isUnloaded, isActual: true, dbTran);
         }
 
-        private bool NeedUpdateOrderPosition(OrderPosition orderPosition, Advertisement adv)
+        private bool NeedUpdateOrderPosition(OrderPosition orderPosition, OrderPositionData opd)
         {
-            if (orderPosition.Id == adv.OrderPositionId &&
-                orderPosition.SupplierId == adv.SupplierId &&
-                orderPosition.PricePositionId == adv.Format.Id &&
-                orderPosition.PricePositionVersion == adv.Format.Version &&
-                orderPosition.PriceId == adv.PriceId)
+            if (orderPosition.Id == opd.OrderPositionId &&
+                orderPosition.SupplierId == opd.SupplierId &&
+                orderPosition.PricePositionId == opd.FormatData.Id &&
+                orderPosition.PricePositionVersion == opd.FormatData.Version &&
+                orderPosition.PriceId == opd.PriceId)
                             return false;
 
             return true;
@@ -192,9 +192,9 @@ namespace CkpServices.Processors
             _repository.SetOrderPosition(orderPosition, isUnloaded, isActual: false, dbTran);
             _context.Entry(orderPosition).Reload();
         }
-        public bool NeedDeleteFullOrderPosition(int orderPositionId, List<Advertisement> advs)
+        public bool NeedDeleteFullOrderPosition(int orderPositionId, List<OrderPositionData> opds)
         {
-            return !advs.Any(adv => adv.OrderPositionId == orderPositionId);
+            return !opds.Any(adv => adv.OrderPositionId == orderPositionId);
         }
 
         #endregion

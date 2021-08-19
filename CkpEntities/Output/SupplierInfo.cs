@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 
-namespace CkpEntities.Output
+namespace CkpModel.Output
 {
-    public class SupplierInfo : SupplierLight
+    public class SupplierInfo : SupplierInfoLight
     {
         public IEnumerable<FormatTypeInfo> FormatTypes { get; set; }
 

@@ -1,5 +1,5 @@
 ﻿using CkpDAL;
-using CkpDAL.Model;
+using CkpDAL.Entities;
 using CkpDAL.Repository;
 using CkpServices.Helpers.Factories;
 using CkpServices.Helpers.Factories.Interfaces;

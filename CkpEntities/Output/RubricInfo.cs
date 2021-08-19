@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace CkpEntities.Output
+namespace CkpModel.Output
 {
-    public class RubricInfo : RubricLight
+    public class RubricInfo : RubricInfoLight
     {
         public int? ParentId { get; set; }
 

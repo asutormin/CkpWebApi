@@ -5,11 +5,11 @@ using System.Linq;
 using Microsoft.Extensions.Options;
 using CkpServices.Interfaces;
 using CkpDAL;
-using CkpEntities.Output;
-using CkpEntities.Configuration;
-using CkpDAL.Model;
-using CkpEntities.Output.String;
+using CkpModel.Output;
+using CkpDAL.Entities;
+using CkpModel.Output.String;
 using CkpServices.Helpers;
+using CkpInfrastructure.Configuration;
 
 namespace CkpWebApi.Services
 {
@@ -32,7 +32,7 @@ namespace CkpWebApi.Services
 
         #region Suppliers
 
-        public List<SupplierLight> GetSuppliers()
+        public List<SupplierInfoLight> GetSuppliers()
         {
             var suppliers = _context.Suppliers
                 .Include(su => su.Company)
@@ -40,7 +40,7 @@ namespace CkpWebApi.Services
                 .Where(su => _supplierIds.Contains(su.Id) && su.Id != 1761)
                 .Select(
                     su =>
-                        new SupplierLight
+                        new SupplierInfoLight
                         {
                             Id = su.Id,
                             Name = GetSupplierNameWithCity(su)
@@ -50,7 +50,7 @@ namespace CkpWebApi.Services
             return suppliers;
         }
 
-        public SupplierLight GetSupplier(int supplierId)
+        public SupplierInfoLight GetSupplier(int supplierId)
         {
             var supplier = _context.Suppliers
                 .Include(su => su.Company)
@@ -58,7 +58,7 @@ namespace CkpWebApi.Services
                 .Where(su => su.Id == supplierId)
                 .Select(
                     su =>
-                        new SupplierLight
+                        new SupplierInfoLight
                         {
                             Id = su.Id,
                             Name = GetSupplierNameWithCity(su)
@@ -168,7 +168,7 @@ namespace CkpWebApi.Services
 
         #region FormatTypes
 
-        public List<FormatTypeLight> GetFormatTypes(int supplierId)
+        public List<FormatTypeInfoLight> GetFormatTypes(int supplierId)
         {
             var now = DateTime.Now;
 
@@ -190,7 +190,7 @@ namespace CkpWebApi.Services
                                 .Count() > 0)
                     .Count() > 0)
                 .Select(
-                    ppt => new FormatTypeLight
+                    ppt => new FormatTypeInfoLight
                     {
                         Id = ppt.Id,
                         Name = ppt.Name
@@ -200,14 +200,14 @@ namespace CkpWebApi.Services
             return formatTypes;
         }
 
-        public FormatTypeLight GetFormatType(int formatTypeId)
+        public FormatTypeInfoLight GetFormatType(int formatTypeId)
         {
             return _context.PricePositionTypes
                 .Where(
                     ppt => ppt.Id == formatTypeId)
                 .Select(
                     ppt =>
-                        new FormatTypeLight
+                        new FormatTypeInfoLight
                         {
                             Id = ppt.Id,
                             Name = ppt.Name
@@ -242,7 +242,7 @@ namespace CkpWebApi.Services
                         p =>
                             new TariffInfo
                             {
-                                Supplier = new SupplierLight
+                                Supplier = new SupplierInfoLight
                                 {
                                     Id = p.PricePosition.SupplierId,
                                     Name = GetSupplierNameWithCity(p.PricePosition.Supplier)
@@ -259,7 +259,7 @@ namespace CkpWebApi.Services
                                     Description = p.PricePosition.Description,
                                     Version = p.PricePosition.BeginDate,
                                     Type =
-                                        new FormatTypeLight
+                                        new FormatTypeInfoLight
                                         {
                                             Id = p.PricePosition.PricePositionTypeId,
                                             Name = p.PricePosition.PricePositionType.Name
@@ -301,7 +301,7 @@ namespace CkpWebApi.Services
                         new TariffInfo
                         {
                             Supplier =
-                                new SupplierLight
+                                new SupplierInfoLight
                                 {
                                     Id = pricePosition.SupplierId,
                                     Name = GetSupplierNameWithCity(pricePosition.Supplier)
@@ -315,7 +315,7 @@ namespace CkpWebApi.Services
                                     FirstSize = pricePosition.FirstSize,
                                     SecondSize = pricePosition.SecondSize,
                                     Type =
-                                        new FormatTypeLight
+                                        new FormatTypeInfoLight
                                         {
                                             Id = pricePosition.PricePositionTypeId,
                                             Name = pricePosition.PricePositionType.Name
@@ -348,7 +348,7 @@ namespace CkpWebApi.Services
                     pkg =>
                         new TariffInfo
                         {
-                            Supplier = new SupplierLight
+                            Supplier = new SupplierInfoLight
                             {
                                 Id = pkg.Price.PricePosition.Supplier.Id,
                                 Name = GetSupplierNameWithCity(pkg.Price.PricePosition.Supplier)
@@ -362,7 +362,7 @@ namespace CkpWebApi.Services
                                 SecondSize = pkg.Price.PricePosition.SecondSize,
                                 Version = pkg.Price.PricePosition.BeginDate,
                                 Type =
-                                    new FormatTypeLight
+                                    new FormatTypeInfoLight
                                     {
                                         Id = pkg.Price.PricePosition.PricePositionTypeId,
                                         Name = pkg.Price.PricePosition.PricePositionType.Name
@@ -434,39 +434,39 @@ namespace CkpWebApi.Services
 
         #region Handbooks
 
-        public List<Education> GetEducationsHandbook(int supplierId, int formatTypeId)
+        public List<EducationInfo> GetEducationsHandbook(int supplierId, int formatTypeId)
         {
             return _context.Handbooks
                 .Where(h => h.HandbookTypeId == 1)
-                .Select(h => new Education { Id = h.Id, Name = h.HandbookValue })
+                .Select(h => new EducationInfo { Id = h.Id, Name = h.HandbookValue })
                 .ToList();
         }
 
-        public List<Experience> GetExperiencesHandbook(int supplierId, int formatTypeId)
+        public List<ExperienceInfo> GetExperiencesHandbook(int supplierId, int formatTypeId)
         {
             return _context.Handbooks
              .Where(h => h.HandbookTypeId == 2)
-             .Select(h => new Experience { Id = h.Id, Name = h.HandbookValue })
+             .Select(h => new ExperienceInfo { Id = h.Id, Name = h.HandbookValue })
              .ToList();
         }
 
-        public List<Currency> GetCurrenciesHandbook(int supplierId, int formatTypeId)
+        public List<CurrencyInfo> GetCurrenciesHandbook(int supplierId, int formatTypeId)
         {
             return _context.Handbooks
                  .Where(h => h.HandbookTypeId == 6)
-                 .Select(h => new Currency { Id = h.Id, Name = h.HandbookValue })
+                 .Select(h => new CurrencyInfo { Id = h.Id, Name = h.HandbookValue })
                  .ToList();
         }
 
-        public List<WorkGraphic> GetWorkGraphicsHandbook(int supplierId, int formatTypeId)
+        public List<WorkGraphicInfo> GetWorkGraphicsHandbook(int supplierId, int formatTypeId)
         {
             return _context.Handbooks
                  .Where(h => h.HandbookTypeId == 4)
-                 .Select(h => new WorkGraphic { Id = h.Id, Name = h.HandbookValue })
+                 .Select(h => new WorkGraphicInfo { Id = h.Id, Name = h.HandbookValue })
                  .ToList();
         }
 
-        public List<Occurrence> GetOccurrenciesHandbook(int supplierId, int formatTypeId)
+        public List<OccurrenceInfo> GetOccurrenciesHandbook(int supplierId, int formatTypeId)
         {
             if (supplierId == 1678)
             {
@@ -476,7 +476,7 @@ namespace CkpWebApi.Services
                             m => new { MetroId = m.Id, HandbookTypeId = m.TypeId },
                             (h, m) => new { Handbook = h, Metro = m })
                         .Where(hm => hm.Handbook.CompanyId == supplierId)
-                        .Select(hm => new Occurrence { Id = hm.Metro.Id, Name = hm.Metro.Name, TypeId = hm.Metro.TypeId })
+                        .Select(hm => new OccurrenceInfo { Id = hm.Metro.Id, Name = hm.Metro.Name, TypeId = hm.Metro.TypeId })
                     .Union(
                     _context.HandbookRelations
                         .Join(_context.Cities,
@@ -488,20 +488,20 @@ namespace CkpWebApi.Services
                                     hc.Handbook.CompanyId == supplierId &&
                                     hc.City.IsShowForDistribution &&
                                     (hc.City.Id < 1000001 || hc.City.Id > 1000004))
-                        .Select(hc => new Occurrence { Id = hc.City.Id, Name = hc.City.Name, TypeId = hc.City.TypeId }))
+                        .Select(hc => new OccurrenceInfo { Id = hc.City.Id, Name = hc.City.Name, TypeId = hc.City.TypeId }))
                     .OrderBy(o => o.Name)
                     .ToList();
             }
             else
             {
                 return _context.Metros
-                    .Select(m => new Occurrence { Id = m.Id, Name = m.Name, TypeId = m.TypeId })
+                    .Select(m => new OccurrenceInfo { Id = m.Id, Name = m.Name, TypeId = m.TypeId })
                     .Union(
                         _context.Cities
                         .Where(
                             ct => ct.Id < 1001000 && ct.IsShowForDistribution)
                         .Select(
-                            ct => new Occurrence { Id = ct.Id, Name = ct.Name, TypeId = ct.TypeId }))
+                            ct => new OccurrenceInfo { Id = ct.Id, Name = ct.Name, TypeId = ct.TypeId }))
                     .ToList();
             }
         }

@@ -1,8 +1,8 @@
-﻿namespace CkpEntities.Output
+﻿namespace CkpModel.Output
 {
     public class PackageTarifInfo
     {
-        public SupplierLight Supplier { get; set; }
+        public SupplierInfoLight Supplier { get; set; }
         public FormatInfo Format { get; set; }
     }
 }

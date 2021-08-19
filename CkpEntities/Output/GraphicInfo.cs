@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace CkpEntities.Output
+namespace CkpModel.Output
 {
-    public class GraphicInfo : GraphicLight
+    public class GraphicInfo : GraphicInfoLight
     { 
         public DateTime DeliverDate { get; set; }
         public DateTime ClosingDate { get; set; }

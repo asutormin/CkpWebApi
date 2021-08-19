@@ -1,5 +1,5 @@
 ﻿
-namespace CkpEntities.Output
+namespace CkpModel.Output
 {
     public class AuthInfo
     {

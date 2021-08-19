@@ -2,11 +2,12 @@
 using Microsoft.AspNetCore.Mvc;
 using System;
 using CkpServices.Interfaces;
-using CkpEntities.Output;
-using CkpEntities.Output.String;
+using CkpModel.Output;
+using CkpModel.Output.String;
 
 namespace CkpWebApi.Controllers
 {
+    //[Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class SuppliersController : ControllerBase
@@ -19,7 +20,7 @@ namespace CkpWebApi.Controllers
         }
 
         [HttpGet]
-        public IEnumerable<SupplierLight> GetSuppliers()
+        public IEnumerable<SupplierInfoLight> GetSuppliers()
         {
             var suppliers = _supplierService.GetSuppliers();
 
@@ -27,7 +28,7 @@ namespace CkpWebApi.Controllers
         }
 
         [HttpGet("{supplierId}")]
-        public SupplierLight GetSupplier(int supplierId)
+        public SupplierInfoLight GetSupplier(int supplierId)
         {
             var supplier = _supplierService.GetSupplier(supplierId);
 
@@ -51,7 +52,7 @@ namespace CkpWebApi.Controllers
         }
 
         [HttpGet("{supplierId}/formatTypes")]
-        public IEnumerable<FormatTypeLight> GetFormatTypes(int supplierId)
+        public IEnumerable<FormatTypeInfoLight> GetFormatTypes(int supplierId)
         {
             var formatTypes = _supplierService.GetFormatTypes(supplierId);
 
@@ -59,7 +60,7 @@ namespace CkpWebApi.Controllers
         }
 
         [HttpGet("formatTypes/{formatTypeId}")]
-        public FormatTypeLight GetFormatType(int formatTypeId)
+        public FormatTypeInfoLight GetFormatType(int formatTypeId)
         {
             var formatType = _supplierService.GetFormatType(formatTypeId);
 
@@ -99,7 +100,7 @@ namespace CkpWebApi.Controllers
         }
 
         [HttpGet("{supplierId}/handbooks/{formatTypeId}/educations")]
-        public IEnumerable<Education> GetEducationsHandbook(int supplierId, int formatTypeId)
+        public IEnumerable<EducationInfo> GetEducationsHandbook(int supplierId, int formatTypeId)
         {
             var educations = _supplierService.GetEducationsHandbook(supplierId, formatTypeId);
 
@@ -107,7 +108,7 @@ namespace CkpWebApi.Controllers
         }
 
         [HttpGet("{supplierId}/handbooks/{formatTypeId}/experiences")]
-        public IEnumerable<Experience> GetExperiencesHandbook(int supplierId, int formatTypeId)
+        public IEnumerable<ExperienceInfo> GetExperiencesHandbook(int supplierId, int formatTypeId)
         {
             var experiences = _supplierService.GetExperiencesHandbook(supplierId, formatTypeId);
 
@@ -115,7 +116,7 @@ namespace CkpWebApi.Controllers
         }
 
         [HttpGet("{supplierId}/handbooks/{formatTypeId}/currencies")]
-        public IEnumerable<Currency> GetCurrenciesHandbook(int supplierId, int formatTypeId)
+        public IEnumerable<CurrencyInfo> GetCurrenciesHandbook(int supplierId, int formatTypeId)
         {
             var currencies = _supplierService.GetCurrenciesHandbook(supplierId, formatTypeId);
 
@@ -123,7 +124,7 @@ namespace CkpWebApi.Controllers
         }
 
         [HttpGet("{supplierId}/handbooks/{formatTypeId}/workgraphics")]
-        public IEnumerable<WorkGraphic> GetWorkGraphicsHandbook(int supplierId, int formatTypeId)
+        public IEnumerable<WorkGraphicInfo> GetWorkGraphicsHandbook(int supplierId, int formatTypeId)
         {
             var workGraphics = _supplierService.GetWorkGraphicsHandbook(supplierId, formatTypeId);
 
@@ -131,7 +132,7 @@ namespace CkpWebApi.Controllers
         }
 
         [HttpGet("{supplierId}/handbooks/{formatTypeId}/occurrencies")]
-        public IEnumerable<Occurrence> GetOccurrenciesHandbook(int supplierId, int formatTypeId)
+        public IEnumerable<OccurrenceInfo> GetOccurrenciesHandbook(int supplierId, int formatTypeId)
         {
             var occurrencies = _supplierService.GetOccurrenciesHandbook(supplierId, formatTypeId);
 

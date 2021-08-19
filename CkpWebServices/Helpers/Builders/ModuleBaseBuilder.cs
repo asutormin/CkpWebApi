@@ -1,4 +1,4 @@
-﻿using CkpEntities.Input.Module;
+﻿using CkpModel.Input.Module;
 using System;
 using System.Drawing;
 using System.Drawing.Text;
@@ -17,7 +17,7 @@ namespace CkpServices.Helpers.Builders
         protected delegate void DrawCallBack(
             SolidBrush textBrush, SolidBrush backBrush, string text, Font font, StringFormat stringFormat);
         
-        public ModuleParamsBaseInfo MaketParams { get; set; }
+        public ModuleParamsBaseData MaketParams { get; set; }
 
         public ModuleBaseBuilder()
         {
@@ -46,7 +46,7 @@ namespace CkpServices.Helpers.Builders
             _padding = Math.Min(_bitmap.Width, _bitmap.Height) * _paddingPercent / 100;
         }
 
-        protected void DrawMaketPart(ModulePartParamsInfo part, DrawCallBack drawCallBack)
+        protected void DrawMaketPart(ModulePartParamsData part, DrawCallBack drawCallBack)
         {
             var textBrush = GetBrush(part.TextColor);
             var backBrush = MaketParams.BackgroundBase64 == null

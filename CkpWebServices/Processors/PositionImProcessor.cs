@@ -1,7 +1,7 @@
 ﻿using CkpDAL;
-using CkpDAL.Model;
+using CkpDAL.Entities;
 using CkpDAL.Repository;
-using CkpEntities.Input;
+using CkpModel.Input;
 using CkpServices.Helpers.Converters;
 using CkpServices.Helpers.Factories;
 using CkpServices.Helpers.Factories.Interfaces;
@@ -41,7 +41,7 @@ namespace CkpServices.Processors
 
         #region Create
 
-        public void CreatePositionIm(int businessUnitId, int orderId, int orderPositionId, Advertisement adv, DbTransaction dbTran)
+        public void CreatePositionIm(int businessUnitId, int orderId, int orderPositionId, OrderPositionData opd, DbTransaction dbTran)
         {
             Action<int, int, DbTransaction> setOrderIm = (orderId, orderImTypeId, dbTran) =>
             {
@@ -51,26 +51,26 @@ namespace CkpServices.Processors
                     _orderImProcessor.CreateOrderIm(orderId, orderImTypeId, null, dbTran);
             };
 
-            if (adv.String != null)
+            if (opd.StringData != null)
             {
                 var positionIm = _positionImFactory.Create(orderId, orderPositionId, positionImTypeId: 1);
                 _repository.SetPositionIm(positionIm, newTaskFile: false, newMaketFile: false, isActual: true, dbTran);
 
-                _stringProcessor.CreateFullString(businessUnitId, adv.ClientId, orderPositionId, adv.String, dbTran);
+                _stringProcessor.CreateFullString(businessUnitId, opd.ClientId, orderPositionId, opd.StringData, dbTran);
 
                 setOrderIm(orderId, 1, dbTran);
             }
 
-            if (adv.Module != null)
+            if (opd.ModuleData != null)
             {
                 var positionIm = _positionImFactory.Create(orderId, orderPositionId, positionImTypeId: 2);
                 positionIm = _repository.SetPositionIm(positionIm, newTaskFile: true, newMaketFile: false, isActual: true, dbTran);
 
-                var bytes = Base64ToBytesConverter.Convert(adv.Module.Base64String);
+                var bytes = Base64ToBytesConverter.Convert(opd.ModuleData.Base64String);
                 var taskFileDate = (DateTime)positionIm.TaskFileDate;
 
                 _moduleProcessor.CreateSampleImage(orderPositionId, bytes, "ImgTask", taskFileDate);
-                _moduleProcessor.CreateModuleGraphics(orderPositionId, bytes, adv.Module.Name);
+                _moduleProcessor.CreateModuleGraphics(orderPositionId, bytes, opd.ModuleData.Name);
 
                 setOrderIm(orderId, 2, dbTran);
             }
@@ -80,19 +80,19 @@ namespace CkpServices.Processors
 
         #region Update
 
-        public void UpdatePositionIm(PositionIm positionIm, Advertisement adv, DbTransaction dbTran)
+        public void UpdatePositionIm(PositionIm positionIm, OrderPositionData opd, DbTransaction dbTran)
         {
-            if (NeedReCreatePositionIm(positionIm, adv.Format.Id))
+            if (NeedReCreatePositionIm(positionIm, opd.FormatData.Id))
             {
                 DeletePositionIm(positionIm, dbTran);
-                CreatePositionIm(positionIm.OrderPosition.Order.BusinessUnitId, adv.OrderId, adv.OrderPositionId, adv, dbTran);
+                CreatePositionIm(positionIm.OrderPosition.Order.BusinessUnitId, opd.OrderId, opd.OrderPositionId, opd, dbTran);
                 return;
             }
 
             if (_stringProcessor.CanUpdateString(positionIm))
             {
                 positionIm = _repository.SetPositionIm(positionIm, newTaskFile: false, newMaketFile: false, isActual: true, dbTran);
-                _stringProcessor.UpdateFullString(positionIm.OrderPositionId, adv.String, dbTran);
+                _stringProcessor.UpdateFullString(positionIm.OrderPositionId, opd.StringData, dbTran);
             }
 
             if (_moduleProcessor.CanUpdateModule(positionIm))
@@ -101,10 +101,10 @@ namespace CkpServices.Processors
                 
                 // Обновляем графические материалы позиции ИМ-а
                 var taskFileDate = (DateTime)positionIm.TaskFileDate;
-                var bytes = Base64ToBytesConverter.Convert(adv.Module.Base64String);
+                var bytes = Base64ToBytesConverter.Convert(opd.ModuleData.Base64String);
 
                 _moduleProcessor.CreateSampleImage(positionIm.OrderPositionId, bytes, "ImgTask", taskFileDate);
-                _moduleProcessor.UpdateModuleGraphics(positionIm.OrderPositionId, bytes, adv.Module.Name);
+                _moduleProcessor.UpdateModuleGraphics(positionIm.OrderPositionId, bytes, opd.ModuleData.Name);
             }
         }
 

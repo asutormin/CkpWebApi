@@ -1,5 +1,5 @@
-﻿using CkpDAL.Model;
-using CkpDAL.Model.String;
+﻿using CkpDAL.Entities;
+using CkpDAL.Entities.String;
 using System.Data.Common;
 
 namespace CkpDAL.Repository

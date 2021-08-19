@@ -1,7 +1,7 @@
 ﻿using CkpDAL;
-using CkpDAL.Model;
+using CkpDAL.Entities;
 using CkpDAL.Repository;
-using CkpEntities.Input;
+using CkpModel.Input;
 using CkpServices.Helpers.Factories;
 using CkpServices.Helpers.Factories.Interfaces;
 using CkpServices.Processors.Interfaces;
@@ -28,7 +28,7 @@ namespace CkpServices.Processors
 
         #region Create
 
-        public RubricPosition CreateRubricPosition(int orderPositionId, AdvertisementRubric advRubric, DbTransaction dbTran)
+        public RubricPosition CreateRubricPosition(int orderPositionId, RubricData advRubric, DbTransaction dbTran)
         {
             var rubricPosition = _rubricPositionFactory.Create(orderPositionId, advRubric.Id, advRubric.Version);
             rubricPosition = _repository.SetRubricPosition(rubricPosition, isActual: true, dbTran);
@@ -36,7 +36,7 @@ namespace CkpServices.Processors
             return rubricPosition;
         }
 
-        private bool NeedCreateRubricPosition(IEnumerable<RubricPosition> rubricPositions, AdvertisementRubric advRubric)
+        private bool NeedCreateRubricPosition(IEnumerable<RubricPosition> rubricPositions, RubricData advRubric)
         {
             if (rubricPositions.Any(
                 rp =>
@@ -51,7 +51,7 @@ namespace CkpServices.Processors
 
         #region Update
 
-        public void UpdateRubricPosition(int orderPositionId, IEnumerable<RubricPosition> rubricPositions, AdvertisementRubric advRubric, DbTransaction dbTran)
+        public void UpdateRubricPosition(int orderPositionId, IEnumerable<RubricPosition> rubricPositions, RubricData advRubric, DbTransaction dbTran)
         {
             var rubricPositionsList = rubricPositions.ToList();
 
@@ -86,7 +86,7 @@ namespace CkpServices.Processors
             _context.Entry(rubricPosition).Reload();
         }
 
-        private bool NeedDeleteRubricPosition(RubricPosition rubricPosition, AdvertisementRubric advRubric)
+        private bool NeedDeleteRubricPosition(RubricPosition rubricPosition, RubricData advRubric)
         {
             if (rubricPosition.RubricId != advRubric.Id ||
                 rubricPosition.RubricVersion != advRubric.Version)

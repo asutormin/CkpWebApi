@@ -1,6 +1,6 @@
-﻿using CkpDAL.Model;
-using CkpDAL.Model.String;
-using CkpEntities.Output;
+﻿using CkpDAL.Entities;
+using CkpDAL.Entities.String;
+using CkpModel.Output;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,9 +9,9 @@ namespace CkpServices.Helpers
 {
     public static class ExtensionMethods
     {
-        public static List<SupplierLight> ToLight(this List<SupplierInfo> suppliers)
+        public static List<SupplierInfoLight> ToLight(this List<SupplierInfo> suppliers)
         {
-            var suppliersLight = new List<SupplierLight>();
+            var suppliersLight = new List<SupplierInfoLight>();
 
             foreach (var supplier in suppliers)
                 suppliersLight.Add(supplier);
@@ -19,16 +19,16 @@ namespace CkpServices.Helpers
             return suppliersLight;
         }
 
-        public static SupplierLight ToLight(this SupplierInfo supplier)
+        public static SupplierInfoLight ToLight(this SupplierInfo supplier)
         {
-            var supplierLight = supplier as SupplierLight;
+            var supplierLight = supplier as SupplierInfoLight;
 
             return supplierLight;
         }
 
-        public static List<FormatTypeLight> ToLight(this List<FormatTypeInfo> formatTypes)
+        public static List<FormatTypeInfoLight> ToLight(this List<FormatTypeInfo> formatTypes)
         {
-            var formatTypesLight = new List<FormatTypeLight>();
+            var formatTypesLight = new List<FormatTypeInfoLight>();
 
             foreach (var formatType in formatTypes)
                 formatTypesLight.Add(formatType);
@@ -86,12 +86,12 @@ namespace CkpServices.Helpers
             return nds;
         }
 
-        public static IQueryable<PositionInfo> SelectPositions(this IQueryable<OrderPosition> inputQuery)
+        public static IQueryable<OrderPositionInfo> SelectPositions(this IQueryable<OrderPosition> inputQuery)
         {
             var outputQuery = inputQuery
                 .Select(
                     op =>
-                        new PositionInfo
+                        new OrderPositionInfo
                         {
                             Id = op.Id,
                             ParentId = op.ParentOrderPositionId,
@@ -100,7 +100,7 @@ namespace CkpServices.Helpers
                             ClientSum = op.GetClientSum(),
                             Nds = op.GetClientNds(),
                             Supplier =
-                                new SupplierLight
+                                new SupplierInfoLight
                                 {
                                     Id = op.Supplier.Id,
                                     Name = op.Supplier.Company.Name + " - " + op.Supplier.City.Name
@@ -115,7 +115,7 @@ namespace CkpServices.Helpers
                                     SecondSize = op.PricePosition.SecondSize,
                                     Version = op.PricePosition.BeginDate,
                                     Type =
-                                        new FormatTypeLight
+                                        new FormatTypeInfoLight
                                         {
                                             Id = op.PricePosition.PricePositionTypeId,
                                             Name = op.PricePosition.PricePositionType.Name
@@ -124,7 +124,7 @@ namespace CkpServices.Helpers
                             Graphics = op.GraphicPositions
                                 .Select(
                                     gp =>
-                                        new GraphicLight
+                                        new GraphicInfoLight
                                         {
                                             Id = gp.GraphicId,
                                             Number = gp.Graphic.Number,
@@ -134,7 +134,7 @@ namespace CkpServices.Helpers
                             Rubrics = op.RubricPositions
                                 .Select(
                                     rp =>
-                                        new RubricLight
+                                        new RubricInfoLight
                                         {
                                             Id = rp.RubricId,
                                             Number = rp.Rubric.Number,

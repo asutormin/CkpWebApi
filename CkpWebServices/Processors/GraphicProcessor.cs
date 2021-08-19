@@ -1,7 +1,7 @@
 ﻿using CkpDAL;
-using CkpDAL.Model;
+using CkpDAL.Entities;
 using CkpDAL.Repository;
-using CkpEntities.Input;
+using CkpModel.Input;
 using CkpServices.Helpers;
 using CkpServices.Helpers.Factories;
 using CkpServices.Helpers.Factories.Interfaces;
@@ -30,19 +30,19 @@ namespace CkpServices.Processors
 
         #region Get
 
-        public List<AdvertisementGraphic> GetPackageAdvGraphics(Advertisement adv)
+        public List<GraphicData> GetPackageGraphicsData(OrderPositionData opd)
         {
-            var advGraphics = new List<AdvertisementGraphic>();
-            advGraphics.Add(GetPackageAdvGraphic(adv));
+            var graphicsData = new List<GraphicData>();
+            graphicsData.Add(GetPackageGraphicData(opd));
 
-            return advGraphics;
+            return graphicsData;
         }
 
-        private AdvertisementGraphic GetPackageAdvGraphic(Advertisement adv)
+        private GraphicData GetPackageGraphicData(OrderPositionData opd)
         {
             // Получаем идентификаторы графиков позиций пакета
-            var graphicIds = adv.Childs
-                .SelectMany(c => c.Graphics)
+            var graphicIds = opd.Childs
+                .SelectMany(c => c.GraphicsData)
                 .Select(g => g.Id);
 
             // Находим минимальную дату выхода позиций пакета
@@ -54,15 +54,15 @@ namespace CkpServices.Processors
             // или равна миминальной дате выхода позиций пакета
             var graphic = _context.Graphics
                 .Where(g =>
-                    g.SupplierId == adv.SupplierId &&
-                    g.PricePositionTypeId == adv.Format.FormatTypeId &&
+                    g.SupplierId == opd.SupplierId &&
+                    g.PricePositionTypeId == opd.FormatData.FormatTypeId &&
                     g.OutDate <= minOutDate)
                 .OrderByDescending(g => g.OutDate)
                 .First();
 
-            var advGraphic = new AdvertisementGraphic { Id = graphic.Id, Childs = new List<int>() };
+            var graphicData = new GraphicData { Id = graphic.Id, Childs = new List<int>() };
 
-            return advGraphic;
+            return graphicData;
         }
 
         private GraphicPosition GetGraphicPosition(int orderPositionId, int graphicId)
@@ -82,10 +82,10 @@ namespace CkpServices.Processors
 
         #region Create
 
-        public void CreateGraphicPositions(int orderPositionId, List<AdvertisementGraphic> advGraphics, DbTransaction dbTran)
+        public void CreateGraphicPositions(int orderPositionId, List<GraphicData> graphicsData, DbTransaction dbTran)
         {
             // Перебираем новые графики
-            foreach (var advGraphic in advGraphics)
+            foreach (var advGraphic in graphicsData)
             {
                 // Добавляем новую позицию графика
                 var graphicPosition = CreateGraphicPosition(orderPositionId, 0, advGraphic.Id, dbTran);
@@ -114,7 +114,7 @@ namespace CkpServices.Processors
 
         #region Update
 
-        public void UpdateGraphicPositions(int orderPositionId, IEnumerable<GraphicPosition> graphicPositions, List<AdvertisementGraphic> advGraphics, DbTransaction dbTran)
+        public void UpdateGraphicPositions(int orderPositionId, IEnumerable<GraphicPosition> graphicPositions, List<GraphicData> graphicsData, DbTransaction dbTran)
         {
             var parentGraphicPositions = graphicPositions
                 .Where(gp => gp.ParenGraphicPositiontId == gp.Id);
@@ -127,7 +127,7 @@ namespace CkpServices.Processors
                 var parentGraphicPosition = parentGraphicPositionList[i];
 
                 // Если среди переданных графиков нет графика позиции графиков
-                var advGraphicIds = advGraphics.Select(gr => gr.Id).ToList();
+                var advGraphicIds = graphicsData.Select(gr => gr.Id).ToList();
                 if (NeedDeleteGraphicPosition(advGraphicIds, parentGraphicPosition.GraphicId))
                 {
                     var childGraphicPositionsList = parentGraphicPosition.GetChilds().ToList();
@@ -147,7 +147,7 @@ namespace CkpServices.Processors
             }
 
             // Перебираем новые графики
-            foreach (var advGraphic in advGraphics)
+            foreach (var advGraphic in graphicsData)
             {
                 // Ищем существующую позицию графика с переданным графиком
                 var graphicPosition = GetGraphicPosition(orderPositionId, advGraphic.Id);

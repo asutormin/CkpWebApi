@@ -1,5 +1,5 @@
-﻿using CkpDAL.Model.String;
-using CkpEntities.Input.String;
+﻿using CkpDAL.Entities.String;
+using CkpModel.Input.String;
 using CkpServices.Helpers;
 using System.Collections.Generic;
 using System.Data.Common;
@@ -11,13 +11,13 @@ namespace CkpServices.Processors.String
     {
         #region Create
 
-        private void CreateStringOccurrences(int stringId, IEnumerable<AdvOccurrence> advOcurrences, DbTransaction dbTran)
+        private void CreateStringOccurrences(int stringId, IEnumerable<OccurrenceData> advOcurrences, DbTransaction dbTran)
         {
             foreach (var advOccurence in advOcurrences)
                 CreateStringOccurrence(stringId, advOccurence, dbTran);
         }
 
-        private bool NeedCreateStringOccurrence(IEnumerable<StringOccurrence> stringOccurrences, AdvOccurrence advOccurrence)
+        private bool NeedCreateStringOccurrence(IEnumerable<StringOccurrence> stringOccurrences, OccurrenceData advOccurrence)
         {
             return !stringOccurrences
                 .GetActualItems()
@@ -28,7 +28,7 @@ namespace CkpServices.Processors.String
                     so.OrderBy == advOccurrence.OrderBy);
         }
 
-        private StringOccurrence CreateStringOccurrence(int stringId, AdvOccurrence advOccurrence, DbTransaction dbTran)
+        private StringOccurrence CreateStringOccurrence(int stringId, OccurrenceData advOccurrence, DbTransaction dbTran)
         {
             var stringOccurrence = _stringOccurrenceFactory.Create(stringId, advOccurrence.Id, advOccurrence.TypeId, advOccurrence.OrderBy);
 
@@ -41,7 +41,7 @@ namespace CkpServices.Processors.String
 
         #region Update
 
-        private void UpdateStringOccurences(int stringId, IEnumerable<StringOccurrence> stringOccurrences, IEnumerable<AdvOccurrence> advOccurrences,
+        private void UpdateStringOccurences(int stringId, IEnumerable<StringOccurrence> stringOccurrences, IEnumerable<OccurrenceData> advOccurrences,
             DbTransaction dbTran)
         {
             var stringOccurrencesList = stringOccurrences.GetActualItems().ToList();
@@ -66,7 +66,7 @@ namespace CkpServices.Processors.String
             for (int i = stringOccurrencesList.Count - 1; i >= 0; i--)
                 DeleteStringOccurrence(stringOccurrencesList[i], dbTran);
         }
-        private bool NeedDeleteStringOccurrence(StringOccurrence stringOccurrence, IEnumerable<AdvOccurrence> advOccurrences)
+        private bool NeedDeleteStringOccurrence(StringOccurrence stringOccurrence, IEnumerable<OccurrenceData> advOccurrences)
         {
             return !advOccurrences.Any(
                 o =>

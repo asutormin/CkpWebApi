@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
@@ -20,7 +20,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CkpDAL\CkpDAL.csproj" />
-    <ProjectReference Include="..\CkpEntities\CkpEntities.csproj" />
+    <ProjectReference Include="..\CkpEntities\CkpModel.csproj" />
     <ProjectReference Include="..\CkpInfrastructure\CkpInfrastructure.csproj" />
   </ItemGroup>
 

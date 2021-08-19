@@ -1,4 +1,4 @@
-﻿using CkpDAL.Model;
+﻿using CkpDAL.Entities;
 using CkpInfrastructure.Providers;
 using CkpInfrastructure.Providers.Interfaces;
 using System.Linq;

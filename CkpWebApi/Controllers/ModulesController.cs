@@ -1,6 +1,7 @@
-﻿using CkpEntities.Input.Module;
-using CkpEntities.Output;
+﻿using CkpModel.Input.Module;
+using CkpModel.Output;
 using CkpServices.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Drawing.Imaging;
@@ -8,15 +9,16 @@ using System.IO;
 
 namespace CkpWebApi.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class ModulesController : ControllerBase
     {
-        private readonly IModulesService _modulesService;
+        private readonly IModuleService _modulesService;
 
-        public ModulesController(IModulesService maketsService)
+        public ModulesController(IModuleService modulesService)
         {
-            _modulesService = maketsService;
+            _modulesService = modulesService;
         }
 
         [HttpPost("create/sample")]
@@ -73,7 +75,7 @@ namespace CkpWebApi.Controllers
         }
         */
         [HttpPost("build/sample/standard")]
-        public ActionResult<ImageInfo> BuildModuleSampleStandard([FromBody] ModuleParamsStandartInfo moduleParams)
+        public ActionResult<ImageInfo> BuildModuleSampleStandard([FromBody] ModuleParamsStandartData moduleParams)
         {
             if (moduleParams == null)
                 return BadRequest(new { message = "Параметры модуля не переданы." });
@@ -84,7 +86,7 @@ namespace CkpWebApi.Controllers
         }
 
         [HttpPost("build/module")]
-        public ActionResult<ImageInfo> BuildModuleStandart([FromBody] ModuleParamsStandartInfo moduleParams)
+        public ActionResult<ImageInfo> BuildModuleStandart([FromBody] ModuleParamsStandartData moduleParams)
         {
             return Ok();
         }

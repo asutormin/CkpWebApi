@@ -1,4 +1,4 @@
-﻿using CkpDAL.Model;
+﻿using CkpDAL.Entities;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using System;

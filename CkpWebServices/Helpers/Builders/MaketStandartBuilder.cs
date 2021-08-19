@@ -1,4 +1,4 @@
-﻿using CkpEntities.Input.Module;
+﻿using CkpModel.Input.Module;
 using CkpServices.Helpers.Converters;
 using System;
 using System.Drawing;
@@ -14,7 +14,7 @@ namespace CkpServices.Helpers.Builders
 
             CalculatePadding();
 
-            var maketInfo = MaketParams as ModuleParamsStandartInfo;
+            var maketInfo = MaketParams as ModuleParamsStandartData;
 
             if (maketInfo.BackgroundBase64 != null)
                 DrawBackground(maketInfo.BackgroundBase64);

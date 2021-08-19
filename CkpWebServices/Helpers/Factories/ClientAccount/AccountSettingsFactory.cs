@@ -1,4 +1,4 @@
-﻿using CkpDAL.Model;
+﻿using CkpDAL.Entities;
 using CkpServices.Helpers.Factories.Interfaces.ClientAccount;
 using System;
 

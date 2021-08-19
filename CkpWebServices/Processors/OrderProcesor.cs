@@ -1,7 +1,7 @@
 ﻿using CkpDAL;
-using CkpDAL.Model;
+using CkpDAL.Entities;
 using CkpDAL.Repository;
-using CkpEntities.Input;
+using CkpModel.Input;
 using CkpServices.Helpers;
 using CkpServices.Helpers.Factories;
 using CkpServices.Helpers.Factories.Interfaces;
@@ -17,27 +17,27 @@ namespace CkpServices.Processors
     {
         private readonly BPFinanceContext _context;
         private readonly IBPFinanceRepository _repository;
-        private readonly string _shoppingCartDescription;
+        private readonly string _basketOrderDescription;
         private readonly int _orderBusinessUnitId;
         private readonly int _defaultOrderManagerId;
-        private readonly IShoppingCartOrderFactory _shoppingCartOrderFactory;
+        private readonly IBasketOrderFactory _basketOrderFactory;
         private readonly IClientOrderFactory _clientOrderFactory;
 
         public OrderProcesor(
             BPFinanceContext context,
             IBPFinanceRepository repository,
-            string shoppingCartDescription,
+            string basketOrderDescription,
             int orderBusinessUnitId,
             int defaultOrderManagerId)
         {
             _context = context;
             _repository = repository;
 
-            _shoppingCartDescription = shoppingCartDescription;
+            _basketOrderDescription = basketOrderDescription;
             _orderBusinessUnitId = orderBusinessUnitId;
             _defaultOrderManagerId = defaultOrderManagerId;
 
-            _shoppingCartOrderFactory = new ShoppingCartOrderFactory(_orderBusinessUnitId, _shoppingCartDescription);
+            _basketOrderFactory = new BasketOrderFactory(_orderBusinessUnitId, _basketOrderDescription);
             _clientOrderFactory = new ClientOrderFactory();
         }
 
@@ -55,7 +55,7 @@ namespace CkpServices.Processors
             return order;
         }
 
-        public Order GetShoppingCartOrder(int clientLegalPersonId)
+        public Order GetBasketOrder(int clientLegalPersonId)
         {
             // Ищем ПЗ заказ клиента с примечанием "Корзина_ЛК"
             var order = _context.Orders
@@ -64,13 +64,13 @@ namespace CkpServices.Processors
                     o =>
                        o.ClientLegalPersonId == clientLegalPersonId &&
                        o.ActivityTypeId == 20 &&
-                       o.Description == _shoppingCartDescription)
+                       o.Description == _basketOrderDescription)
                 .FirstOrDefault();
 
             return order;
         }
 
-        public IQueryable<OrderPosition> GetShoppingCartOrderPositionsQuery(int clientLegalPersonId)
+        public IQueryable<OrderPosition> GetBasketOrderPositionsQuery(int clientLegalPersonId)
         {
             var query = _context.OrderPositions
                 .Include(op => op.Order.AccountOrder)
@@ -83,7 +83,7 @@ namespace CkpServices.Processors
                         op.ParentOrderPositionId == null &&
                         op.Order.ClientLegalPersonId == clientLegalPersonId &&
                         op.Order.ActivityTypeId == 20 &&
-                        op.Order.Description == _shoppingCartDescription &&
+                        op.Order.Description == _basketOrderDescription &&
                         op.Order.BusinessUnitId == _orderBusinessUnitId);
 
             return query;
@@ -93,23 +93,24 @@ namespace CkpServices.Processors
 
         #region Create
 
-        public Order CreateShoppingCartOrder(Advertisement adv, DbTransaction dbTran)
+        public Order CreateBasketOrder(OrderPositionData opd, DbTransaction dbTran)
         {
-            var clientLegalPersonId = adv.ClientLegalPersonId;
+            var clientLegalPersonId = opd.ClientLegalPersonId;
 
             var clientCompanyId = _context.LegalPersons
                 .Include(lp => lp.Company)
-                .Single(lp => lp.Id == adv.ClientLegalPersonId).Company.Id;
+                .Single(lp => lp.Id == opd.ClientLegalPersonId).Company.Id;
 
             var supplierLegalPersonId = _context.BusinessUnits
                 .Single(bu => bu.Id == _orderBusinessUnitId).LegalPersonId;
 
             var maxExitDate = _context.Graphics
-                .Where(gr => adv.GetGraphicsWithChildren().Contains(gr.Id))
+                .Where(gr => opd.GetGraphicsWithChildren()
+                .Contains(gr.Id))
                 .Max(gr => gr.OutDate);
 
             var sum = _context.Prices
-                .Where(p => adv.GetPrices().Contains(p.Id))
+                .Where(p => opd.GetPrices().Contains(p.Id))
                 .AsEnumerable()
                 .Sum(p => p.GetTarifCost());
 
@@ -123,7 +124,7 @@ namespace CkpServices.Processors
                 ? _defaultOrderManagerId
                 : businessUnitCompanyManager.ManagerId;
 
-            var order = _shoppingCartOrderFactory.Create(
+            var order = _basketOrderFactory.Create(
                 clientLegalPersonId, clientCompanyId, supplierLegalPersonId, maxExitDate, sum, managerId);
 
             order = _repository.SetOrder(order, true, dbTran);
@@ -131,9 +132,9 @@ namespace CkpServices.Processors
             return order;
         }
 
-        public Order CreateClientOrder(Order shoppingCartOrder, IEnumerable<OrderPosition> orderPositions, DbTransaction dbTran)
+        public Order CreateClientOrder(Order basketOrder, IEnumerable<OrderPosition> orderPositions, DbTransaction dbTran)
         {
-            var order = _clientOrderFactory.Create(shoppingCartOrder, orderPositions);
+            var order = _clientOrderFactory.Create(basketOrder, orderPositions);
             order = _repository.SetOrder(order, true, dbTran);
 
             return order;

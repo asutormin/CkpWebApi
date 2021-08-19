@@ -1,4 +1,4 @@
-﻿using CkpDAL.Model;
+﻿using CkpDAL.Entities;
 using CkpInfrastructure;
 using CkpServices.Helpers.Providers;
 using CkpServices.Processors.Interfaces;

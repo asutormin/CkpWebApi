@@ -2,7 +2,7 @@
 using System.Data;
 using System.Data.Common;
 using Microsoft.Data.SqlClient;
-using CkpDAL.Model.String;
+using CkpDAL.Entities.String;
 
 namespace CkpDAL.Repository
 {

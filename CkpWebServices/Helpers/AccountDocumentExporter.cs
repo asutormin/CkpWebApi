@@ -1,4 +1,4 @@
-﻿using CkpDAL.Model;
+﻿using CkpDAL.Entities;
 using CkpServices.Helpers.Builders.AccountDocumentBuilders;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;

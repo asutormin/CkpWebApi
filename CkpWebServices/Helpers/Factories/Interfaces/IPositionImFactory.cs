@@ -1,4 +1,4 @@
-﻿using CkpDAL.Model;
+﻿using CkpDAL.Entities;
 
 namespace CkpServices.Helpers.Factories.Interfaces
 {

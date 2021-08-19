@@ -1,5 +1,5 @@
-﻿using CkpDAL.Model.String;
-using CkpEntities.Input.String;
+﻿using CkpDAL.Entities.String;
+using CkpModel.Input.String;
 using CkpServices.Helpers;
 using System.Collections.Generic;
 using System.Data.Common;
@@ -26,13 +26,13 @@ namespace CkpServices.Processors.String
 
         #region Create
 
-        private void CreateStringAddresses(int stringId, int companyId, IEnumerable<AdvAddress> advAddresses, DbTransaction dbTran)
+        private void CreateStringAddresses(int stringId, int companyId, IEnumerable<AddressData> advAddresses, DbTransaction dbTran)
         {
             foreach (var advAddress in advAddresses)
                 CreateStringAddress(stringId, companyId, advAddress.Value, advAddress.OrderBy, dbTran);
         }
 
-        private bool NeedCreateStringAddress(IEnumerable<StringAddress> stringAddresses, AdvAddress advAddress)
+        private bool NeedCreateStringAddress(IEnumerable<StringAddress> stringAddresses, AddressData advAddress)
         {
             return !stringAddresses
                 .GetActualItems()
@@ -70,7 +70,7 @@ namespace CkpServices.Processors.String
 
         #region Update
 
-        private void UpdateStringAddresses(int stringId, int companyId, IEnumerable<StringAddress> stringAddresses, IEnumerable<AdvAddress> advAddresses,
+        private void UpdateStringAddresses(int stringId, int companyId, IEnumerable<StringAddress> stringAddresses, IEnumerable<AddressData> advAddresses,
             DbTransaction dbTran)
         {
             var stringAddressesList = stringAddresses.GetActualItems().ToList();
@@ -96,7 +96,7 @@ namespace CkpServices.Processors.String
                 DeleteStringAddress(stringAddressesList[i], dbTran);
         }
 
-        private bool NeedDeleteStringAddress(StringAddress stringAddress, IEnumerable<AdvAddress> advAddresses)
+        private bool NeedDeleteStringAddress(StringAddress stringAddress, IEnumerable<AddressData> advAddresses)
         {
             return !advAddresses.Any(
                 sa =>

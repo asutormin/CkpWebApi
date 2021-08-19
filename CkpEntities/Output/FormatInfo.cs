@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CkpEntities.Output
+namespace CkpModel.Output
 {
     public class FormatInfo
     {
@@ -13,6 +13,6 @@ namespace CkpEntities.Output
         public int PackageLength { get; set; }
         public string Description { get; set; }
         public DateTime Version { get; set; }
-        public FormatTypeLight Type { get; set; }
+        public FormatTypeInfoLight Type { get; set; }
     }
 }

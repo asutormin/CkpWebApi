@@ -1,4 +1,4 @@
-﻿using CkpDAL.Model;
+﻿using CkpDAL.Entities;
 using CkpServices.Helpers.Factories.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -7,7 +7,7 @@ namespace CkpServices.Helpers.Factories
 {
     class ClientOrderFactory : IClientOrderFactory
     {
-        public Order Create(Order shoppingCartOrder, IEnumerable<OrderPosition> orderPositions)
+        public Order Create(Order basketOrder, IEnumerable<OrderPosition> orderPositions)
         {
             var sum = orderPositions.GetClientSum();
             var maxExitDate = orderPositions.GetMaxExitDate();
@@ -17,7 +17,7 @@ namespace CkpServices.Helpers.Factories
                 Id = 0,
                 ParentOrderId = null,
                 ActivityTypeId = 1,
-                BusinessUnitId = shoppingCartOrder.BusinessUnitId,
+                BusinessUnitId = basketOrder.BusinessUnitId,
                 StatusId = 0, // ---
                 IsNeedVisa = false,
                 IsNeedAccount = true,
@@ -25,9 +25,9 @@ namespace CkpServices.Helpers.Factories
                 OrderNumber = string.Empty,
                 OrderDate = DateTime.Now.Date,
                 MaxExitDate = maxExitDate,
-                ClientCompanyId = shoppingCartOrder.ClientCompanyId,
-                ClientLegalPersonId = shoppingCartOrder.ClientLegalPersonId,
-                SupplierLegalPersonId = shoppingCartOrder.SupplierLegalPersonId,
+                ClientCompanyId = basketOrder.ClientCompanyId,
+                ClientLegalPersonId = basketOrder.ClientLegalPersonId,
+                SupplierLegalPersonId = basketOrder.SupplierLegalPersonId,
                 Sum = sum,
                 Paid = 0,
                 IsCashless = false,
@@ -39,7 +39,7 @@ namespace CkpServices.Helpers.Factories
                 PaymentArbitaryPrognosisDate = null,
                 Description = string.Empty,
                 Request = string.Empty,
-                ManagerId = shoppingCartOrder.ManagerId,
+                ManagerId = basketOrder.ManagerId,
                 BeginDate = DateTime.Now
             };
 

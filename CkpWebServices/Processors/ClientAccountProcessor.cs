@@ -1,5 +1,5 @@
 ﻿using CkpDAL;
-using CkpDAL.Model;
+using CkpDAL.Entities;
 using CkpDAL.Repository;
 using CkpServices.Helpers.Factories.ClientAccount;
 using CkpServices.Helpers.Factories.Interfaces.ClientAccount;
@@ -29,11 +29,11 @@ namespace CkpServices.Processors
             _accountOrderFactory = new AccountOrderFactory();
         }
 
-        public Account CreateClientAccount(int supplierLegalPersonId, float sum, Order shoppingCartOrder, DbTransaction dbTran)
+        public Account CreateClientAccount(int supplierLegalPersonId, float sum, Order basketOrder, DbTransaction dbTran)
         {
             var accountNumber = _repository.GetAccountNumber(supplierLegalPersonId, dbTran);
 
-            var account = _accountFactory.Create(accountNumber, sum, shoppingCartOrder.BusinessUnit, shoppingCartOrder.ClientLegalPerson);
+            var account = _accountFactory.Create(accountNumber, sum, basketOrder.BusinessUnit, basketOrder.ClientLegalPerson);
             account = _repository.SetAccount(account, isActual: true, dbTran);
 
             return account;

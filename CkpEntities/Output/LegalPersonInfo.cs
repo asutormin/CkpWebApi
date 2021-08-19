@@ -1,6 +1,6 @@
-﻿namespace CkpEntities.Output
+﻿namespace CkpModel.Output
 {
-    public class LegalPersonInfo : LegalPersonLight
+    public class LegalPersonInfo : LegalPersonInfoLight
     {
         public string Inn { get; set; }
         public string Kpp { get; set; }

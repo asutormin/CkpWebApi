@@ -1,5 +1,5 @@
-﻿using CkpEntities.Input.Module;
-using CkpEntities.Output;
+﻿using CkpModel.Input.Module;
+using CkpModel.Output;
 using CkpServices.Helpers.Builders;
 using CkpServices.Interfaces;
 using Microsoft.AspNetCore.Mvc;
@@ -10,7 +10,7 @@ using System.IO;
 
 namespace CkpServices
 {
-    public class ModulesService : IModulesService
+    public class ModulesService : IModuleService
     {
         /*
         public ActionResult<string> SaveModuleToDisk(byte[] moduleBytes)
@@ -80,7 +80,7 @@ namespace CkpServices
             return sample;
         }
 
-        public ActionResult<ImageInfo> BuildModuleSampleStandard(ModuleParamsStandartInfo moduleParams)
+        public ActionResult<ImageInfo> BuildModuleSampleStandard(ModuleParamsStandartData moduleParams)
         {
             var builder = new MaketStandartBuilder();
             builder.MaketParams = moduleParams;

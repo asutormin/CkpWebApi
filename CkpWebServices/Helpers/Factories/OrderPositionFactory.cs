@@ -1,5 +1,5 @@
-﻿using CkpDAL.Model;
-using CkpEntities.Input;
+﻿using CkpDAL.Entities;
+using CkpModel.Input;
 using CkpServices.Helpers.Factories.Interfaces;
 using System;
 
@@ -7,17 +7,17 @@ namespace CkpServices.Helpers.Factories
 {
     class OrderPositionFactory : IOrderPositionFactory
     {
-        public OrderPosition Create(int orderId, int? parentOrderPositionId, float discount, float markup, float nds, Advertisement adv)
+        public OrderPosition Create(int orderId, int? parentOrderPositionId, float discount, float markup, float nds, OrderPositionData opd)
         {
             var orderPosition = new OrderPosition
             {
                 Id = 0,
                 ParentOrderPositionId = parentOrderPositionId,
                 OrderId = orderId,
-                SupplierId = adv.SupplierId,
-                PriceId = adv.PriceId,
-                PricePositionId = adv.Format.Id,
-                PricePositionVersion = adv.Format.Version,
+                SupplierId = opd.SupplierId,
+                PriceId = opd.PriceId,
+                PricePositionId = opd.FormatData.Id,
+                PricePositionVersion = opd.FormatData.Version,
                 Discount = discount,
                 Markup = markup,
                 Nds = nds,

@@ -9,9 +9,11 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.EntityFrameworkCore;
 using CkpDAL;
-using CkpEntities.Configuration;
 using CkpServices.Interfaces;
 using CkpServices;
+using Microsoft.AspNetCore.Http;
+using CkpInfrastructure.Configuration;
+using CkpWebApi.Middleware;
 
 namespace CkpWebApi
 {
@@ -64,26 +66,14 @@ namespace CkpWebApi
             var appParamsSection = Configuration.GetSection("AppParams");
             services.Configure<AppParams>(appParamsSection);
 
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+
             // configure DI for application services
-            services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<IUserService, UserService>();
             services.AddScoped<ISupplierService, SupplierService>();
             services.AddScoped<IAccountService, AccountService>();
-            services.AddScoped<IAdvertisementService, AdvertisementService>();
-            services.AddScoped<IModulesService, ModulesService>();
-
-            //services.AddCors(options =>
-            //{
-            //    options.AddPolicy("AllowSpecificOrigin", builder =>
-            //    {
-            //        builder
-            //        .AllowAnyMethod()
-            //        .AllowAnyHeader()
-            //        .SetIsOriginAllowed(origin => true) // allow any origin
-            //        .AllowCredentials(); // allow credentials
-            //});
-            //});
-           
-            //services.AddCors();
+            services.AddScoped<IOrderPositionService, OrderPositionService>();
+            services.AddScoped<IModuleService, ModulesService>();
 
             services.AddControllers();
         }
@@ -96,7 +86,8 @@ namespace CkpWebApi
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseGlobalExceptionMiddleware();
+            app.UseMiddleware<ExceptionMiddleware>();
+            // app.UseMiddleware<JwtMiddleware>();
 
             app.UseRouting();
             app.UseCors(x => x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());

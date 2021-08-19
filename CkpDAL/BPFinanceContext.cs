@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using CkpDAL.Model;
-using CkpDAL.Model.String;
+using CkpDAL.Entities;
+using CkpDAL.Entities.String;
 
 namespace CkpDAL
 {

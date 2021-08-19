@@ -1,5 +1,5 @@
-﻿using CkpDAL.Model.String;
-using CkpEntities.Input.String;
+﻿using CkpDAL.Entities.String;
+using CkpModel.Input.String;
 using CkpServices.Helpers;
 using System.Collections.Generic;
 using System.Data.Common;
@@ -11,7 +11,7 @@ namespace CkpServices.Processors.String
     {
         #region Get
 
-        private Phone GetCompanyPhone(int companyId, AdvPhone advPhone)
+        private Phone GetCompanyPhone(int companyId, PhoneData advPhone)
         {
             var phone = _context.Phones
                 .FirstOrDefault(
@@ -30,13 +30,13 @@ namespace CkpServices.Processors.String
 
         #region Create
 
-        private void CreateStringPhones(int stringId, int companyId, IEnumerable<AdvPhone> advPhones, DbTransaction dbTran)
+        private void CreateStringPhones(int stringId, int companyId, IEnumerable<PhoneData> advPhones, DbTransaction dbTran)
         {
             foreach (var advPhone in advPhones)
                 CreateStringPhone(stringId, companyId, advPhone, dbTran);
         }
 
-        private bool NeedCreateStringPhone(AdvPhone advPhone, IEnumerable<StringPhone> stringPhones)
+        private bool NeedCreateStringPhone(PhoneData advPhone, IEnumerable<StringPhone> stringPhones)
         {
             return !stringPhones
                 .GetActualItems()
@@ -49,7 +49,7 @@ namespace CkpServices.Processors.String
                     sp.OrderBy == advPhone.OrderBy);
         }
 
-        private StringPhone CreateStringPhone(int stringId, int companyId, AdvPhone advPhone, DbTransaction dbTran)
+        private StringPhone CreateStringPhone(int stringId, int companyId, PhoneData advPhone, DbTransaction dbTran)
         {
             var phone = GetCompanyPhone(companyId, advPhone);
 
@@ -62,7 +62,7 @@ namespace CkpServices.Processors.String
             return stringPhone;
         }
 
-        private Phone CreateCompanyPhone(int companyId, AdvPhone advPhone, DbTransaction dbTran)
+        private Phone CreateCompanyPhone(int companyId, PhoneData advPhone, DbTransaction dbTran)
         {
             var phone = _phoneFactory.Create(companyId, advPhone.CountryCode, advPhone.Code, advPhone.Number, advPhone.Description);
 
@@ -75,7 +75,7 @@ namespace CkpServices.Processors.String
 
         #region Update
 
-        private void UpdateStringPhones(int stringId, int companyId, IEnumerable<StringPhone> stringPhones, IEnumerable<AdvPhone> advPhones,
+        private void UpdateStringPhones(int stringId, int companyId, IEnumerable<StringPhone> stringPhones, IEnumerable<PhoneData> advPhones,
             DbTransaction dbTran)
         {
             var stringPhonesList = stringPhones.GetActualItems().ToList();
@@ -101,7 +101,7 @@ namespace CkpServices.Processors.String
                 DeleteStringPhone(stringPhonesList[i], dbTran);
         }
 
-        private bool NeedDeleteStringPhone(StringPhone stringPhone, IEnumerable<AdvPhone> advPhones)
+        private bool NeedDeleteStringPhone(StringPhone stringPhone, IEnumerable<PhoneData> advPhones)
         {
             return !advPhones.Any(
                 ph =>

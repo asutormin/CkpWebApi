@@ -1,5 +1,5 @@
-﻿using CkpDAL.Model.String;
-using CkpEntities.Input.String;
+﻿using CkpDAL.Entities.String;
+using CkpModel.Input.String;
 using CkpServices.Helpers.Converters;
 using Microsoft.EntityFrameworkCore;
 using System.Data.Common;
@@ -27,9 +27,9 @@ namespace CkpServices.Processors.String
 
         #region Create
 
-        private StringPosition CreateStringPosition(int businessUnitId, int companyId, int orderPositionId, AdvString advString, DbTransaction dbTran)
+        private StringPosition CreateStringPosition(int businessUnitId, int companyId, int orderPositionId, StringData stringData, DbTransaction dbTran)
         {
-            var stringPosition = _stringFactory.Create(businessUnitId, companyId, orderPositionId, advString);
+            var stringPosition = _stringFactory.Create(businessUnitId, companyId, orderPositionId, stringData);
             stringPosition = _repository.SetString(stringPosition, isActual: true, dbTran);
 
             return stringPosition;
@@ -39,72 +39,72 @@ namespace CkpServices.Processors.String
 
         #region Update
 
-        private bool NeedUpdateStringPosition(StringPosition stringPosition, AdvString advString)
+        private bool NeedUpdateStringPosition(StringPosition stringPosition, StringData stringData)
         {
-            if (stringPosition.Date != advString.Date ||
-                stringPosition.AnonymousCompanyName != advString.AnonymousCompanyName ||
-                stringPosition.VacancyName != advString.VacancyName ||
-                stringPosition.VacancyAdditional != advString.VacancyAdditional ||
-                stringPosition.Requirement != advString.Requirements.Value ||
-                stringPosition.AgeFrom != advString.Requirements.Age.From ||
-                stringPosition.AgeTo != advString.Requirements.Age.To ||
-                stringPosition.GenderId != advString.Requirements.GenderId ||
-                stringPosition.EducationId != advString.Requirements.EducationId ||
-                stringPosition.CitizenshipId != advString.Requirements.CitizenshipId ||
-                stringPosition.ExperienceId != advString.Requirements.Experience.Id ||
-                stringPosition.ExperienceValue != advString.Requirements.Experience.Value ||
-                stringPosition.Responsibility != advString.Responsibility ||
-                stringPosition.Condition != advString.Conditions.Value ||
-                stringPosition.WorkGraphicId != advString.Conditions.WorkGraphic.Id ||
-                stringPosition.WorkGraphic != advString.Conditions.WorkGraphic.Comment ||
-                stringPosition.SalaryFrom != advString.Conditions.Salary.From ||
-                stringPosition.SalaryTo != advString.Conditions.Salary.To ||
-                stringPosition.SalaryDescription != advString.Conditions.Salary.Description ||
-                stringPosition.ContactFirstName != advString.Contact.FirstName ||
-                stringPosition.ContactSecondName != advString.Contact.SecondName ||
-                stringPosition.ContactLastName != advString.Contact.LastName ||
-                stringPosition.Logo != Base64ToBytesConverter.Convert(advString.Logo.Base64String) ||
-                stringPosition.LogoFileName != advString.Logo.FileName)
+            if (stringPosition.Date != stringData.Date ||
+                stringPosition.AnonymousCompanyName != stringData.AnonymousCompanyName ||
+                stringPosition.VacancyName != stringData.VacancyName ||
+                stringPosition.VacancyAdditional != stringData.VacancyAdditional ||
+                stringPosition.Requirement != stringData.RequirementsData.Value ||
+                stringPosition.AgeFrom != stringData.RequirementsData.AgeData.From ||
+                stringPosition.AgeTo != stringData.RequirementsData.AgeData.To ||
+                stringPosition.GenderId != stringData.RequirementsData.GenderId ||
+                stringPosition.EducationId != stringData.RequirementsData.EducationId ||
+                stringPosition.CitizenshipId != stringData.RequirementsData.CitizenshipId ||
+                stringPosition.ExperienceId != stringData.RequirementsData.ExperienceData.Id ||
+                stringPosition.ExperienceValue != stringData.RequirementsData.ExperienceData.Value ||
+                stringPosition.Responsibility != stringData.Responsibility ||
+                stringPosition.Condition != stringData.ConditionsData.Value ||
+                stringPosition.WorkGraphicId != stringData.ConditionsData.WorkGraphicData.Id ||
+                stringPosition.WorkGraphic != stringData.ConditionsData.WorkGraphicData.Comment ||
+                stringPosition.SalaryFrom != stringData.ConditionsData.SalaryData.From ||
+                stringPosition.SalaryTo != stringData.ConditionsData.SalaryData.To ||
+                stringPosition.SalaryDescription != stringData.ConditionsData.SalaryData.Description ||
+                stringPosition.ContactFirstName != stringData.ContactData.FirstName ||
+                stringPosition.ContactSecondName != stringData.ContactData.SecondName ||
+                stringPosition.ContactLastName != stringData.ContactData.LastName ||
+                stringPosition.Logo != Base64ToBytesConverter.Convert(stringData.LogoData.Base64String) ||
+                stringPosition.LogoFileName != stringData.LogoData.FileName)
                 return true;
 
             return false;
         }
 
-        public StringPosition UpdateString(StringPosition stringPosition, AdvString advString, DbTransaction dbTran)
+        public StringPosition UpdateString(StringPosition stringPosition, StringData stringData, DbTransaction dbTran)
         {
-            if (!NeedUpdateStringPosition(stringPosition, advString))
+            if (!NeedUpdateStringPosition(stringPosition, stringData))
                 return stringPosition;
 
-            stringPosition.AnonymousCompanyName = advString.AnonymousCompanyName;
-            stringPosition.VacancyName = advString.VacancyName;
-            stringPosition.VacancyAdditional = advString.VacancyAdditional;
+            stringPosition.AnonymousCompanyName = stringData.AnonymousCompanyName;
+            stringPosition.VacancyName = stringData.VacancyName;
+            stringPosition.VacancyAdditional = stringData.VacancyAdditional;
             stringPosition.VacancyCode = stringPosition.VacancyCode;
-            stringPosition.Responsibility = advString.Responsibility;
-            stringPosition.Requirement = advString.Requirements.Value;
-            stringPosition.AgeFrom = advString.Requirements.Age.From;
-            stringPosition.AgeTo = advString.Requirements.Age.To;
-            stringPosition.GenderId = advString.Requirements.GenderId;
-            stringPosition.EducationId = advString.Requirements.EducationId;
-            stringPosition.ExperienceId = advString.Requirements.Experience.Id;
-            stringPosition.ExperienceValue = advString.Requirements.Experience.Value;
-            stringPosition.CitizenshipId = advString.Requirements.CitizenshipId;
-            stringPosition.Condition = advString.Conditions.Value;
-            stringPosition.SalaryFrom = advString.Conditions.Salary.From;
-            stringPosition.SalaryTo = advString.Conditions.Salary.To;
-            stringPosition.SalaryDescription = advString.Conditions.Salary.Description;
-            stringPosition.CurrencyId = advString.Conditions.Salary.CurrencyId;
-            stringPosition.WorkGraphicId = advString.Conditions.WorkGraphic.Id;
-            stringPosition.WorkGraphic = advString.Conditions.WorkGraphic.Comment;
+            stringPosition.Responsibility = stringData.Responsibility;
+            stringPosition.Requirement = stringData.RequirementsData.Value;
+            stringPosition.AgeFrom = stringData.RequirementsData.AgeData.From;
+            stringPosition.AgeTo = stringData.RequirementsData.AgeData.To;
+            stringPosition.GenderId = stringData.RequirementsData.GenderId;
+            stringPosition.EducationId = stringData.RequirementsData.EducationId;
+            stringPosition.ExperienceId = stringData.RequirementsData.ExperienceData.Id;
+            stringPosition.ExperienceValue = stringData.RequirementsData.ExperienceData.Value;
+            stringPosition.CitizenshipId = stringData.RequirementsData.CitizenshipId;
+            stringPosition.Condition = stringData.ConditionsData.Value;
+            stringPosition.SalaryFrom = stringData.ConditionsData.SalaryData.From;
+            stringPosition.SalaryTo = stringData.ConditionsData.SalaryData.To;
+            stringPosition.SalaryDescription = stringData.ConditionsData.SalaryData.Description;
+            stringPosition.CurrencyId = stringData.ConditionsData.SalaryData.CurrencyId;
+            stringPosition.WorkGraphicId = stringData.ConditionsData.WorkGraphicData.Id;
+            stringPosition.WorkGraphic = stringData.ConditionsData.WorkGraphicData.Comment;
             stringPosition.Keywords = stringPosition.Keywords;
-            stringPosition.Logo = Base64ToBytesConverter.Convert(advString.Logo.Base64String);
-            stringPosition.LogoFileName = advString.Logo.FileName;
-            stringPosition.ContactFirstName = advString.Contact.FirstName;
-            stringPosition.ContactSecondName = advString.Contact.SecondName;
-            stringPosition.ContactLastName = advString.Contact.LastName;
+            stringPosition.Logo = Base64ToBytesConverter.Convert(stringData.LogoData.Base64String);
+            stringPosition.LogoFileName = stringData.LogoData.FileName;
+            stringPosition.ContactFirstName = stringData.ContactData.FirstName;
+            stringPosition.ContactSecondName = stringData.ContactData.SecondName;
+            stringPosition.ContactLastName = stringData.ContactData.LastName;
             stringPosition.Text = stringPosition.Text;
-            stringPosition.IsSalaryPercent = advString.Conditions.Salary.IsSalaryPercent;
-            stringPosition.IsHousing = advString.Conditions.IsHousing;
-            stringPosition.IsFood = advString.Conditions.IsFood;
+            stringPosition.IsSalaryPercent = stringData.ConditionsData.SalaryData.IsSalaryPercent;
+            stringPosition.IsHousing = stringData.ConditionsData.IsHousing;
+            stringPosition.IsFood = stringData.ConditionsData.IsFood;
 
             stringPosition = _repository.SetString(stringPosition, isActual: true, dbTran);
 

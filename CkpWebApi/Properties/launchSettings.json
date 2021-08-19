@@ -20,8 +20,8 @@
     "CkpWebApi": {
       "commandName": "Project",
       "launchBrowser": true,
-      //"launchUrl": "api/suppliers/1678/handbooks/1",
-      "launchUrl": "api/advertisements/1516301",
+      "launchUrl": "api/suppliers/1678/handbooks/1/educations",
+      //"launchUrl": "api/order-positions/item/39872/1547993",
       "applicationUrl": "https://localhost:5101;http://localhost:5100",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"

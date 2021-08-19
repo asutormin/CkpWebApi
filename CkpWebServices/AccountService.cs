@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using CkpServices.Interfaces;
 using CkpDAL;
-using CkpEntities.Output;
-using CkpDAL.Model;
-using CkpEntities.Configuration;
+using CkpModel.Output;
+using CkpDAL.Entities;
+using CkpInfrastructure.Configuration;
 using CkpServices.Helpers;
 using Microsoft.EntityFrameworkCore.Storage;
 using CkpServices.Processors.Interfaces;
@@ -16,7 +16,6 @@ using System.Data.Common;
 using CkpServices.Processors;
 using CkpServices.Processors.String;
 using CkpDAL.Repository;
-using System;
 
 namespace CkpServices
 {
@@ -45,7 +44,7 @@ namespace CkpServices
             _orderProcessor = new OrderProcesor(
                 _context,
                 repository,
-                appParamsAccessor.Value.ShoppingCartOrderDescription,
+                appParamsAccessor.Value.BasketOrderDescription,
                 _orderBusinessUnitId,
                 appParamsAccessor.Value.ManagerId);
             var rubricProcessor = new RubricProcessor(
@@ -77,6 +76,14 @@ namespace CkpServices
                 _positionImProcessor,
                 _orderBusinessUnitId);
 
+        }
+
+        public bool ExistsById(int accountId)
+        {
+            var account = _context.Accounts
+                .SingleOrDefault(ac => ac.Id == accountId);
+
+            return account != null;
         }
 
         #region Get
@@ -150,7 +157,7 @@ namespace CkpServices
             return account;
         }
 
-        public async Task<ActionResult<Account>> GetAccountById(int accountId)
+        public async Task<ActionResult<Account>> GetFullAccountByIdAsync(int accountId)
         {
             var account = await _context.Accounts
                 .Include(ac => ac.AccountSettings).ThenInclude(acs => acs.LegalPersonBank).ThenInclude(lpb => lpb.Bank)
@@ -166,7 +173,7 @@ namespace CkpServices
             return account;
         }
 
-        public async Task<ActionResult<IEnumerable<AccountLight>>> GetAccountsAsync(int clientLegalPersonId, int startAccountId, int quantity)
+        public async Task<ActionResult<IEnumerable<AccountInfoLight>>> GetAccountsAsync(int clientLegalPersonId, int startAccountId, int quantity)
         {
             var accounts = await _context.Accounts
                 .Include(ac => ac.AccountOrders).ThenInclude(ao => ao.Order)
@@ -180,7 +187,7 @@ namespace CkpServices
                 .Take(quantity)
                 .Select(
                     ac =>
-                        new AccountLight
+                        new AccountInfoLight
                         {
                             Id = ac.Id,
                             Number = ac.Number,
@@ -203,7 +210,7 @@ namespace CkpServices
         #endregion
 
         #region Create
-
+        
         public int CreateClientAccount(int[] orderPositionIds)
         {
             using (var сontextTransaction = _context.Database.BeginTransaction())
@@ -212,19 +219,19 @@ namespace CkpServices
 
                 // Создаём заказ
                 var orderPositions = _orderPositionProcessor.GetOrderPositionsByIds(orderPositionIds);
-                var shoppingCartOrder = _orderProcessor.GetOrderById(orderPositions.First().OrderId);
-                var clientOrder = CreateClientOrder(shoppingCartOrder, orderPositions, dbTran);
+                var basketOrder = _orderProcessor.GetOrderById(orderPositions.First().OrderId);
+                var clientOrder = CreateClientOrder(basketOrder, orderPositions, dbTran);
 
                 // Создаём счёт
                 var account = _clientAccountProcessor.CreateClientAccount(
-                    clientOrder.SupplierLegalPersonId, clientOrder.Sum, shoppingCartOrder, dbTran);
+                    clientOrder.SupplierLegalPersonId, clientOrder.Sum, basketOrder, dbTran);
 
                 // Создаём позиции счёта
                 foreach (var orderPosition in orderPositions)
                     _clientAccountProcessor.CreateAccountPosition(account.Id, orderPosition, dbTran);
 
                 // Создаём настройки счёта
-                _clientAccountProcessor.CreateAccountSettings(account.Id, shoppingCartOrder.ClientLegalPerson.AccountSettings, dbTran);
+                _clientAccountProcessor.CreateAccountSettings(account.Id, basketOrder.ClientLegalPerson.AccountSettings, dbTran);
 
                 // Создаём связку счёт-заказ
                 _clientAccountProcessor.CreateAccountOrder(account.Id, clientOrder.Id, dbTran);
@@ -236,10 +243,10 @@ namespace CkpServices
             }
         }
 
-        private Order CreateClientOrder(Order shoppingCartOrder, IEnumerable<OrderPosition> orderPositions, DbTransaction dbTran)
+        private Order CreateClientOrder(Order basketOrder, IEnumerable<OrderPosition> orderPositions, DbTransaction dbTran)
         {
             // Создаём клиентский заказ
-            var order = _orderProcessor.CreateClientOrder(shoppingCartOrder, orderPositions, dbTran);
+            var order = _orderProcessor.CreateClientOrder(basketOrder, orderPositions, dbTran);
 
             // Привязываем к новому заказу позиции из корзины
             var orderPositionsWithChildren = orderPositions
@@ -270,13 +277,13 @@ namespace CkpServices
                     _orderImProcessor.ProcessOrderImStatus, dbTran);
 
                 // Если ИМ заказа корзины больше не нужен - удаляем его
-                var shoppingCartOrderIm = _orderImProcessor.GetOrderIm(shoppingCartOrder.Id, orderImTypeId);
-                if (_orderImProcessor.NeedDeleteOrderIm(shoppingCartOrderIm))
-                    _orderImProcessor.DeleteOrderIm(shoppingCartOrderIm, dbTran);
+                var basketOrderIm = _orderImProcessor.GetOrderIm(basketOrder.Id, orderImTypeId);
+                if (_orderImProcessor.NeedDeleteOrderIm(basketOrderIm))
+                    _orderImProcessor.DeleteOrderIm(basketOrderIm, dbTran);
             }
 
             // Обновляем заказ-корзину
-            _orderProcessor.UpdateOrder(shoppingCartOrder.Id, dbTran);
+            _orderProcessor.UpdateOrder(basketOrder.Id, dbTran);
 
             return order;
         }
