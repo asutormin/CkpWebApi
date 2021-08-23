@@ -12,6 +12,11 @@ namespace CkpModel.Input
 
         public List<OrderPositionData> Childs { get; set; }
 
+        public OrderPositionData()
+        {
+            Childs = new List<OrderPositionData>();
+        }
+
         public List<int> GetPrices()
         {
             var prices = new List<int>();

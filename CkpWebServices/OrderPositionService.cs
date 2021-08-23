@@ -156,18 +156,15 @@ namespace CkpServices
                 _orderPositionProcessor.UpdateFullOrderPosition(orderPosition, opd, dbTran);
 
                 // Перебираем переданные пакетные позиции
-                if (opd.Childs != null)
+                foreach (var child in opd.Childs)
                 {
-                    foreach (var child in opd.Childs)
-                    {
-                        var childOrderPosition = _orderPositionProcessor.GetOrderPositionsByIds(new[] { child.OrderPositionId }).SingleOrDefault();
+                    var childOrderPosition = _orderPositionProcessor.GetOrderPositionsByIds(new[] { child.OrderPositionId }).SingleOrDefault();
 
-                        // Если переданной позиции не существует - создаём её, иначе - обновляем
-                        if (_orderPositionProcessor.NeedCreateFullOrderPosition(childOrderPosition))
-                            _orderPositionProcessor.CreateFullOrderPosition(basketOrder.Id, orderPosition.Id, 0, child, dbTran);
-                        else
-                            _orderPositionProcessor.UpdateFullOrderPosition(childOrderPosition, child, dbTran);
-                    }
+                    // Если переданной позиции не существует - создаём её, иначе - обновляем
+                    if (_orderPositionProcessor.NeedCreateFullOrderPosition(childOrderPosition))
+                        _orderPositionProcessor.CreateFullOrderPosition(basketOrder.Id, orderPosition.Id, 0, child, dbTran);
+                    else
+                        _orderPositionProcessor.UpdateFullOrderPosition(childOrderPosition, child, dbTran);
                 }
 
                 var childOrderPositions = orderPosition.ChildOrderPositions;
