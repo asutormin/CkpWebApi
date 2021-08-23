@@ -111,7 +111,7 @@ namespace CkpServices.Processors
             var rubricPosition = orderPosition.RubricPositions.FirstOrDefault();
 
             var rubricData = rubricPosition == null
-                ? new RubricData()
+                ? null
                 : new RubricData { Id = rubricPosition.RubricId, Version = rubricPosition.RubricVersion };
 
             return rubricData;
