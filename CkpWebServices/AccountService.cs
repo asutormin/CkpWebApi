@@ -139,7 +139,23 @@ namespace CkpServices
                         })
                 .SingleAsync();
 
-            var positions = await _context.OrderPositions
+            var accountPositions = await _context.AccountPositions
+                .Where(ap => ap.AccountId == accountId)
+                .Select(ap => 
+                    new AccountPositionInfo
+                    {
+                        Id = ap.Id,
+                        Name = ap.Name,
+                        Count = ap.Count,
+                        Cost = ap.Cost,
+                        Sum = ap.Sum
+                    }
+                )
+                .ToListAsync();
+
+            account.AccountPositions = accountPositions;
+
+            var orderPositions = await _context.OrderPositions
                 .Include(op => op.Order.AccountOrder)
                 .Include(op => op.ParentOrderPosition)
                 .Include(op => op.Price)
@@ -152,7 +168,7 @@ namespace CkpServices
                 .SelectPositions()
                 .ToListAsync();
 
-            account.Positions = positions;
+            account.OrderPositions = orderPositions;
 
             return account;
         }
