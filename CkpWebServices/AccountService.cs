@@ -216,7 +216,9 @@ namespace CkpServices
                                 },
                             Nds = ac.Nds,
                             Sum = ac.Sum,
-                            Debt = ac.Sum - ac.AccountOrders.Sum(ao => ao.Order.Paid)
+                            Debt = ac.TypeId == 2
+                                ? 0
+                                : ac.Sum - ac.AccountOrders.Sum(ao => ao.Order.Paid)
                         })
                 .ToListAsync();
 
