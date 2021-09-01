@@ -122,7 +122,11 @@ namespace CkpServices
                     basketOrder = _orderProcessor.CreateBasketOrder(opd, dbTran);
 
                 // Получааем скидку клиента
-                var clientDiscount = _clientProcessor.GetDiscount(opd.ClientLegalPersonId, opd.FormatData.FormatTypeId);
+                var clientDiscount = _clientProcessor.GetDiscount(
+                    opd.ClientLegalPersonId,
+                    basketOrder.BusinessUnitId,
+                    opd.SupplierId,
+                    opd.FormatData.FormatTypeId);
 
                 // Сохраняем позицию заказа
                 int orderPositionId = _orderPositionProcessor.CreateFullOrderPosition(basketOrder.Id, null, clientDiscount, opd, dbTran);

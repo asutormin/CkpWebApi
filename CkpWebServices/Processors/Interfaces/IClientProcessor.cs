@@ -2,6 +2,6 @@
 {
     interface IClientProcessor
     {
-        float GetDiscount(int legalPersonId, int pricePositionTypeId);
+        float GetDiscount(int legalPersonId, int businessUnitId, int supplierId, int pricePositionTypeId);
     }
 }

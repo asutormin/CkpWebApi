@@ -14,13 +14,17 @@ namespace CkpServices.Processors
             _context = context;
         }
 
-        public float GetDiscount(int legalPersonId, int pricePositionTypeId)
+        public float GetDiscount(int legalPersonId, int businessUnitId, int supplierId, int pricePositionTypeId)
         {
             var pricePositionTypeDiscount = _context.LegalPersons
-                .Include(lp => lp.PricePositionTypeDiscounts)
+                .Include(lp => lp.PersonalDiscounts)
                 .Single(lp => lp.Id == legalPersonId)
-                .PricePositionTypeDiscounts
-                .SingleOrDefault(pptd => pptd.PricePositionTypeId == pricePositionTypeId);
+                .PersonalDiscounts
+                .SingleOrDefault(
+                    pd =>
+                        pd.BusinessUnitId == businessUnitId &&
+                        pd.SupplierId == supplierId &&
+                        pd.PricePositionTypeId == pricePositionTypeId);
 
             return pricePositionTypeDiscount == null
                 ? 0

@@ -43,6 +43,6 @@ namespace CkpDAL.Entities
 
         public virtual ICollection<LegalPersonSign> LegalPersonSigns { get; set; }
 
-        public virtual ICollection<LegalPersonPricePositionTypeDiscount> PricePositionTypeDiscounts { get; set; }
+        public virtual ICollection<LegalPersonPersonalDiscount> PersonalDiscounts { get; set; }
     }
 }
