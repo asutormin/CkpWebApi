@@ -4,6 +4,8 @@ using CkpServices.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 
@@ -14,11 +16,11 @@ namespace CkpWebApi.Controllers
     [ApiController]
     public class ModulesController : ControllerBase
     {
-        private readonly IModuleService _modulesService;
+        private readonly IModuleService _moduleService;
 
-        public ModulesController(IModuleService modulesService)
+        public ModulesController(IModuleService moduleService)
         {
-            _modulesService = modulesService;
+            _moduleService = moduleService;
         }
 
         [HttpPost("create/sample")]
@@ -30,7 +32,7 @@ namespace CkpWebApi.Controllers
 
             if (module.Length == 0)
                 return BadRequest("module.Length == 0");
-
+            /*
             using (var stream = new MemoryStream())
             {
                 module.CopyTo(stream);
@@ -38,6 +40,32 @@ namespace CkpWebApi.Controllers
 
                 return sample;
             }
+            */
+            var sample = new ImageInfo();
+            using (var stream = new MemoryStream())
+            {
+                module.CopyTo(stream);
+                stream.Position = 0;
+
+                var imageBytes = stream.ToArray();
+
+                var im = Image.FromStream(stream, false, false);
+                
+                using (var binaryReader = new BinaryReader(stream))
+                {         
+                    var fileData = binaryReader.ReadBytes(imageBytes.Length);
+                    ImageConverter imageConverter = new ImageConverter();
+                    Image image = imageConverter.ConvertFrom(stream.ToArray()) as Image;
+                    image.Save(stream, ImageFormat.Jpeg);
+
+                    sample.Height = image.PhysicalDimension.Height;
+                    sample.Width = image.PhysicalDimension.Width;
+                    sample.VResolution = image.VerticalResolution;
+                    sample.HResolution = image.HorizontalResolution;
+                    sample.Base64String = Convert.ToBase64String(stream.ToArray());
+                }
+            }
+            return sample;
         }
 
         /*
@@ -80,7 +108,7 @@ namespace CkpWebApi.Controllers
             if (moduleParams == null)
                 return BadRequest(new { message = "Параметры модуля не переданы." });
 
-            var sample = _modulesService.BuildModuleSampleStandard(moduleParams);
+            var sample = _moduleService.BuildModuleSampleStandard(moduleParams);
 
             return sample;
         }
