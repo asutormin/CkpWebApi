@@ -32,40 +32,14 @@ namespace CkpWebApi.Controllers
 
             if (module.Length == 0)
                 return BadRequest("module.Length == 0");
-            /*
+            
             using (var stream = new MemoryStream())
             {
                 module.CopyTo(stream);
-                var sample = _modulesService.CreateImageSample(stream.ToArray(), ImageFormat.Jpeg);
+                var sample = _moduleService.CreateImageSample(stream.ToArray(), ImageFormat.Jpeg);
 
                 return sample;
             }
-            */
-            var sample = new ImageInfo();
-            using (var stream = new MemoryStream())
-            {
-                module.CopyTo(stream);
-                stream.Position = 0;
-
-                var imageBytes = stream.ToArray();
-
-                var im = Image.FromStream(stream, false, false);
-                
-                using (var binaryReader = new BinaryReader(stream))
-                {         
-                    var fileData = binaryReader.ReadBytes(imageBytes.Length);
-                    ImageConverter imageConverter = new ImageConverter();
-                    Image image = imageConverter.ConvertFrom(stream.ToArray()) as Image;
-                    image.Save(stream, ImageFormat.Jpeg);
-
-                    sample.Height = image.PhysicalDimension.Height;
-                    sample.Width = image.PhysicalDimension.Width;
-                    sample.VResolution = image.VerticalResolution;
-                    sample.HResolution = image.HorizontalResolution;
-                    sample.Base64String = Convert.ToBase64String(stream.ToArray());
-                }
-            }
-            return sample;
         }
 
         /*

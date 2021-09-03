@@ -59,24 +59,7 @@ namespace CkpServices
         public ActionResult<ImageInfo> CreateImageSample(byte[] imageBytes, ImageFormat format)
         {
             var sample = new ImageInfo();
-
-            using (var ms = new MemoryStream())
-            {
-                using (var binaryReader = new BinaryReader(ms))
-                {
-                    var fileData = binaryReader.ReadBytes(imageBytes.Length);
-                    ImageConverter imageConverter = new ImageConverter();
-                    Image image = imageConverter.ConvertFrom(fileData) as Image;
-                    image.Save(ms, format);
-
-                    sample.Height = image.PhysicalDimension.Height;
-                    sample.Width = image.PhysicalDimension.Width;
-                    sample.VResolution = image.VerticalResolution;
-                    sample.HResolution = image.HorizontalResolution;
-                    sample.Base64String = Convert.ToBase64String(ms.ToArray());
-                }
-            }
-            /*
+            
             using (MemoryStream maketMemoryStream = new MemoryStream(imageBytes))
             {
                 using (var image = Image.FromStream(maketMemoryStream))
@@ -93,7 +76,7 @@ namespace CkpServices
                     };
                 };
             }
-            */
+
             return sample;
         }
 
