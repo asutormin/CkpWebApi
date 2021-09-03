@@ -134,9 +134,9 @@ namespace CkpDAL.Repository
             int? parentId,
             int activityTypeId,
             int businessUnitId,
-            int statusId,
-            bool visa,
-            bool isNeedAccount,
+            int? statusId,
+            bool? visa,
+            bool? isNeedAccount,
             string accountDescription,
             string orderNumber,
             DateTime orderDate,
@@ -180,6 +180,7 @@ namespace CkpDAL.Repository
                     {
                         ParameterName = "@ParentId",
                         SqlDbType = SqlDbType.Int,
+                        IsNullable = true,
                         Direction = ParameterDirection.Input,
                         SqlValue = (object)parentId ?? DBNull.Value
                     });
@@ -207,8 +208,9 @@ namespace CkpDAL.Repository
                     {
                         ParameterName = "@StatusId",
                         SqlDbType = SqlDbType.Int,
+                        IsNullable = true,
                         Direction = ParameterDirection.Input,
-                        SqlValue = statusId
+                        SqlValue = (object)statusId ?? DBNull.Value
                     });
 
                 cmd.Parameters.Add(
@@ -216,8 +218,9 @@ namespace CkpDAL.Repository
                     {
                         ParameterName = "@Visa",
                         SqlDbType = SqlDbType.Bit,
+                        IsNullable = true,
                         Direction = ParameterDirection.Input,
-                        SqlValue = visa
+                        SqlValue = (object)visa ?? DBNull.Value
                     });
 
                 cmd.Parameters.Add(
@@ -225,8 +228,9 @@ namespace CkpDAL.Repository
                     {
                         ParameterName = "@IsNeedAccount",
                         SqlDbType = SqlDbType.Bit,
+                        IsNullable = true,
                         Direction = ParameterDirection.Input,
-                        SqlValue = isNeedAccount
+                        SqlValue = (object)isNeedAccount ?? DBNull.Value
                     });
 
                 cmd.Parameters.Add(
@@ -262,6 +266,7 @@ namespace CkpDAL.Repository
                     {
                         ParameterName = "@MaxExitDate",
                         SqlDbType = SqlDbType.DateTime,
+                        IsNullable = true,
                         Direction = ParameterDirection.Input,
                         SqlValue = (object)maxExitDate ?? DBNull.Value
                     });
@@ -388,6 +393,7 @@ namespace CkpDAL.Repository
                     {
                         ParameterName = "@Request",
                         SqlDbType = SqlDbType.VarChar,
+                        IsNullable = true,
                         Direction = ParameterDirection.Input,
                         SqlValue = (object)request ?? DBNull.Value
                     });

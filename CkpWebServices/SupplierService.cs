@@ -10,6 +10,8 @@ using CkpDAL.Entities;
 using CkpModel.Output.String;
 using CkpServices.Helpers;
 using CkpInfrastructure.Configuration;
+using CkpInfrastructure.Providers.Interfaces;
+using CkpServices.Helpers.Providers;
 
 namespace CkpWebApi.Services
 {
@@ -17,27 +19,30 @@ namespace CkpWebApi.Services
     {
         private readonly BPFinanceContext _context;
 
-        private readonly int _priceBusinessUnitId;
+        private readonly IProvider<int[]> _supplierIdsProvider;
+        
         private readonly int _pricePermissionFlag;
-        private readonly List<int> _supplierIds;
 
         public SupplierService(BPFinanceContext context, IOptions<AppParams> appParamsAccessor)
         {
             _context = context;
 
-            _priceBusinessUnitId = appParamsAccessor.Value.PriceBusinessUnitId;
+            var orderSettings = appParamsAccessor.Value.OrderSettings;
+            _supplierIdsProvider = new SupplierIdsProvider(orderSettings);
+            
             _pricePermissionFlag = appParamsAccessor.Value.PricePermissionFlag;
-            _supplierIds = appParamsAccessor.Value.Suppliers;
         }
 
         #region Suppliers
 
         public List<SupplierInfoLight> GetSuppliers()
         {
+            var supplierIds = _supplierIdsProvider.Get();
+
             var suppliers = _context.Suppliers
                 .Include(su => su.Company)
                 .Include(su => su.City)
-                .Where(su => _supplierIds.Contains(su.Id) && su.Id != 1761)
+                .Where(su => supplierIds.Contains(su.Id) && su.Id != 1761)
                 .Select(
                     su =>
                         new SupplierInfoLight
@@ -183,7 +188,6 @@ namespace CkpWebApi.Services
                             pp.Prices
                                 .Where(
                                     p =>
-                                        p.BusinessUnitId == _priceBusinessUnitId &&
                                         p.ActualBegin <= now &&
                                         p.ActualEnd >= now &&
                                         (p.PermissionFlag & _pricePermissionFlag) > 0)
@@ -232,8 +236,6 @@ namespace CkpWebApi.Services
                     p =>
                         p.PricePosition.SupplierId == supplierId &&
                         p.PricePosition.PricePositionTypeId == formatTypeId &&
-
-                        p.BusinessUnitId == _priceBusinessUnitId &&
                         p.ActualBegin <= now &&
                         p.ActualEnd >= now &&
                         (p.PermissionFlag & _pricePermissionFlag) > 0)

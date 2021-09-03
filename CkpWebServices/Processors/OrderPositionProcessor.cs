@@ -1,6 +1,7 @@
 ﻿using CkpDAL;
 using CkpDAL.Entities;
 using CkpDAL.Repository;
+using CkpInfrastructure.Providers.Interfaces;
 using CkpModel.Input;
 using CkpServices.Helpers.Factories;
 using CkpServices.Helpers.Factories.Interfaces;
@@ -17,12 +18,12 @@ namespace CkpServices.Processors
     {
         private readonly BPFinanceContext _context;
         private readonly IBPFinanceRepository _repository;
-        
-        private readonly int _orderBusinessUnitId;
-
+         
         private readonly IRubricProcessor _rubricProcessor;
         private readonly IGraphicProcessor _graphicProcessor;
         private readonly IPositionImProcessor _positionImProcessor;
+
+        private readonly IKeyedProvider<int, int> _orderBusinessUnitIdProvider;
 
         private readonly IOrderPositionFactory _orderPositionFactory;
 
@@ -32,16 +33,16 @@ namespace CkpServices.Processors
             IRubricProcessor rubricProcessor,
             IGraphicProcessor graphicProcessor,
             IPositionImProcessor positionImProcessor,
-            int orderBusinessUnitId)
+            IKeyedProvider<int, int> orderBusinessUnitIdProvider)
         {
             _context = context;
             _repository = repository;
 
-            _orderBusinessUnitId = orderBusinessUnitId;
-
             _rubricProcessor = rubricProcessor;
             _graphicProcessor = graphicProcessor;
             _positionImProcessor = positionImProcessor;
+
+            _orderBusinessUnitIdProvider = orderBusinessUnitIdProvider;
 
             _orderPositionFactory = new OrderPositionFactory();
         }
@@ -91,7 +92,8 @@ namespace CkpServices.Processors
 
             _graphicProcessor.CreateGraphicPositions(orderPosition.Id, opd.GraphicsData, dbTran);
 
-            _positionImProcessor.CreatePositionIm(_orderBusinessUnitId, orderId, orderPosition.Id, opd, dbTran);
+            var orderBusinessUnitId = _orderBusinessUnitIdProvider.GetByValue(orderPosition.SupplierId);
+            _positionImProcessor.CreatePositionIm(orderBusinessUnitId, orderId, orderPosition.Id, opd, dbTran);
 
             return orderPosition.Id;
         }
@@ -100,7 +102,8 @@ namespace CkpServices.Processors
             DbTransaction dbTran)
         {
             var markup = _context.Prices.Single(pr => pr.Id == opd.PriceId).Markup;
-            var nds = GetNds(_orderBusinessUnitId, opd.SupplierId);
+            var orderBusinessUnitId = _orderBusinessUnitIdProvider.GetByValue(opd.SupplierId);
+            var nds = GetNds(orderBusinessUnitId, opd.SupplierId);
 
             var orderPosition = _orderPositionFactory.Create(orderId, parentOrderPositionId, clientDiscount, markup, nds, opd);
             orderPosition = _repository.SetOrderPosition(orderPosition, false, isActual: true, dbTran);
@@ -201,13 +204,17 @@ namespace CkpServices.Processors
 
         private float GetNds(int businessUnitId, int supplierId)
         {
-            // Получаем НДС на основании бизнес юнита и поставщика
-            var supplier = _context.Suppliers.Single(su => su.Id == supplierId);
-            var businessUnit = _context.BusinessUnits.Single(bu => bu.Id == businessUnitId);
+            // Получаем бизнес юнит
+            var businessUnit = _context.BusinessUnits
+                .Single(bu => bu.Id == businessUnitId);
 
             float nds = 0;
+            // Если бизнес юнит НДС-ный
             if (businessUnit.AccountsWithNds)
             {
+                // Проверяем НДС-ность поставщика
+                // Если поставщик без НДС-ный - получаем значение НДС
+                var supplier = _context.Suppliers.Single(su => su.Id == supplierId);
                 if (supplier.IsNeedNds == 2)
                     float.TryParse(supplier.Nds, out nds);
             }

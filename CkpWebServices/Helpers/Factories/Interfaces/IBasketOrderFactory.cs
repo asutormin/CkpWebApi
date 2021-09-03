@@ -6,6 +6,7 @@ namespace CkpServices.Helpers.Factories.Interfaces
     interface IBasketOrderFactory
     {
         Order Create(
+            int businessUnitId,
             int clientLegalPersonId,
             int clientCompanyId,
             int supplierLegalPersonId,

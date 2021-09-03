@@ -9,7 +9,7 @@ namespace CkpServices.Processors.Interfaces
     interface IOrderProcessor
     {
         Order GetOrderById(int orderId);
-        Order GetBasketOrder(int clientLegalPersonId);
+        Order GetBasketOrder(int clientLegalPersonId, int supplierId);
         IQueryable<OrderPosition> GetBasketOrderPositionsQuery(int clientLegalPersonId);
         Order CreateBasketOrder(OrderPositionData opd, DbTransaction dbTran);
         Order CreateClientOrder(Order basketOrder, IEnumerable<OrderPosition> orderPositions, DbTransaction dbTran);

@@ -6,16 +6,15 @@ namespace CkpServices.Helpers.Factories
 {
     class BasketOrderFactory : IBasketOrderFactory
     {
-        private readonly int _orderBusinessUnitId;
         private readonly string _orderDescription;
 
-        public BasketOrderFactory(int orderBusinessUnitId, string orderDescription)
+        public BasketOrderFactory(string orderDescription)
         {
-            _orderBusinessUnitId = orderBusinessUnitId;
             _orderDescription = orderDescription;
         }
 
         public Order Create(
+            int businessUnitId,
             int clientLegalPersonId,
             int clientCompanyId,
             int supplierLegalPersonId,
@@ -28,7 +27,7 @@ namespace CkpServices.Helpers.Factories
                 Id = 0,
                 ParentOrderId = null,
                 ActivityTypeId = 20,
-                BusinessUnitId = _orderBusinessUnitId,
+                BusinessUnitId = businessUnitId,
                 StatusId = 1, // Редактирование
                 IsNeedVisa = false,
                 IsNeedAccount = false,

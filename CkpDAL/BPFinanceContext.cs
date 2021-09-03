@@ -57,6 +57,8 @@ namespace CkpDAL
         public DbSet<Metro> Metros { get; set; }
         public DbSet<City> Cities { get; set; }
 
+        public DbSet<Payment> Payments { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<RubricVersionable>()

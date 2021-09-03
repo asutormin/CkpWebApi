@@ -4,7 +4,7 @@ using System.Data.Common;
 
 namespace CkpDAL.Repository
 {
-    public partial interface IBPFinanceRepository
+    public interface IBPFinanceRepository
     {
         string GetAccountNumber(int legalPersonId, DbTransaction dbTran);
         Account SetAccount(Account account, bool isActual, DbTransaction dbTran);
@@ -28,5 +28,30 @@ namespace CkpDAL.Repository
         StringPhone SetStringPhone(StringPhone stringPhone, bool isActual, DbTransaction dbTran);
         Web SetWeb(Web web, bool isActual, DbTransaction dbTran);
         StringWeb SetStringWeb(StringWeb stringWeb, bool isActual, DbTransaction dbTran);
+
+        /// <summary>
+        /// Сохранение объекта платежа.
+        /// </summary>
+        /// <param name="payment">Объект платежа.</param>
+        /// <param name="isActual">Признак удаления записи.</param>
+        /// <param name="dbTran">Транзакция, в которой происходит сохранение.</param>
+        /// <returns></returns>
+        Payment SetPayment(Payment payment, bool isActual, DbTransaction dbTran);
+
+        /// <summary>
+        /// Сохранение распределения патежа на заказ.
+        /// </summary>
+        /// <param name="orderPayment">Объект распределения платежа.</param>
+        /// <param name="isActual">Признак удаления записи.</param>
+        /// <param name="dbTran">Транзакция, в которой происходит сохранение.</param>
+        /// <returns></returns>
+        OrderPayment SetOrderPayment(OrderPayment orderPayment, bool isActual, DbTransaction dbTran);
+
+        /// <summary>
+        /// Пересчитывает и сохраняет сумму оплаты заказа.
+        /// </summary>
+        /// <param name="order">Заказ.</param>
+        /// <param name="dbTran">Транзакция, в которой происходит сохранение.</param>
+        void ChangeOrderPaid(Order order, DbTransaction dbTran);
     }
 }

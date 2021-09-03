@@ -16,13 +16,13 @@ using System.Data.Common;
 using CkpServices.Processors;
 using CkpServices.Processors.String;
 using CkpDAL.Repository;
+using CkpInfrastructure.Providers.Interfaces;
+using CkpServices.Helpers.Providers;
 
 namespace CkpServices
 {
     public class AccountService : IAccountService
     {
-        private readonly int _orderBusinessUnitId;
-
         private readonly BPFinanceContext _context;
 
         private readonly IClientAccountProcessor _clientAccountProcessor;
@@ -31,12 +31,16 @@ namespace CkpServices
         private readonly IOrderImProcessor _orderImProcessor;
         private readonly IPositionImProcessor _positionImProcessor;
 
+        private readonly IProvider<int[]> _orderBusinessUnitIdsProvider;
+
         public AccountService(BPFinanceContext context, IOptions<AppSettings> appSettingsAccessor, IOptions<AppParams> appParamsAccessor)
         {
             _context = context;
             var repository = new BPFinanceRepository(_context, appParamsAccessor.Value.EditUserId);
 
-            _orderBusinessUnitId = appParamsAccessor.Value.OrderBusinessUnitId;
+            var orderSettings = appParamsAccessor.Value.OrderSettings;
+            _orderBusinessUnitIdsProvider = new OrderBusinessUnitIdsProvider(orderSettings);
+            var orderBusinessUnitIdProvider = new OrderBusinessUnitIdProvider(orderSettings);
 
             _clientAccountProcessor = new ClientAccountProcessor(
                 _context,
@@ -45,7 +49,7 @@ namespace CkpServices
                 _context,
                 repository,
                 appParamsAccessor.Value.BasketOrderDescription,
-                _orderBusinessUnitId,
+                orderBusinessUnitIdProvider,
                 appParamsAccessor.Value.ManagerId);
             var rubricProcessor = new RubricProcessor(
                 _context,
@@ -74,7 +78,7 @@ namespace CkpServices
                 rubricProcessor,
                 graphicProcessor,
                 _positionImProcessor,
-                _orderBusinessUnitId);
+                orderBusinessUnitIdProvider);
 
         }
 
@@ -191,6 +195,8 @@ namespace CkpServices
 
         public async Task<ActionResult<IEnumerable<AccountInfoLight>>> GetAccountsAsync(int clientLegalPersonId, int startAccountId, int quantity)
         {
+            var busineeUnits = _orderBusinessUnitIdsProvider.Get();
+
             var accounts = await _context.Accounts
                 .Include(ac => ac.AccountOrders).ThenInclude(ao => ao.Order)
                 .Include(ac => ac.BusinessUnit.LegalPerson)
@@ -198,7 +204,7 @@ namespace CkpServices
                     ac =>
                         ac.LegalPersonId == clientLegalPersonId &&
                         ((startAccountId == 0) || ac.Id < startAccountId) &&
-                        ac.BusinessUnitId == _orderBusinessUnitId)
+                        busineeUnits.Contains(ac.BusinessUnitId))
                 .OrderByDescending(ac => ac.Id)
                 .Take(quantity)
                 .Select(

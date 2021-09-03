@@ -74,6 +74,7 @@ namespace CkpWebApi
             services.AddScoped<IAccountService, AccountService>();
             services.AddScoped<IOrderPositionService, OrderPositionService>();
             services.AddScoped<IModuleService, ModuleService>();
+            services.AddScoped<IPaymentService, PaymentService>();
 
             services.AddControllers();
         }
