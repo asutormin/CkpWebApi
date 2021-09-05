@@ -17,6 +17,9 @@ namespace CkpDAL.Entities.String
 		[Column("company_id", TypeName = "int")]
 		public int CompanyId { get; set; }
 
+		[ForeignKey("CompanyId")]
+		public Company Company { get; set; }
+
 		[Column("anonymous_company_name", TypeName = "varchar(100)")]
 		public string AnonymousCompanyName { get; set; }
 

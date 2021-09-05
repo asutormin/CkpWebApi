@@ -18,6 +18,7 @@ namespace CkpDAL.Entities
         [Column("begin_date", TypeName = "datetime")]
         public DateTime BeginDate { get; set; }
 
+        public virtual ICollection<LegalPerson> LegalPersons { get; set; }
         public virtual ICollection<BusinessUnitCompanyManager> BusinessUnitManagers { get; set; }
     }
 }

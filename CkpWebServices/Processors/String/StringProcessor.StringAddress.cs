@@ -1,9 +1,12 @@
 ﻿using CkpDAL.Entities.String;
 using CkpModel.Input.String;
+using CkpModel.Output.String;
 using CkpServices.Helpers;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace CkpServices.Processors.String
 {
@@ -22,24 +25,50 @@ namespace CkpServices.Processors.String
             return companyAddress;
         }
 
+        public async Task<List<AddressInfo>> GetAddressesAsync(int clientLegalPersonId, string description)
+        {
+            var addresses = await _context.Addresses
+                .Include(a => a.Company).ThenInclude(co => co.LegalPersons)
+                .Where(
+                    a =>
+                        a.Company.LegalPersons
+                            .Select(lp => lp.Id)
+                            .Contains(clientLegalPersonId) &&
+                        (string.IsNullOrEmpty(description) ||
+                            a.Description.ToUpper()
+                            .Contains(description.ToUpper())))
+                .OrderByDescending(a => a.Id)
+                .Take(10)
+                .Select(
+                    a => 
+                        new AddressInfo
+                        {
+                            Id = a.Id,
+                            Description = a.Description
+                        })
+                .ToListAsync();
+
+            return addresses;
+        }
+
         #endregion
 
         #region Create
 
-        private void CreateStringAddresses(int stringId, int companyId, IEnumerable<AddressData> advAddresses, DbTransaction dbTran)
+        private void CreateStringAddresses(int stringId, int companyId, IEnumerable<AddressData> addressesData, DbTransaction dbTran)
         {
-            foreach (var advAddress in advAddresses)
-                CreateStringAddress(stringId, companyId, advAddress.Value, advAddress.OrderBy, dbTran);
+            foreach (var addressData in addressesData)
+                CreateStringAddress(stringId, companyId, addressData.Value, addressData.OrderBy, dbTran);
         }
 
-        private bool NeedCreateStringAddress(IEnumerable<StringAddress> stringAddresses, AddressData advAddress)
+        private bool NeedCreateStringAddress(IEnumerable<StringAddress> stringAddresses, AddressData addressData)
         {
             return !stringAddresses
                 .GetActualItems()
                 .Any(
                     sa =>
-                        sa.Description == advAddress.Value &&
-                        sa.OrderBy == advAddress.OrderBy);
+                        sa.Description == addressData.Value &&
+                        sa.OrderBy == addressData.OrderBy);
         }
 
         private StringAddress CreateStringAddress(int stringId, int companyId, string value, int orderBy, DbTransaction dbTran)
@@ -51,7 +80,7 @@ namespace CkpServices.Processors.String
             
             address = _repository.SetAddress(address, isActual: true, dbTran);
             
-            // Привязываем телефон к строке
+            // Привязываем адрес к строке
             var stringAddress = _stringAddressFactory.Create(stringId, address, orderBy);
             stringAddress = _repository.SetStringAddress(stringAddress, isActual: true, dbTran);
 
@@ -70,18 +99,18 @@ namespace CkpServices.Processors.String
 
         #region Update
 
-        private void UpdateStringAddresses(int stringId, int companyId, IEnumerable<StringAddress> stringAddresses, IEnumerable<AddressData> advAddresses,
+        private void UpdateStringAddresses(int stringId, int companyId, IEnumerable<StringAddress> stringAddresses, IEnumerable<AddressData> addressesData,
             DbTransaction dbTran)
         {
             var stringAddressesList = stringAddresses.GetActualItems().ToList();
 
             for (int i = stringAddressesList.Count - 1; i >= 0; i--)
-                if (NeedDeleteStringAddress(stringAddressesList[i], advAddresses))
+                if (NeedDeleteStringAddress(stringAddressesList[i], addressesData))
                     DeleteStringAddress(stringAddressesList[i], dbTran);
 
-            foreach (var advAddress in advAddresses)
-                if (NeedCreateStringAddress(stringAddressesList, advAddress))
-                    CreateStringAddress(stringId, companyId, advAddress.Value, advAddress.OrderBy, dbTran);
+            foreach (var addressData in addressesData)
+                if (NeedCreateStringAddress(stringAddressesList, addressData))
+                    CreateStringAddress(stringId, companyId, addressData.Value, addressData.OrderBy, dbTran);
         }
 
         #endregion
