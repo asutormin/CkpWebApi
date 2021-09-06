@@ -38,13 +38,14 @@ namespace CkpServices.Processors.String
                             a.Description.ToUpper()
                             .Contains(description.ToUpper())))
                 .OrderByDescending(a => a.Id)
+                .GroupBy(a => a.Description)
                 .Take(10)
                 .Select(
-                    a => 
+                    ag => 
                         new AddressInfo
                         {
-                            Id = a.Id,
-                            Description = a.Description
+                            Id = ag.Max(ag => ag.Id),
+                            Description = ag.Key
                         })
                 .ToListAsync();
 
