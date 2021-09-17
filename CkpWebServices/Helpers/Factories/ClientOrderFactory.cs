@@ -31,7 +31,7 @@ namespace CkpServices.Helpers.Factories
                 Sum = sum,
                 Paid = 0,
                 IsCashless = false,
-                IsAdvance = false,
+                IsAdvance = basketOrder.IsAdvance,
                 IsPaymentWithAgent = false,
                 IsFactoring = false,
                 CreatedPaymentPrognosisTypeId = 1,

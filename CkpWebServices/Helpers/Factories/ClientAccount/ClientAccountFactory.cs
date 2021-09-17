@@ -18,7 +18,7 @@ namespace CkpServices.Helpers.Factories.ClientAccount
                 CashId = businessUnit.CashId,
                 BusinessUnitId = businessUnit.Id,
                 StatusId = 3,
-                TypeId = 1,
+                TypeId = clientLegalPerson.AccountSettings.IsNeedPrepayment ? 3 : 1,
                 Sum = sum,
                 Nds = businessUnit.AccountsWithNds ? 20 : 0,
                 Description = null,

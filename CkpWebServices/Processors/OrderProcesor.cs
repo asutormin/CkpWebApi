@@ -18,25 +18,26 @@ namespace CkpServices.Processors
     {
         private readonly BPFinanceContext _context;
         private readonly IBPFinanceRepository _repository;
-        private readonly IKeyedProvider<int, int> _orderBusinessUnitIdProvider;
         private readonly string _basketOrderDescription;        
         private readonly int _defaultOrderManagerId;
         private readonly IBasketOrderFactory _basketOrderFactory;
         private readonly IClientOrderFactory _clientOrderFactory;
+        private readonly IKeyedProvider<int, int> _businessUnitByPriceIdProvider;
 
         public OrderProcesor(
             BPFinanceContext context,
             IBPFinanceRepository repository,
             string basketOrderDescription,
-            IKeyedProvider<int, int> orderBusinessUnitIdProvider,
-            int defaultOrderManagerId)
+            int defaultOrderManagerId,
+            IKeyedProvider<int, int> businessUnitByPriceIdProvider)
         {
             _context = context;
             _repository = repository;
 
             _basketOrderDescription = basketOrderDescription;
-            _orderBusinessUnitIdProvider = orderBusinessUnitIdProvider;
             _defaultOrderManagerId = defaultOrderManagerId;
+
+            _businessUnitByPriceIdProvider = businessUnitByPriceIdProvider;
 
             _basketOrderFactory = new BasketOrderFactory(_basketOrderDescription);
             _clientOrderFactory = new ClientOrderFactory();
@@ -54,11 +55,11 @@ namespace CkpServices.Processors
                 .Single(o => o.Id == orderId);
 
             return order;
-        }
+        }        
 
-        public Order GetBasketOrder(int clientLegalPersonId, int supplierId)
+        public Order GetBasketOrder(int clientLegalPersonId, int priceId)
         {
-            var businessUnitId = _orderBusinessUnitIdProvider.GetByValue(supplierId);
+            var businessUnitId = _businessUnitByPriceIdProvider.GetByValue(priceId);
 
             // Ищем ПЗ заказ клиента с примечанием "Корзина_ЛК"
             var order = _context.Orders
@@ -98,7 +99,7 @@ namespace CkpServices.Processors
 
         public Order CreateBasketOrder(OrderPositionData opd, DbTransaction dbTran)
         {
-            var orderBusinessUnitId = _orderBusinessUnitIdProvider.GetByValue(opd.SupplierId);
+            var businessUnitId = _businessUnitByPriceIdProvider.GetByValue(opd.PriceId);
             var clientLegalPersonId = opd.ClientLegalPersonId;
 
             var clientCompanyId = _context.LegalPersons
@@ -106,7 +107,12 @@ namespace CkpServices.Processors
                 .Single(lp => lp.Id == opd.ClientLegalPersonId).Company.Id;
 
             var supplierLegalPersonId = _context.BusinessUnits
-                .Single(bu => bu.Id == orderBusinessUnitId).LegalPersonId;
+                .Single(bu => bu.Id == businessUnitId).LegalPersonId;
+
+            var isAdvance = _context.LegalPersons
+                .Include(lp => lp.AccountSettings)
+                .Single(lp => lp.Id == clientLegalPersonId)
+                .AccountSettings.IsNeedPrepayment;
 
             var maxExitDate = _context.Graphics
                 .Where(gr => opd.GetGraphicsWithChildren()
@@ -122,15 +128,15 @@ namespace CkpServices.Processors
                 .SingleOrDefault(
                     bucm =>
                         bucm.CompanyId == clientCompanyId &&
-                        bucm.BusinessUnitId == orderBusinessUnitId);
+                        bucm.BusinessUnitId == businessUnitId);
 
             var managerId = businessUnitCompanyManager == null
                 ? _defaultOrderManagerId
                 : businessUnitCompanyManager.ManagerId;
 
             var order = _basketOrderFactory.Create(
-                orderBusinessUnitId, clientLegalPersonId, clientCompanyId,
-                supplierLegalPersonId, maxExitDate, sum, managerId);
+                businessUnitId, clientLegalPersonId, clientCompanyId,
+                supplierLegalPersonId, isAdvance, maxExitDate, sum, managerId);
 
             order = _repository.SetOrder(order, true, dbTran);
 

@@ -117,6 +117,7 @@ namespace CkpDAL.Repository
                 showContract: accountSettings.ShowContract,
                 showDiscount: accountSettings.ShowDiscount,
                 addressId: accountSettings.AddressId,
+                isNeedPrepayment: accountSettings.IsNeedPrepayment,
                 isActual: isActual,
                 lastEditDate: ref lastEditDate,
                 editUserId: _editUserId);
@@ -606,6 +607,7 @@ namespace CkpDAL.Repository
             bool showContract,
             bool showDiscount,
             int addressId,
+            bool isNeedPrepayment,
             bool isActual,
             ref DateTime lastEditDate,
             int editUserId)
@@ -846,6 +848,15 @@ namespace CkpDAL.Repository
                         SqlDbType = SqlDbType.Int,
                         Direction = ParameterDirection.Input,
                         SqlValue = addressId
+                    });
+
+                cmd.Parameters.Add(
+                    new SqlParameter
+                    {
+                        ParameterName = "@IsNeedPrepayment",
+                        SqlDbType = SqlDbType.Bit,
+                        Direction = ParameterDirection.Input,
+                        SqlValue = isNeedPrepayment
                     });
 
                 cmd.Parameters.Add(

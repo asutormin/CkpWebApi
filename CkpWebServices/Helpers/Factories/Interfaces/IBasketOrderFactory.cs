@@ -10,6 +10,7 @@ namespace CkpServices.Helpers.Factories.Interfaces
             int clientLegalPersonId,
             int clientCompanyId,
             int supplierLegalPersonId,
+            bool isAdvance,
             DateTime maxExitDate,
             float sum,
             int managerId);

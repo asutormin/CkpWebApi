@@ -92,6 +92,9 @@ namespace CkpDAL.Entities
 		[Column("address_id", TypeName = "int")]
 		public int AddressId { get; set; }
 
+		[Column("is_need_prepayment", TypeName = "bit")]
+		public bool IsNeedPrepayment { get; set; }
+
 		[Column("begin_date", TypeName = "datetime")]
 		public DateTime BeginDate { get; set; }
 

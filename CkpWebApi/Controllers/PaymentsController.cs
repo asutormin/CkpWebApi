@@ -23,14 +23,14 @@ namespace CkpWebApi.Controllers
             _paymentService = paymentService;
         }
 
-        [HttpGet("balance")]
-        public ActionResult<IEnumerable<BalanceInfo>> GetBalance()
+        [HttpGet("balances/list")]
+        public ActionResult<IEnumerable<BalanceInfo>> GetBalances()
         {
             var clientLegalPersonId = _httpContextAccessor.HttpContext.GetClientLegalPersonId();
 
-            var balance = _paymentService.GetBalance(clientLegalPersonId);
+            var balances = _paymentService.GetBalance(clientLegalPersonId);
 
-            return balance;
+            return balances;
         }
 
         [HttpPut("pay-advance-orders")]

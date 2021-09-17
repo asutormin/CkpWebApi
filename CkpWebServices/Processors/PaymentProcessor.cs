@@ -1,11 +1,11 @@
 ﻿using CkpDAL;
 using CkpDAL.Entities;
 using CkpDAL.Repository;
-using CkpInfrastructure.Providers.Interfaces;
 using CkpServices.Helpers.Factories;
 using CkpServices.Helpers.Factories.Interfaces;
 using CkpServices.Processors.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
@@ -17,26 +17,24 @@ namespace CkpServices.Processors
         private readonly BPFinanceContext _context;
         private readonly IBPFinanceRepository _repository;
 
-        private IProvider<int[]> _orderBusinessUnitIdsProvider;
+        private int[] _businessUnitIds;
         private readonly IOrderPaymentFactory _orderPaymentFactory;
 
         public PaymentProcessor(
             BPFinanceContext context,
             IBPFinanceRepository repository,
-            IProvider<int[]> orderBusinessUnitIdsProvider)
+            int[] businessUnits)
         {
             _context = context;
             _repository = repository;
 
-            _orderBusinessUnitIdsProvider = orderBusinessUnitIdsProvider;
+            _businessUnitIds = businessUnits;
 
             _orderPaymentFactory = new OrderPaymentFactory();
         }
 
-        public List<Order> GetAdvancedOrdersByLegalPersonId(int clientLegalPersonId)
+        public List<Order> GetAdvanceOrdersByLegalPersonId(int clientLegalPersonId)
         {
-            var businessUnitIds = _orderBusinessUnitIdsProvider.Get();
-
             var advanceOrders = _context.Orders
                     .Include(o => o.AccountOrder).ThenInclude(ao => ao.Account)
                     .Where(
@@ -45,7 +43,7 @@ namespace CkpServices.Processors
                             o.ActivityTypeId == 1 && // КР заказ
                             o.IsAdvance &&
                             o.AccountOrder.Account.TypeId == 3 && // Выставлен фиктивный счёт
-                            businessUnitIds.Contains(o.BusinessUnitId) &&
+                            _businessUnitIds.Contains(o.BusinessUnitId) &&
                             o.Paid < o.Sum)
                     .ToList();
 
@@ -54,18 +52,16 @@ namespace CkpServices.Processors
 
         public List<Order> GetUnpaidAdvancedOrdersByLegalPersonId(int clientLegalPersonId)
         {
-            var businessUnitIds = _orderBusinessUnitIdsProvider.Get();
-
             var unpaidOrders = _context.Orders
                 .Include(o => o.BusinessUnit).ThenInclude(bu => bu.LegalPerson)
-                .Include(o => o.AccountOrder).ThenInclude(ao =>ao.Account)
+                .Include(o => o.AccountOrder).ThenInclude(ao => ao.Account)
                 .Where(
                     o =>
                         o.ClientLegalPersonId == clientLegalPersonId &&
                         o.ActivityTypeId == 1 && // КР заказ
                         o.IsAdvance &&
                         o.AccountOrder.Account.TypeId == 3 && // Выставлен фиктивный счёт
-                        businessUnitIds.Contains(o.BusinessUnitId) &&
+                        _businessUnitIds.Contains(o.BusinessUnitId) &&
                         o.Paid < o.Sum)
                 .ToList();
 
@@ -89,19 +85,31 @@ namespace CkpServices.Processors
 
         public List<Payment> GetUndisposedPaymentsByLegalPersonId(int clientLegalPersonId)
         {
-            var businessUnitIds = _orderBusinessUnitIdsProvider.Get();
-
             var undisposedPayments = _context.Payments
                 .Include(p => p.BusinessUnit).ThenInclude(bu => bu.LegalPerson)
                 .Where(
                     p =>
                         p.PaymentTypeId == 2 && // От клиента
                         p.LegalPersonId == clientLegalPersonId &&
-                        businessUnitIds.Contains(p.BusinessUnitId) &&
+                        _businessUnitIds.Contains(p.BusinessUnitId) &&
                         p.UndisposedSum > 0)
                 .ToList();
 
             return undisposedPayments;
+        }
+
+        public List<Tuple<int, string, float>> GetLegalPersonsZeroBalance()
+        {
+            var legalPersonsZeroBalance = _context.BusinessUnits
+                .Include(bu => bu.LegalPerson)
+                .Where(
+                    bu => _businessUnitIds.Contains(bu.Id))
+                .Select(
+                    bu =>
+                        new Tuple<int, string, float>(bu.Id, bu.LegalPerson.Name, 0))
+                .ToList();
+
+            return legalPersonsZeroBalance;
         }
 
         public OrderPayment CreateOrderPayment(
@@ -122,9 +130,20 @@ namespace CkpServices.Processors
             _repository.SetPayment(payment, true, dbTran);
         }
 
+        public void AddOrderToPayment(Payment payment, Order order)
+        {
+            var orderNumber = order.Id.ToString();
+
+            payment.OrdersNumber = string.IsNullOrEmpty(payment.OrdersNumber)
+                ? orderNumber
+                : string.Format("{0}, {1}", payment.OrdersNumber, orderNumber);
+        }
+
         public void UpdateOrderPaidSum(Order order, DbTransaction dbTran)
         {
             _repository.ChangeOrderPaid(order, dbTran);
         }
+
+
     }
 }

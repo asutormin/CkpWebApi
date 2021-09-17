@@ -18,6 +18,7 @@ namespace CkpServices.Helpers.Factories
             int clientLegalPersonId,
             int clientCompanyId,
             int supplierLegalPersonId,
+            bool isAdvance,
             DateTime maxExitDate,
             float sum,
             int managerId)
@@ -41,7 +42,7 @@ namespace CkpServices.Helpers.Factories
                 Sum = sum,
                 Paid = 0,
                 IsCashless = false,
-                IsAdvance = false,
+                IsAdvance = isAdvance,
                 IsPaymentWithAgent = false,
                 IsFactoring = false,
                 CreatedPaymentPrognosisTypeId = 1,
