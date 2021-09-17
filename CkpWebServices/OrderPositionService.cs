@@ -36,9 +36,9 @@ namespace CkpServices
             var orderImFolderTemplate = appSettingsAccessor.Value.OrderImFolderTemplate;
             var dbName = appSettingsAccessor.Value.DatabaseName;
 
-            var orderBusinessUnitIdProvider = new OrderBusinessUnitIdProvider(appParamsAccessor.Value.OrderSettings);
+            var businessUnitIdByPriceIdProvider = new BusinessUnitIdByPriceIdProvider(_context);
 
-            _orderPositionDataProcessor = new OrderPositionDataProcessor(
+             _orderPositionDataProcessor = new OrderPositionDataProcessor(
                 _context,
                 orderImFolderTemplate,
                 dbName);
@@ -48,8 +48,8 @@ namespace CkpServices
                 _context,
                 repository,
                 appParamsAccessor.Value.BasketOrderDescription,
-                orderBusinessUnitIdProvider,
-                appParamsAccessor.Value.ManagerId);
+                appParamsAccessor.Value.ManagerId,
+                businessUnitIdByPriceIdProvider);
             var rubricProcessor = new RubricProcessor(
                 _context,
                 repository);
@@ -77,7 +77,7 @@ namespace CkpServices
                 rubricProcessor,
                 graphicProcessor,
                 positionImProcessor,
-                orderBusinessUnitIdProvider);
+                businessUnitIdByPriceIdProvider);
         }
 
         public bool ExistsById(int orderPositionId)
@@ -117,7 +117,7 @@ namespace CkpServices
                 var dbTran = сontextTransaction.GetDbTransaction();
 
                 // Получаем заказ-корзину
-                var basketOrder = _orderProcessor.GetBasketOrder(opd.ClientLegalPersonId, opd.SupplierId);
+                var basketOrder = _orderProcessor.GetBasketOrder(opd.ClientLegalPersonId, opd.PriceId);
 
                 // Если заказа-корзины не существует - создаём её
                 if (basketOrder == null)
@@ -156,7 +156,7 @@ namespace CkpServices
 
                 var orderPosition = _orderPositionProcessor.GetOrderPositionsByIds(new[] { opd.OrderPositionId }).Single();
 
-                var basketOrder = _orderProcessor.GetBasketOrder(opd.ClientLegalPersonId, opd.SupplierId);
+                var basketOrder = _orderProcessor.GetBasketOrder(opd.ClientLegalPersonId, opd.PriceId);
 
                 // Обновляем позицию заказа
                 _orderPositionProcessor.UpdateFullOrderPosition(orderPosition, opd, dbTran);

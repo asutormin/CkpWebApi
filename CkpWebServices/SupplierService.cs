@@ -19,7 +19,7 @@ namespace CkpWebApi.Services
     {
         private readonly BPFinanceContext _context;
 
-        private readonly IProvider<int[]> _supplierIdsProvider;
+        private readonly int[] _supplierIds;
         
         private readonly int _pricePermissionFlag;
 
@@ -27,8 +27,7 @@ namespace CkpWebApi.Services
         {
             _context = context;
 
-            var orderSettings = appParamsAccessor.Value.OrderSettings;
-            _supplierIdsProvider = new SupplierIdsProvider(orderSettings);
+            _supplierIds = appParamsAccessor.Value.SupplierIds;
             
             _pricePermissionFlag = appParamsAccessor.Value.PricePermissionFlag;
         }
@@ -37,12 +36,10 @@ namespace CkpWebApi.Services
 
         public List<SupplierInfoLight> GetSuppliers()
         {
-            var supplierIds = _supplierIdsProvider.Get();
-
             var suppliers = _context.Suppliers
                 .Include(su => su.Company)
                 .Include(su => su.City)
-                .Where(su => supplierIds.Contains(su.Id) && su.Id != 1761)
+                .Where(su => _supplierIds.Contains(su.Id) && su.Id != 1761)
                 .Select(
                     su =>
                         new SupplierInfoLight
@@ -270,6 +267,7 @@ namespace CkpWebApi.Services
                                 Price = new PriceInfo
                                 {
                                     Id = p.Id,
+                                    BusinessUnitId = p.BusinessUnitId,
                                     Value = p.GetTarifCost()
                                 }
                             })
@@ -328,6 +326,7 @@ namespace CkpWebApi.Services
                                 new PriceInfo
                                 {
                                     Id = p.Id,
+                                    BusinessUnitId = p.BusinessUnitId,
                                     Value = p.GetTarifCost()
                                 }
                         })
@@ -373,6 +372,7 @@ namespace CkpWebApi.Services
                             Price = new PriceInfo
                             {
                                 Id = pkg.Price.Id,
+                                BusinessUnitId = pkg.Price.BusinessUnitId,
                                 Value = pkg.Price.GetTarifCost()
                             }
                         })
