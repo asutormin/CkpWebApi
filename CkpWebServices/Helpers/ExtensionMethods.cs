@@ -95,7 +95,7 @@ namespace CkpServices.Helpers
                         {
                             Id = op.Id,
                             ParentId = op.ParentOrderPositionId,
-                            ClientPrice = op.GetClientPrice(),
+                            ClientCost = op.GetClientPrice(),
                             Quantity = op.GetQuantity(),
                             ClientSum = op.GetClientSum(),
                             Nds = op.GetClientNds(),
@@ -120,6 +120,13 @@ namespace CkpServices.Helpers
                                             Id = op.PricePosition.PricePositionTypeId,
                                             Name = op.PricePosition.PricePositionType.Name
                                         }
+                                },
+                            Price = 
+                                new PriceInfo
+                                {
+                                    Id = op.PriceId,
+                                    BusinessUnitId = op.Price.BusinessUnitId,
+                                    Value = op.Price.Value
                                 },
                             Graphics = op.GraphicPositions
                                 .Select(
