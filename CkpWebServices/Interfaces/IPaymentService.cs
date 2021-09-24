@@ -5,7 +5,7 @@ namespace CkpServices.Interfaces
 {
     public interface IPaymentService
     {
-        void PayAdvanceOrders(int clientLegalPersonId);
+        void PayOrders(int clientLegalPersonId);
         List<BalanceInfo> GetBalance(int clientLegalPersonId);
     }
 }

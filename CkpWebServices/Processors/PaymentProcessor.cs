@@ -50,7 +50,7 @@ namespace CkpServices.Processors
             return advanceOrders;
         }
 
-        public List<Order> GetUnpaidAdvancedOrdersByLegalPersonId(int clientLegalPersonId)
+        public List<Order> GetUnpaidOrdersByLegalPersonId(int clientLegalPersonId)
         {
             var unpaidOrders = _context.Orders
                 .Include(o => o.BusinessUnit).ThenInclude(bu => bu.LegalPerson)
@@ -59,8 +59,6 @@ namespace CkpServices.Processors
                     o =>
                         o.ClientLegalPersonId == clientLegalPersonId &&
                         o.ActivityTypeId == 1 && // КР заказ
-                        o.IsAdvance &&
-                        o.AccountOrder.Account.TypeId == 3 && // Выставлен фиктивный счёт
                         _businessUnitIds.Contains(o.BusinessUnitId) &&
                         o.Paid < o.Sum)
                 .ToList();

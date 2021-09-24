@@ -16,14 +16,11 @@ namespace CkpServices
     {
         private readonly BPFinanceContext _context;
         private readonly IPaymentProcessor _paymentProcessor;
-        private readonly int[] _businessUnitIds;
 
         public PaymentService(BPFinanceContext context, IOptions<AppParams> appParamsAccessor)
         {
             _context = context;
             var repository = new BPFinanceRepository(_context, appParamsAccessor.Value.EditUserId);
-
-            _businessUnitIds = appParamsAccessor.Value.BusinessUnitIds;
 
             _paymentProcessor = new PaymentProcessor(
                 _context,
@@ -56,7 +53,7 @@ namespace CkpServices
                 .Union(legalPersonsZeroBalance);
 
             var unpaidOrders = _paymentProcessor
-                .GetUnpaidAdvancedOrdersByLegalPersonId(clientLegalPersonId);
+                .GetUnpaidOrdersByLegalPersonId(clientLegalPersonId);
 
             var og = unpaidOrders
                 .GroupBy(o => o.BusinessUnit)
@@ -83,18 +80,18 @@ namespace CkpServices
             return balances;
         }
 
-        public void PayAdvanceOrders(int clientLegalPersonId)
+        public void PayOrders(int clientLegalPersonId)
         {
             using (var сontextTransaction = _context.Database.BeginTransaction())
             {
                 var dbTran = сontextTransaction.GetDbTransaction();
 
-                var advanceOrders = _paymentProcessor
-                    .GetAdvanceOrdersByLegalPersonId(clientLegalPersonId)
+                var unpaidOrders = _paymentProcessor
+                    .GetUnpaidOrdersByLegalPersonId(clientLegalPersonId)
                     .OrderBy(o => o.ClientLegalPersonId).ThenBy(o => o.Id);
 
                 // Перебираем не оплаченные заказы с оплатой из аванса
-                foreach (var order in advanceOrders)
+                foreach (var order in unpaidOrders)
                 {
                     var undisposedPayments = _paymentProcessor
                         .GetUndisposedPaymentsByOrder(order)

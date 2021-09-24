@@ -33,12 +33,12 @@ namespace CkpWebApi.Controllers
             return balances;
         }
 
-        [HttpPut("pay-advance-orders")]
-        public IActionResult PayAdvanceOrders()
+        [HttpPut("pay-orders")]
+        public IActionResult AutoPayOrders()
         {
             var clientLegalPersonId = _httpContextAccessor.HttpContext.GetClientLegalPersonId();
 
-            _paymentService.PayAdvanceOrders(clientLegalPersonId);
+            _paymentService.PayOrders(clientLegalPersonId);
 
             return Ok();
         }
