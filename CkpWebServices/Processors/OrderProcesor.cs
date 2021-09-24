@@ -124,15 +124,7 @@ namespace CkpServices.Processors
                 .AsEnumerable()
                 .Sum(p => p.GetTarifCost());
 
-            var businessUnitCompanyManager = _context.BusinessUnitCompanyManagers
-                .SingleOrDefault(
-                    bucm =>
-                        bucm.CompanyId == clientCompanyId &&
-                        bucm.BusinessUnitId == businessUnitId);
-
-            var managerId = businessUnitCompanyManager == null
-                ? _defaultOrderManagerId
-                : businessUnitCompanyManager.ManagerId;
+            var managerId = _defaultOrderManagerId;
 
             var order = _basketOrderFactory.Create(
                 businessUnitId, clientLegalPersonId, clientCompanyId,
