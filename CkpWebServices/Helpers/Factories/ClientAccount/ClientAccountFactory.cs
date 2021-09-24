@@ -6,21 +6,21 @@ namespace CkpServices.Helpers.Factories.ClientAccount
 {
     class ClientAccountFactory : IClientAccountFactory
     {
-        public Account Create(string number, float sum, BusinessUnit businessUnit, LegalPerson clientLegalPerson)
+        public Account Create(string number, float sum, Order basketOrder)
         {
             var account = new Account
             {
                 Id = 0,
                 Number = number,
                 Date = DateTime.Now.Date,
-                CompanyId = clientLegalPerson.CompanyId,
-                LegalPersonId = clientLegalPerson.Id,
-                CashId = businessUnit.CashId,
-                BusinessUnitId = businessUnit.Id,
+                CompanyId = basketOrder.ClientCompanyId,
+                LegalPersonId = basketOrder.ClientLegalPersonId,
+                CashId = basketOrder.BusinessUnit.CashId,
+                BusinessUnitId = basketOrder.BusinessUnitId,
                 StatusId = 3,
-                TypeId = clientLegalPerson.AccountSettings.IsNeedPrepayment ? 3 : 1,
+                TypeId = basketOrder.IsAdvance ? 3 : 1,
                 Sum = sum,
-                Nds = businessUnit.AccountsWithNds ? 20 : 0,
+                Nds = basketOrder.BusinessUnit.AccountsWithNds ? 20 : 0,
                 Description = null,
                 AdditionalDescription = null,
                 Request = null,

@@ -7,7 +7,6 @@ namespace CkpServices.Processors.Interfaces
     {
         Account CreateClientAccount(int supplierLegalPersonId, float sum, Order basketOrder, DbTransaction dbTran);
         AccountPosition CreateAccountPosition(int accountId, OrderPosition orderPosition, DbTransaction dbTran);
-        AccountSettings CreateAccountSettings(int accountId, AccountSettings legalPersonAccountSettings, DbTransaction dbTran);
         AccountOrder CreateAccountOrder(int accountId, int orderId, DbTransaction dbTran);
     }
 }

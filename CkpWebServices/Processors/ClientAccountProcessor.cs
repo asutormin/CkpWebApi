@@ -15,7 +15,6 @@ namespace CkpServices.Processors
 
         private readonly IClientAccountFactory _accountFactory;
         private readonly IAccountPositionFactory _accountPositionFactory;
-        private readonly IAccountSettingsFactory _accountSettingsFactory;
         private readonly IAccountOrderFactory _accountOrderFactory;
 
         public ClientAccountProcessor(BPFinanceContext context, IBPFinanceRepository repository)
@@ -25,7 +24,6 @@ namespace CkpServices.Processors
 
             _accountFactory = new ClientAccountFactory();
             _accountPositionFactory = new AccountPositionFactory();
-            _accountSettingsFactory = new AccountSettingsFactory();
             _accountOrderFactory = new AccountOrderFactory();
         }
 
@@ -33,7 +31,7 @@ namespace CkpServices.Processors
         {
             var accountNumber = _repository.GetAccountNumber(supplierLegalPersonId, dbTran);
 
-            var account = _accountFactory.Create(accountNumber, sum, basketOrder.BusinessUnit, basketOrder.ClientLegalPerson);
+            var account = _accountFactory.Create(accountNumber, sum, basketOrder);
             account = _repository.SetAccount(account, isActual: true, dbTran);
 
             return account;
@@ -45,14 +43,6 @@ namespace CkpServices.Processors
             accountPosition =_repository.SetAccountPosition(accountPosition, isActual: true, dbTran);
 
             return accountPosition;
-        }
-
-        public AccountSettings CreateAccountSettings(int accountId, AccountSettings legalPersonAccountSettings, DbTransaction dbTran)
-        {
-            var accountSettings = _accountSettingsFactory.Create(accountId, legalPersonAccountSettings);
-            accountSettings = _repository.SetAccountSettings(accountSettings, isActual: true, dbTran);
-
-            return accountSettings;
         }
 
         public AccountOrder CreateAccountOrder(int accountId, int orderId, DbTransaction dbTran)
