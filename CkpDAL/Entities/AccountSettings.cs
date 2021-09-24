@@ -12,7 +12,7 @@ namespace CkpDAL.Entities
         public int Id { get; set; }
 
         [Column("account_id", TypeName = "int")]
-        public int AccountId { get; set; }
+        public int? AccountId { get; set; }
 
         [ForeignKey("AccountId")]
         public Account Account { get; set; }
