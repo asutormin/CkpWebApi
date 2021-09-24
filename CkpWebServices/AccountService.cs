@@ -25,6 +25,7 @@ namespace CkpServices
         private readonly BPFinanceContext _context;
 
         private readonly IClientAccountProcessor _clientAccountProcessor;
+        private readonly IAccountSettingsProcessor _accountSettingsProcessor;
         private readonly IOrderProcessor _orderProcessor;
         private readonly IOrderPositionProcessor _orderPositionProcessor;
         private readonly IOrderImProcessor _orderImProcessor;
@@ -42,6 +43,9 @@ namespace CkpServices
             var businessUnitIdByPriceIdProvider = new BusinessUnitIdByPriceIdProvider(_context);
 
             _clientAccountProcessor = new ClientAccountProcessor(
+                _context,
+                repository);
+            _accountSettingsProcessor = new AccountSettingsProcessor(
                 _context,
                 repository);
             _orderProcessor = new OrderProcesor(
@@ -252,7 +256,7 @@ namespace CkpServices
                     _clientAccountProcessor.CreateAccountPosition(account.Id, orderPosition, dbTran);
 
                 // Создаём настройки счёта
-                _clientAccountProcessor.CreateAccountSettings(account.Id, basketOrder.ClientLegalPerson.AccountSettings, dbTran);
+                _accountSettingsProcessor.CreateAccountSettings(account.Id, basketOrder.ClientLegalPerson.AccountSettings, dbTran);
 
                 // Создаём связку счёт-заказ
                 _clientAccountProcessor.CreateAccountOrder(account.Id, clientOrder.Id, dbTran);
