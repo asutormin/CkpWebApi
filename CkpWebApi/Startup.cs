@@ -14,6 +14,7 @@ using CkpServices;
 using Microsoft.AspNetCore.Http;
 using CkpInfrastructure.Configuration;
 using CkpWebApi.Middleware;
+using CkpServices.Processors.Interfaces;
 
 namespace CkpWebApi
 {
@@ -72,6 +73,7 @@ namespace CkpWebApi
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<ISupplierService, SupplierService>();
             services.AddScoped<IAccountService, AccountService>();
+            services.AddScoped<IAccountSettingsService, AccountSettingsService>();
             services.AddScoped<IOrderPositionService, OrderPositionService>();
             services.AddScoped<IModuleService, ModuleService>();
             services.AddScoped<IStringService, StringService>();

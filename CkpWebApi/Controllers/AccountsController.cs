@@ -8,6 +8,7 @@ using System.Linq;
 using Microsoft.AspNetCore.Http;
 using System.Net;
 using Microsoft.AspNetCore.Authorization;
+using CkpServices.Processors.Interfaces;
 
 namespace CkpWebApi.Controllers
 {
@@ -18,17 +19,20 @@ namespace CkpWebApi.Controllers
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IAccountService _accountService;
+        private readonly IAccountSettingsService _accountSettingsService;
         private readonly IOrderPositionService _orderPositionService;
         private readonly IUserService _userService;
 
         public AccountsController(
             IHttpContextAccessor httpContextAccessor,
             IAccountService accountService,
+            IAccountSettingsService accountSettingsService,
             IOrderPositionService orderPositionService,
             IUserService userService)
         {
             _httpContextAccessor = httpContextAccessor;
             _accountService = accountService;
+            _accountSettingsService = accountSettingsService;
             _orderPositionService = orderPositionService;
             _userService = userService;
         }
@@ -87,6 +91,8 @@ namespace CkpWebApi.Controllers
             }
 
             var accountId = _accountService.CreateClientAccount(orderPositionIds);
+
+            _accountSettingsService.ResetIsNeedPrepayment(clientLegalPersonId);
 
             return StatusCode((int)HttpStatusCode.OK, accountId);
         }

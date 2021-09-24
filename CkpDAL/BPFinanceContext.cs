@@ -32,6 +32,7 @@ namespace CkpDAL
 
         public DbSet<LegalPerson> LegalPersons { get; set; }
         public DbSet<LoginSettings> LoginSettings { get; set; }
+        public DbSet<AccountSettings> AccountSettings { get; set; }
         public DbSet<UnloadingPosition> UnloadingPositions { get; set; }
 
         public DbSet<SupplierProject> SupplierProjects { get; set; }
