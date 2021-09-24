@@ -32,7 +32,7 @@ namespace CkpServices
 
             var userInfo = _context.LoginSettings
                 .Include(ls => ls.LegalPerson.Company)
-                .Include(ls => ls.LegalPerson).ThenInclude(lp  => lp.AccountSettings)
+                .Include(ls => ls.LegalPerson)
                 .Where(ls => ls.Login == login && ls.PasswordMd5 == passwordMd5)
                 .Select(
                     ls =>
@@ -42,7 +42,6 @@ namespace CkpServices
                             ClientName = ls.LegalPerson.Company.Name,
                             ClientLegalPersonId = ls.LegalPersonId,
                             ClientLegalPersonName = ls.LegalPerson.Name,
-                            IsNeedPrepayment = ls.LegalPerson.AccountSettings.IsNeedPrepayment,
                             Login = ls.Login
                         })
                 .SingleOrDefault();
