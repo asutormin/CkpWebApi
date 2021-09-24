@@ -33,23 +33,6 @@ namespace CkpServices.Processors
             _orderPaymentFactory = new OrderPaymentFactory();
         }
 
-        public List<Order> GetAdvanceOrdersByLegalPersonId(int clientLegalPersonId)
-        {
-            var advanceOrders = _context.Orders
-                    .Include(o => o.AccountOrder).ThenInclude(ao => ao.Account)
-                    .Where(
-                        o =>
-                            o.ClientLegalPerson.Id == clientLegalPersonId &&
-                            o.ActivityTypeId == 1 && // КР заказ
-                            o.IsAdvance &&
-                            o.AccountOrder.Account.TypeId == 3 && // Выставлен фиктивный счёт
-                            _businessUnitIds.Contains(o.BusinessUnitId) &&
-                            o.Paid < o.Sum)
-                    .ToList();
-
-            return advanceOrders;
-        }
-
         public List<Order> GetUnpaidOrdersByLegalPersonId(int clientLegalPersonId)
         {
             var unpaidOrders = _context.Orders

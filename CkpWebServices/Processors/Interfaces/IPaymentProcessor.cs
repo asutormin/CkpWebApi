@@ -7,7 +7,6 @@ namespace CkpServices.Processors.Interfaces
 {
     interface IPaymentProcessor
     {
-        List<Order> GetAdvanceOrdersByLegalPersonId(int clientLegalPersonId);
         List<Order> GetUnpaidOrdersByLegalPersonId(int clientLegalPersonId);
         List<Payment> GetUndisposedPaymentsByLegalPersonId(int clientLegalPersonId);
         List<Payment> GetUndisposedPaymentsByOrder(Order order);
