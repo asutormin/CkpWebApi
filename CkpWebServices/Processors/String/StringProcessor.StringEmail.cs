@@ -30,13 +30,13 @@ namespace CkpServices.Processors.String
 
         #region Create
 
-        private void CreateStringEmails(int stringId, int companyId, IEnumerable<EmailData> advEmails, DbTransaction dbTran)
+        private void CreateStringEmails(int stringId, int companyId, IEnumerable<EmailData> emailsData, DbTransaction dbTran)
         {
-            foreach (var advEmail in advEmails)
+            foreach (var advEmail in emailsData)
                 CreateStringEmail(stringId, companyId, advEmail, dbTran);
         }
 
-        private bool NeedCreateStringEmail(IEnumerable<StringWeb> stringWebs, EmailData advEmail)
+        private bool NeedCreateStringEmail(IEnumerable<StringWeb> stringWebs, EmailData emailData)
         {
             return !stringWebs
                 .GetActualItems()
@@ -44,28 +44,28 @@ namespace CkpServices.Processors.String
                     sw =>
                         sw.WebTypeId == 2 &&
                         sw.WebResponse == 31 &&
-                        sw.WebValue == advEmail.Value &&
-                        sw.Description == advEmail.Description &&
-                        sw.OrderBy == advEmail.OrderBy);
+                        sw.WebValue == emailData.Value &&
+                        sw.Description == emailData.Description &&
+                        sw.OrderBy == emailData.OrderBy);
         }
 
-        private StringWeb CreateStringEmail(int stringId, int companyId, EmailData advEmail, DbTransaction dbTran)
+        private StringWeb CreateStringEmail(int stringId, int companyId, EmailData emailData, DbTransaction dbTran)
         {
-            var email = GetCompanyEmail(companyId, advEmail);
+            var email = GetCompanyEmail(companyId, emailData);
 
             if (email == null)
-                email = CreateCompanyEmail(companyId, advEmail, dbTran);
+                email = CreateCompanyEmail(companyId, emailData, dbTran);
 
-            var stringWeb = _stringWebFactory.Create(stringId, email, advEmail.OrderBy);
+            var stringWeb = _stringWebFactory.Create(stringId, email, emailData.OrderBy);
 
             stringWeb = _repository.SetStringWeb(stringWeb, isActual: true, dbTran);
 
             return stringWeb;
         }
 
-        private Web CreateCompanyEmail(int companyId, EmailData advEmail, DbTransaction dbTran)
+        private Web CreateCompanyEmail(int companyId, EmailData emailData, DbTransaction dbTran)
         {
-            var email = _emailFactory.Create(companyId, advEmail.Value, advEmail.Description);
+            var email = _emailFactory.Create(companyId, emailData.Value, emailData.Description);
 
             _repository.SetWeb(email, isActual: true, dbTran);
 
@@ -76,15 +76,15 @@ namespace CkpServices.Processors.String
 
         #region Update
 
-        private void UpdateStringEmails(int stringId, int companyId, IEnumerable<StringWeb> stringEmails, IEnumerable<EmailData> advEmails, DbTransaction dbTran)
+        private void UpdateStringEmails(int stringId, int companyId, IEnumerable<StringWeb> stringEmails, IEnumerable<EmailData> emailsData, DbTransaction dbTran)
         {
             var stringWebsList = stringEmails.GetActualItems().ToList();
 
             for (int i = stringWebsList.Count - 1; i >= 0; i--)
-                if (NeedDeleteStringEmail(stringWebsList[i], advEmails))
+                if (NeedDeleteStringEmail(stringWebsList[i], emailsData))
                     DeleteStringEmail(stringWebsList[i], dbTran);
 
-            foreach (var advEmail in advEmails)
+            foreach (var advEmail in emailsData)
                 if (NeedCreateStringEmail(stringEmails, advEmail))
                     CreateStringEmail(stringId, companyId, advEmail, dbTran);
         }
