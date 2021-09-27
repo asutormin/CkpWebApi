@@ -5,11 +5,13 @@ using CkpServices.Processors.Interfaces;
 using System;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace CkpServices.Processors
 {
     class ModuleProcessor : IModuleProcessor
     {
+        private readonly string _orderImFolder;
         private readonly string _positionImSampleTemplate;
         private readonly string _positionImGraphicsFolderPathTemplate;
 
@@ -18,13 +20,42 @@ namespace CkpServices.Processors
 
         public ModuleProcessor(string orderImFolderTemplate, string dbName)
         {
-            var orderImFolder = string.Format(orderImFolderTemplate, dbName);
+            _orderImFolder = string.Format(orderImFolderTemplate, dbName);
 
-            _positionImSampleTemplate = orderImFolder + "{0}\\{1}\\{2}_{3}\\{4}.jpg";
-            _positionImGraphicsFolderPathTemplate = orderImFolder + "{0}\\{1}\\Graphics";
+            _positionImSampleTemplate = _orderImFolder + "{0}\\{1}\\{2}_{3}\\{4}.jpg";
+            _positionImGraphicsFolderPathTemplate = _orderImFolder + "{0}\\{1}\\Graphics";
 
             _orderImSampleNameProvider = new OrderImSampleNameProvider(_positionImSampleTemplate);
             _orderImGraphicsFolderPathProvider = new OrderImGraphicsFolderPathProvider(_positionImGraphicsFolderPathTemplate);
+        }
+
+        public byte[] GetImageTaskBytesById(int orderPositionId)
+        {
+            byte[] bytes = new byte[0];
+
+            var orderPositionIdString = orderPositionId.ToString();
+
+            var positionImDirectoryPath = string.Format(_orderImFolder + "\\{0}\\{1}",
+                orderPositionIdString.Substring(0, 3),
+                orderPositionIdString);
+
+            if (!Directory.Exists(positionImDirectoryPath)) return bytes;
+
+            var subDirectories = Directory.GetDirectories(positionImDirectoryPath)
+                .Select(Path.GetFileName)
+                .Where(s => Regex.Match(s, "[0-9]_[0-9]").Success)
+                .ToArray();
+
+            var taskDirectory = subDirectories.OrderByDescending(sf => sf).FirstOrDefault();
+
+            if (taskDirectory == null) return bytes;
+
+            var taskFilePath = string.Format("{0}\\{1}\\ImgTask.jpg", positionImDirectoryPath, taskDirectory);
+
+            if (File.Exists(taskFilePath))
+                bytes = File.ReadAllBytes(taskFilePath);
+
+            return bytes;
         }
 
         #region Create

@@ -10,14 +10,17 @@ using CkpDAL.Entities;
 using CkpModel.Output.String;
 using CkpServices.Helpers;
 using CkpInfrastructure.Configuration;
-using CkpInfrastructure.Providers.Interfaces;
-using CkpServices.Helpers.Providers;
+using CkpServices.Processors.Interfaces;
+using CkpDAL.Repository;
+using CkpServices.Processors;
 
 namespace CkpWebApi.Services
 {
     public class SupplierService : ISupplierService
     {
         private readonly BPFinanceContext _context;
+
+        private readonly IHandbookProcessor _handbookProcessor;
 
         private readonly int[] _supplierIds;
         
@@ -26,6 +29,11 @@ namespace CkpWebApi.Services
         public SupplierService(BPFinanceContext context, IOptions<AppParams> appParamsAccessor)
         {
             _context = context;
+            var repository = new BPFinanceRepository(_context, appParamsAccessor.Value.EditUserId);
+
+            _handbookProcessor = new HandbookProcessor(
+                _context,
+                repository);
 
             _supplierIds = appParamsAccessor.Value.SupplierIds;
             
@@ -436,39 +444,35 @@ namespace CkpWebApi.Services
 
         #region Handbooks
 
-        public List<EducationInfo> GetEducationsHandbook(int supplierId, int formatTypeId)
+        public List<EducationInfo> GetEducations()
         {
-            return _context.Handbooks
-                .Where(h => h.HandbookTypeId == 1)
+            return _handbookProcessor.GetEducations()
                 .Select(h => new EducationInfo { Id = h.Id, Name = h.HandbookValue })
                 .ToList();
         }
 
-        public List<ExperienceInfo> GetExperiencesHandbook(int supplierId, int formatTypeId)
+        public List<ExperienceInfo> GetExperiences()
         {
-            return _context.Handbooks
-             .Where(h => h.HandbookTypeId == 2)
+            return _handbookProcessor.GetExperiences()
              .Select(h => new ExperienceInfo { Id = h.Id, Name = h.HandbookValue })
              .ToList();
         }
 
-        public List<CurrencyInfo> GetCurrenciesHandbook(int supplierId, int formatTypeId)
+        public List<WorkGraphicInfo> GetWorkGraphics()
         {
-            return _context.Handbooks
-                 .Where(h => h.HandbookTypeId == 6)
-                 .Select(h => new CurrencyInfo { Id = h.Id, Name = h.HandbookValue })
-                 .ToList();
-        }
-
-        public List<WorkGraphicInfo> GetWorkGraphicsHandbook(int supplierId, int formatTypeId)
-        {
-            return _context.Handbooks
-                 .Where(h => h.HandbookTypeId == 4)
+            return _handbookProcessor.GetWorkGraphics()
                  .Select(h => new WorkGraphicInfo { Id = h.Id, Name = h.HandbookValue })
                  .ToList();
         }
 
-        public List<OccurrenceInfo> GetOccurrenciesHandbook(int supplierId, int formatTypeId)
+        public List<CurrencyInfo> GetCurrencies()
+        {
+            return _handbookProcessor.GetCurrencies()
+                 .Select(h => new CurrencyInfo { Id = h.Id, Name = h.HandbookValue })
+                 .ToList();
+        }
+
+        public List<OccurrenceInfo> GetOccurrencies(int supplierId)
         {
             if (supplierId == 1678)
             {

@@ -15,5 +15,7 @@ namespace CkpModel.Output
         public PriceInfo Price { get; set; }
         public IEnumerable<RubricInfoLight> Rubrics { get; set; }
         public IEnumerable<GraphicInfoLight> Graphics { get; set; }
+        public IEnumerable<OrderPositionInfo> Childs { get; set; }
+
     }
 }

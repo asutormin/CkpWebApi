@@ -21,6 +21,14 @@ namespace CkpWebApi.Controllers
             _moduleService = moduleService;
         }
 
+        [HttpGet("task/{orderPositionId}")]
+        public ActionResult<ImageInfo> GetTaskById(int orderPositionId)
+        {
+            var imageTask = _moduleService.GetTaskById(orderPositionId);
+
+            return imageTask;
+        }
+
         [HttpPost("create/sample")]
         [DisableRequestSizeLimit]
         public ActionResult<ImageInfo> CreateSampleFromFile(IFormFile module)

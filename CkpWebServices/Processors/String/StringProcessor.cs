@@ -1,11 +1,14 @@
 ﻿using CkpDAL;
 using CkpDAL.Entities;
+using CkpDAL.Entities.String;
 using CkpDAL.Repository;
 using CkpModel.Input.String;
 using CkpServices.Helpers.Factories.Interfaces.String;
 using CkpServices.Helpers.Factories.String;
 using CkpServices.Processors.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using System.Data.Common;
+using System.Linq;
 
 namespace CkpServices.Processors.String
 {
@@ -37,6 +40,23 @@ namespace CkpServices.Processors.String
             _emailFactory = new EmailFactory();
             _stringWebFactory = new StringWebFactory();
         }
+
+        #region Get
+
+        public StringPosition GetStringPosition(int orderPositionId)
+        {
+            var stringPosition = _context.StringPositions
+                .Include(sp => sp.OrderPosition)
+                .Include(sp => sp.Addresses)
+                .Include(sp => sp.Occurrences)
+                .Include(sp => sp.Phones)
+                .Include(sp => sp.Webs)
+                .SingleOrDefault(sp => sp.OrderPositionId == orderPositionId);
+
+            return stringPosition;
+        }        
+
+        #endregion
 
         #region Create
 

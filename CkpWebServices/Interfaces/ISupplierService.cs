@@ -17,10 +17,10 @@ namespace CkpServices.Interfaces
         TariffInfo GetTariffVersion(int formatId, DateTime formatVersion, int priceId);
         List<GraphicInfo> GetGraphics(int supplierId, int formatTypeId);
         GraphicInfo GetGraphic(int graphicId);
-        List<EducationInfo> GetEducationsHandbook(int supplierId, int formatTypeId);
-        List<ExperienceInfo> GetExperiencesHandbook(int supplierId, int formatTypeId);
-        List<CurrencyInfo> GetCurrenciesHandbook(int supplierId, int formatTypeId);
-        List<WorkGraphicInfo> GetWorkGraphicsHandbook(int supplierId, int formatTypeId);
-        List<OccurrenceInfo> GetOccurrenciesHandbook(int supplierId, int formatTypeId);
+        List<EducationInfo> GetEducations();
+        List<ExperienceInfo> GetExperiences();
+        List<CurrencyInfo> GetCurrencies();
+        List<WorkGraphicInfo> GetWorkGraphics();
+        List<OccurrenceInfo> GetOccurrencies(int supplierId);
     }
 }

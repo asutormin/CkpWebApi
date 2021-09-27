@@ -162,18 +162,25 @@ namespace CkpServices
 
             account.AccountPositions = accountPositions;
 
-            var orderPositions = await _context.OrderPositions
+            var orderPositions = _context.OrderPositions
                 .Include(op => op.Order.AccountOrder)
-                .Include(op => op.ParentOrderPosition)
+                .Include(op => op.Supplier).ThenInclude(su => su.Company)
+                .Include(op => op.Supplier).ThenInclude(su => su.City)
                 .Include(op => op.Price)
+                .Include(op => op.PricePosition).ThenInclude(pp => pp.PricePositionType)
                 .Include(op => op.GraphicPositions).ThenInclude(gp => gp.Graphic)
                 .Include(op => op.RubricPositions).ThenInclude(rp => rp.Rubric)
+                .Include(op => op.ChildOrderPositions).ThenInclude(cop => cop.Supplier).ThenInclude(csu => csu.Company)
+                .Include(op => op.ChildOrderPositions).ThenInclude(cop => cop.Supplier).ThenInclude(csu => csu.City)
+                .Include(op => op.ChildOrderPositions).ThenInclude(cop => cop.Price)
+                .Include(op => op.ChildOrderPositions).ThenInclude(cop => cop.PricePosition).ThenInclude(cpp => cpp.PricePositionType)
+                .Include(op => op.ChildOrderPositions).ThenInclude(cop => cop.GraphicPositions).ThenInclude(cgp => cgp.Graphic)
+                .Include(op => op.ChildOrderPositions).ThenInclude(cop => cop.RubricPositions).ThenInclude(crp => crp.Rubric)
                 .Where(
                     op =>
                         op.ParentOrderPositionId == null &&
                         op.Order.AccountOrder.AccountId == accountId)
-                .SelectPositions()
-                .ToListAsync();
+                .SelectPositions();
 
             account.OrderPositions = orderPositions;
 

@@ -7,5 +7,6 @@ namespace CkpServices.Interfaces
     public interface IStringService
     {
         Task<List<AddressInfo>> GetAddressesAsync(int clientLegalPersonId, string description);
+        StringPositionInfo GetStringPosition(int orderPositionId);
     }
 }

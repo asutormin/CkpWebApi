@@ -9,7 +9,7 @@ namespace CkpServices.Interfaces
     public interface IOrderPositionService
     {
         bool ExistsById(int orderPositionId);
-        Task<ActionResult<IEnumerable<OrderPositionInfo>>> GetBasketAsync(int clientLegalPersonId);
+        IEnumerable<OrderPositionInfo> GetBasket(int clientLegalPersonId);
         Task<OrderPositionData> GetOrderPositionDataAsync(int orderPositionId);
         void CreateOrderPosition(OrderPositionData orderPosition);
         void UpdateOrderPosition(OrderPositionData orderPosition);

@@ -99,42 +99,42 @@ namespace CkpWebApi.Controllers
             return graphic;
         }
 
-        [HttpGet("{supplierId}/handbooks/{formatTypeId}/educations")]
-        public IEnumerable<EducationInfo> GetEducationsHandbook(int supplierId, int formatTypeId)
+        [HttpGet("handbooks/educations")]
+        public IEnumerable<EducationInfo> GetEducations()
         {
-            var educations = _supplierService.GetEducationsHandbook(supplierId, formatTypeId);
+            var educations = _supplierService.GetEducations();
 
             return educations;
         }
 
-        [HttpGet("{supplierId}/handbooks/{formatTypeId}/experiences")]
-        public IEnumerable<ExperienceInfo> GetExperiencesHandbook(int supplierId, int formatTypeId)
+        [HttpGet("handbooks/experiences")]
+        public IEnumerable<ExperienceInfo> GetExperiences()
         {
-            var experiences = _supplierService.GetExperiencesHandbook(supplierId, formatTypeId);
+            var experiences = _supplierService.GetExperiences();
 
             return experiences;
         }
 
-        [HttpGet("{supplierId}/handbooks/{formatTypeId}/currencies")]
-        public IEnumerable<CurrencyInfo> GetCurrenciesHandbook(int supplierId, int formatTypeId)
+        [HttpGet("handbooks/currencies")]
+        public IEnumerable<CurrencyInfo> GetCurrenciesHandbook()
         {
-            var currencies = _supplierService.GetCurrenciesHandbook(supplierId, formatTypeId);
+            var currencies = _supplierService.GetCurrencies();
 
             return currencies;
         }
 
-        [HttpGet("{supplierId}/handbooks/{formatTypeId}/workgraphics")]
-        public IEnumerable<WorkGraphicInfo> GetWorkGraphicsHandbook(int supplierId, int formatTypeId)
+        [HttpGet("handbooks/workgraphics")]
+        public IEnumerable<WorkGraphicInfo> GetWorkGraphicsHandbook()
         {
-            var workGraphics = _supplierService.GetWorkGraphicsHandbook(supplierId, formatTypeId);
+            var workGraphics = _supplierService.GetWorkGraphics();
 
             return workGraphics;
         }
 
-        [HttpGet("{supplierId}/handbooks/{formatTypeId}/occurrencies")]
-        public IEnumerable<OccurrenceInfo> GetOccurrenciesHandbook(int supplierId, int formatTypeId)
+        [HttpGet("handbooks/occurrencies/{supplierId}")]
+        public IEnumerable<OccurrenceInfo> GetOccurrenciesHandbook(int supplierId)
         {
-            var occurrencies = _supplierService.GetOccurrenciesHandbook(supplierId, formatTypeId);
+            var occurrencies = _supplierService.GetOccurrencies(supplierId);
 
             return occurrencies;
         }

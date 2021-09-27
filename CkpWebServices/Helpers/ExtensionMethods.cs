@@ -86,9 +86,9 @@ namespace CkpServices.Helpers
             return nds;
         }
 
-        public static IQueryable<OrderPositionInfo> SelectPositions(this IQueryable<OrderPosition> inputQuery)
+        public static IEnumerable<OrderPositionInfo> SelectPositions(this IEnumerable<OrderPosition> input)
         {
-            var outputQuery = inputQuery
+            var output = input
                 .Select(
                     op =>
                         new OrderPositionInfo
@@ -146,10 +146,13 @@ namespace CkpServices.Helpers
                                             Id = rp.RubricId,
                                             Number = rp.Rubric.Number,
                                             Name = rp.Rubric.Name
-                                        })
+                                        }),
+                            Childs = op.ChildOrderPositions == null
+                                ? new OrderPositionInfo[0]
+                                : op.ChildOrderPositions.SelectPositions(),
                         });
 
-            return outputQuery;
+            return output;
         }
 
         public static IEnumerable<GraphicPosition> GetChilds(this GraphicPosition graphicPosition)

@@ -8,15 +8,15 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CkpWebApi.Controllers
 {
-    [Authorize]
+    //[Authorize]
     [Route("api/[controller]")]
     [ApiController]
-    public class AddressesController : ControllerBase
+    public class StringsController : ControllerBase
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IStringService _stringService;
 
-        public AddressesController(
+        public StringsController(
             IHttpContextAccessor httpContextAccessor,
             IStringService stringService)
         {
@@ -24,7 +24,15 @@ namespace CkpWebApi.Controllers
             _stringService = stringService;
         }
 
-        [HttpGet("list")]
+        [HttpGet("item/{orderPositionId}")]
+        public ActionResult<StringPositionInfo> GetStringPosition(int orderPositionId)
+        {
+            var stringPosition = _stringService.GetStringPosition(orderPositionId);
+
+            return stringPosition;
+        }
+
+        [HttpGet("addresses/list")]
         public async Task<ActionResult<IEnumerable<AddressInfo>>> GetAddresses(string description)
         {
             var clientLegalPersonId = _httpContextAccessor.HttpContext.GetClientLegalPersonId();

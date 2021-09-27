@@ -92,12 +92,11 @@ namespace CkpServices
 
         #region Get
 
-        public async Task<ActionResult<IEnumerable<OrderPositionInfo>>> GetBasketAsync(int clientLegalPersonId)
+        public IEnumerable<OrderPositionInfo> GetBasket(int clientLegalPersonId)
         {
-            var result = await _orderProcessor
+            var result = _orderProcessor
                 .GetBasketOrderPositionsQuery(clientLegalPersonId)
-                .SelectPositions()
-                .ToListAsync();
+                .SelectPositions();
 
             return result;
         }

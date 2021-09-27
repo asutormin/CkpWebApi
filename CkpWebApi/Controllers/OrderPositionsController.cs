@@ -32,11 +32,11 @@ namespace CkpWebApi.Controllers
         }
 
         [HttpGet("basket")]
-        public async Task<ActionResult<IEnumerable<OrderPositionInfo>>> GetBasket()
+        public IEnumerable<OrderPositionInfo> GetBasket()
         {
             var clientLegalPersonId = _httpContextAccessor.HttpContext.GetClientLegalPersonId();
 
-            var basket = await _orderPositionService.GetBasketAsync(clientLegalPersonId);
+            var basket = _orderPositionService.GetBasket(clientLegalPersonId);
 
             return basket;
         }

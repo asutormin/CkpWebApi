@@ -1,4 +1,5 @@
 ﻿using CkpDAL.Entities;
+using CkpDAL.Entities.String;
 using CkpModel.Input.String;
 using CkpModel.Output.String;
 using System.Collections.Generic;
@@ -9,6 +10,7 @@ namespace CkpServices.Processors.Interfaces
 {
     interface IStringProcessor
     {
+        StringPosition GetStringPosition(int orderPositionId);
         Task<List<AddressInfo>> GetAddressesAsync(int clientLegalPersonId, string descriptionPart);
         void CreateFullString(int businessUnitId, int companyId, int orderPositionId, StringData stringData, DbTransaction dbTran);
         bool CanUpdateString(PositionIm positionIm);

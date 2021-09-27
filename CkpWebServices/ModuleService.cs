@@ -1,8 +1,12 @@
-﻿using CkpModel.Input.Module;
+﻿using CkpInfrastructure.Configuration;
+using CkpModel.Input.Module;
 using CkpModel.Output;
 using CkpServices.Helpers.Builders;
 using CkpServices.Interfaces;
+using CkpServices.Processors;
+using CkpServices.Processors.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using System;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -12,6 +16,15 @@ namespace CkpServices
 {
     public class ModuleService : IModuleService
     {
+        private readonly IModuleProcessor _moduleProcessor;
+
+        public ModuleService(IOptions<AppSettings> appSettingsAccessor)
+        {
+            _moduleProcessor = new ModuleProcessor(
+                appSettingsAccessor.Value.OrderImFolderTemplate,
+                appSettingsAccessor.Value.DatabaseName);
+        }
+
         /*
         public ActionResult<string> SaveModuleToDisk(byte[] moduleBytes)
         {
@@ -56,9 +69,21 @@ namespace CkpServices
         }
         */
 
+        public ActionResult<ImageInfo> GetTaskById(int orderPositionId)
+        {
+            var bytes = _moduleProcessor.GetImageTaskBytesById(orderPositionId);
+
+            var imageTask = CreateImageSample(bytes, ImageFormat.Jpeg);
+
+            return imageTask;
+        }
+
         public ActionResult<ImageInfo> CreateImageSample(byte[] imageBytes, ImageFormat format)
         {
             var sample = new ImageInfo();
+
+            if (imageBytes.Length == 0)
+                return sample;
             
             using (MemoryStream maketMemoryStream = new MemoryStream(imageBytes))
             {
