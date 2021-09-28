@@ -7,7 +7,7 @@ namespace CkpServices.Interfaces
 {
     public interface IModuleService
     {
-        ActionResult<ImageInfo> GetTaskById(int orderPositionId);
+        ActionResult<ImageInfo> GetSampleImageById(int orderPositionId);
         ActionResult<ImageInfo> CreateImageSample(byte[] imageBytes, ImageFormat format);
         ActionResult<ImageInfo> BuildModuleSampleStandard(ModuleParamsStandartData moduleParams);
     }

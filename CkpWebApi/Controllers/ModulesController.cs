@@ -21,12 +21,12 @@ namespace CkpWebApi.Controllers
             _moduleService = moduleService;
         }
 
-        [HttpGet("task/{orderPositionId}")]
+        [HttpGet("sample/{orderPositionId}")]
         public ActionResult<ImageInfo> GetTaskById(int orderPositionId)
         {
-            var imageTask = _moduleService.GetTaskById(orderPositionId);
+            var sample = _moduleService.GetSampleImageById(orderPositionId);
 
-            return imageTask;
+            return sample;
         }
 
         [HttpPost("create/sample")]

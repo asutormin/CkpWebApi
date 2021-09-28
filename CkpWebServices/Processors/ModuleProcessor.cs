@@ -29,7 +29,7 @@ namespace CkpServices.Processors
             _orderImGraphicsFolderPathProvider = new OrderImGraphicsFolderPathProvider(_positionImGraphicsFolderPathTemplate);
         }
 
-        public byte[] GetImageTaskBytesById(int orderPositionId)
+        public byte[] GetSampleImageBytesById(int orderPositionId, string fileName)
         {
             byte[] bytes = new byte[0];
 
@@ -46,14 +46,14 @@ namespace CkpServices.Processors
                 .Where(s => Regex.Match(s, "[0-9]_[0-9]").Success)
                 .ToArray();
 
-            var taskDirectory = subDirectories.OrderByDescending(sf => sf).FirstOrDefault();
+            var sampleDirectory = subDirectories.OrderByDescending(sf => sf).FirstOrDefault();
 
-            if (taskDirectory == null) return bytes;
+            if (sampleDirectory == null) return bytes;
 
-            var taskFilePath = string.Format("{0}\\{1}\\ImgTask.jpg", positionImDirectoryPath, taskDirectory);
+            var sampleFilePath = string.Format("{0}\\{1}\\{2}.jpg", positionImDirectoryPath, sampleDirectory, fileName);
 
-            if (File.Exists(taskFilePath))
-                bytes = File.ReadAllBytes(taskFilePath);
+            if (File.Exists(sampleFilePath))
+                bytes = File.ReadAllBytes(sampleFilePath);
 
             return bytes;
         }

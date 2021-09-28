@@ -69,13 +69,16 @@ namespace CkpServices
         }
         */
 
-        public ActionResult<ImageInfo> GetTaskById(int orderPositionId)
+        public ActionResult<ImageInfo> GetSampleImageById(int orderPositionId)
         {
-            var bytes = _moduleProcessor.GetImageTaskBytesById(orderPositionId);
+            var bytes = _moduleProcessor.GetSampleImageBytesById(orderPositionId, "ImgMaket");
 
-            var imageTask = CreateImageSample(bytes, ImageFormat.Jpeg);
+            if (bytes.Length == 0)
+                bytes = _moduleProcessor.GetSampleImageBytesById(orderPositionId, "ImgTask");
 
-            return imageTask;
+            var sample = CreateImageSample(bytes, ImageFormat.Jpeg);
+
+            return sample;
         }
 
         public ActionResult<ImageInfo> CreateImageSample(byte[] imageBytes, ImageFormat format)
