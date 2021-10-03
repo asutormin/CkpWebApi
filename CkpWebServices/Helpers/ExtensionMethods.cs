@@ -50,7 +50,7 @@ namespace CkpServices.Helpers
                     (1 + orderPosition.Nds / 100) *
                     (1 - orderPosition.Discount / 100);
 
-            return price;
+            return (float)Math.Round(price, 2);
         }
 
         public static int GetQuantity(this OrderPosition orderPosition)
@@ -72,7 +72,7 @@ namespace CkpServices.Helpers
                     (1 + orderPosition.Nds / 100) *
                     (1 - orderPosition.Discount / 100);
 
-            return sum;
+            return (float)Math.Round(sum, 2);
         }
 
         public static float GetClientNds(this OrderPosition orderPosition)
