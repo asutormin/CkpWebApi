@@ -7,6 +7,7 @@ namespace CkpModel.Output
         public SupplierInfoLight Supplier { get; set; }
         public FormatInfo Format { get; set; }
         public PriceInfo Price { get; set; }
+        public ProjectInfo Project { get; set; }
         public List<TariffInfo> PackageTariffs { get; set; }
     }
 }

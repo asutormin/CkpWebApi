@@ -127,6 +127,8 @@ namespace CkpWebApi.Services
                     .Where(r => projectRubricIds.Contains(r.Id))
                     .OrderBy(r => r.OrderBy)
                     .ToList();
+
+                return rubrics;
             }
 
             // Отбираем рубрики, монопольно задействованные в проектах поставщика,
@@ -136,7 +138,7 @@ namespace CkpWebApi.Services
                 .Where(
                     spr =>
                         spr.SupplierProject.SupplierId == price.PricePosition.SupplierId &&
-                        spr.SupplierProjectId != projectId &&
+                        spr.SupplierProject.Id != projectId &&
                         spr.SupplierProject.ExclusiveRubrics)
                 .Select(spr => spr.RubricId);
 
@@ -235,8 +237,9 @@ namespace CkpWebApi.Services
             var tarifs = _context.Prices
                 .Include(p => p.PricePosition).ThenInclude(pp => pp.PricePositionEx)
                 .Include(p => p.PricePosition).ThenInclude(pp => pp.PricePositionType)
-                .Include(p => p.PricePosition.Supplier.Company)
-                .Include(p => p.PricePosition.Supplier.City)
+                .Include(p => p.PricePosition).ThenInclude(pp => pp.Supplier).ThenInclude(su => su.Company)
+                .Include(p => p.PricePosition).ThenInclude(pp => pp.Supplier).ThenInclude(su => su.City)
+                .Include(p => p.SupplierProjectRelation).ThenInclude(spr => spr.SupplierProject)
                 .Where(
                     p =>
                         p.PricePosition.SupplierId == supplierId &&
@@ -265,19 +268,27 @@ namespace CkpWebApi.Services
                                     UnitName = p.PricePosition.Unit.Name,
                                     Description = p.PricePosition.Description,
                                     Version = p.PricePosition.BeginDate,
-                                    Type =
-                                        new FormatTypeInfoLight
-                                        {
-                                            Id = p.PricePosition.PricePositionTypeId,
-                                            Name = p.PricePosition.PricePositionType.Name
-                                        }
+                                    Type = new FormatTypeInfoLight
+                                    {
+                                        Id = p.PricePosition.PricePositionTypeId,
+                                        Name = p.PricePosition.PricePositionType.Name
+                                    }
                                 },
                                 Price = new PriceInfo
                                 {
                                     Id = p.Id,
                                     BusinessUnitId = p.BusinessUnitId,
                                     Value = p.GetTarifCost()
-                                }
+                                },
+                                Project = p.SupplierProjectRelation == null
+                                    ? null
+                                    : p.SupplierProjectRelation.SupplierProject == null
+                                        ? null
+                                        : new ProjectInfo
+                                        {
+                                            Id = p.SupplierProjectRelation.SupplierProject.Id,
+                                            Name = p.SupplierProjectRelation.SupplierProject.Name
+                                        }
                             })
                 .ToList();
 
