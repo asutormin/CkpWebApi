@@ -22,7 +22,7 @@ namespace CkpWebApi.Controllers
         }
 
         [HttpGet("sample/{orderPositionId}")]
-        public ActionResult<ImageInfo> GetTaskById(int orderPositionId)
+        public ActionResult<ImageInfo> GetSampleById(int orderPositionId)
         {
             var sample = _moduleService.GetSampleImageById(orderPositionId);
 

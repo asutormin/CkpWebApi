@@ -50,8 +50,17 @@ namespace CkpServices.Processors
 
             if (sampleDirectory == null) return bytes;
 
-            var sampleFilePath = string.Format("{0}\\{1}\\{2}.jpg", positionImDirectoryPath, sampleDirectory, fileName);
+            var sampleDirectoryPath = string.Format("{0}\\{1}", positionImDirectoryPath, sampleDirectory);
 
+            var sampleFilePathes = Directory.GetFiles(sampleDirectoryPath)
+                .Where(f => Regex.Match(f, fileName).Success)
+                .OrderByDescending(f => f)
+                .ToArray();
+
+            var sampleFilePath = sampleFilePathes.OrderByDescending(f => f).FirstOrDefault();
+
+            if (sampleFilePath == null) return bytes;
+                        
             if (File.Exists(sampleFilePath))
                 bytes = File.ReadAllBytes(sampleFilePath);
 
