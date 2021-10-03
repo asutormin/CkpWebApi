@@ -18,7 +18,7 @@ namespace CkpServices.Processors
     {
         private readonly BPFinanceContext _context;
         private readonly IBPFinanceRepository _repository;
-        private readonly string _basketOrderDescription;        
+        private readonly string _basketOrderDescription;
         private readonly int _defaultOrderManagerId;
         private readonly IBasketOrderFactory _basketOrderFactory;
         private readonly IClientOrderFactory _clientOrderFactory;
@@ -55,7 +55,7 @@ namespace CkpServices.Processors
                 .Single(o => o.Id == orderId);
 
             return order;
-        }        
+        }
 
         public Order GetBasketOrder(int clientLegalPersonId, int priceId)
         {
@@ -73,32 +73,6 @@ namespace CkpServices.Processors
                 .FirstOrDefault();
 
             return order;
-        }
-
-        public IQueryable<OrderPosition> GetBasketOrderPositionsQuery(int clientLegalPersonId)
-        {
-            var query = _context.OrderPositions
-                .Include(op => op.Order.AccountOrder)
-                .Include(op => op.Supplier).ThenInclude(su => su.Company)
-                .Include(op => op.Supplier).ThenInclude(su => su.City)
-                .Include(op => op.Price)
-                .Include(op => op.PricePosition).ThenInclude(pp => pp.PricePositionType)
-                .Include(op => op.GraphicPositions).ThenInclude(gp => gp.Graphic)
-                .Include(op => op.RubricPositions).ThenInclude(rp => rp.Rubric)
-                .Include(op => op.ChildOrderPositions).ThenInclude(cop => cop.Supplier).ThenInclude(csu => csu.Company)
-                .Include(op => op.ChildOrderPositions).ThenInclude(cop => cop.Supplier).ThenInclude(csu => csu.City)
-                .Include(op => op.ChildOrderPositions).ThenInclude(cop => cop.Price)
-                .Include(op => op.ChildOrderPositions).ThenInclude(cop => cop.PricePosition).ThenInclude(cpp => cpp.PricePositionType)
-                .Include(op => op.ChildOrderPositions).ThenInclude(cop => cop.GraphicPositions).ThenInclude(cgp => cgp.Graphic)
-                .Include(op => op.ChildOrderPositions).ThenInclude(cop => cop.RubricPositions).ThenInclude(crp => crp.Rubric)
-                .Where(
-                    op =>
-                        op.ParentOrderPositionId == null &&
-                        op.Order.ClientLegalPersonId == clientLegalPersonId &&
-                        op.Order.ActivityTypeId == 20 &&
-                        op.Order.Description == _basketOrderDescription);
-
-            return query;
         }
 
         #endregion

@@ -81,6 +81,7 @@ namespace CkpServices
                 rubricProcessor,
                 graphicProcessor,
                 _positionImProcessor,
+                appParamsAccessor.Value.BasketOrderDescription,
                 businessUnitIdByPriceIdProvider);
 
         }
@@ -250,7 +251,7 @@ namespace CkpServices
                 var dbTran = сontextTransaction.GetDbTransaction();
 
                 // Создаём заказ
-                var orderPositions = _orderPositionProcessor.GetOrderPositionsByIds(orderPositionIds);
+                var orderPositions = _orderPositionProcessor.GetInnerOperationsOrderPositionsByIds(orderPositionIds);
                 var basketOrder = _orderProcessor.GetOrderById(orderPositions.First().OrderId);
                 var clientOrder = CreateClientOrder(basketOrder, orderPositions, dbTran);
 

@@ -23,6 +23,7 @@ namespace CkpServices.Processors
         private readonly IGraphicProcessor _graphicProcessor;
         private readonly IPositionImProcessor _positionImProcessor;
 
+        private readonly string _basketOrderDescription;
         private readonly IKeyedProvider<int, int> _businessUnitIdByPriceIdProvider;
 
         private readonly IOrderPositionFactory _orderPositionFactory;
@@ -33,6 +34,7 @@ namespace CkpServices.Processors
             IRubricProcessor rubricProcessor,
             IGraphicProcessor graphicProcessor,
             IPositionImProcessor positionImProcessor,
+            string basketOrderDescription,
             IKeyedProvider<int, int> businessUnitIdByPriceIdProvider)
         {
             _context = context;
@@ -42,6 +44,7 @@ namespace CkpServices.Processors
             _graphicProcessor = graphicProcessor;
             _positionImProcessor = positionImProcessor;
 
+            _basketOrderDescription = basketOrderDescription;
             _businessUnitIdByPriceIdProvider = businessUnitIdByPriceIdProvider;
 
             _orderPositionFactory = new OrderPositionFactory();
@@ -49,7 +52,7 @@ namespace CkpServices.Processors
 
         #region Get
 
-        public IEnumerable<OrderPosition> GetOrderPositionsByIds(int[] orderPositionIds)
+        public IEnumerable<OrderPosition> GetInnerOperationsOrderPositionsByIds(int[] orderPositionIds)
         {
             var orderPositions = _context.OrderPositions
                 .Include(op => op.Order).ThenInclude(o => o.OrderPositions).ThenInclude(op => op.GraphicPositions).ThenInclude(gp => gp.Graphic)
@@ -69,6 +72,49 @@ namespace CkpServices.Processors
                 .ToList();
 
             return orderPositions;
+        }
+
+        public IQueryable<OrderPosition> GetBasketOrderPositionsQuery(int clientLegalPersonId)
+        {
+            return GetOrderPositionsQuery(clientLegalPersonId, null, 0, 20, _basketOrderDescription);
+        }
+
+        public IQueryable<OrderPosition> GetAccountOrderPositionsQuery(int clientLegalPersonId, int accountId)
+        {
+            return GetOrderPositionsQuery(clientLegalPersonId, null, accountId, 0, null);
+        }
+
+        public IQueryable<OrderPosition> GetOrderPositionsByIdsOuery(int clientLegalPersonId, int[] orderPositionIds)
+        {
+            return GetOrderPositionsQuery(clientLegalPersonId, orderPositionIds, 0, 0, null);
+        }
+
+        private IQueryable<OrderPosition> GetOrderPositionsQuery(int clientLegalPersonId, int[] orderPositionIds, int accountId, int activityTypeId, string description)
+        {
+            var query = _context.OrderPositions
+                .Include(op => op.Order.AccountOrder)
+                .Include(op => op.Supplier).ThenInclude(su => su.Company)
+                .Include(op => op.Supplier).ThenInclude(su => su.City)
+                .Include(op => op.Price)
+                .Include(op => op.PricePosition).ThenInclude(pp => pp.PricePositionType)
+                .Include(op => op.GraphicPositions).ThenInclude(gp => gp.Graphic)
+                .Include(op => op.RubricPositions).ThenInclude(rp => rp.Rubric)
+                .Include(op => op.ChildOrderPositions).ThenInclude(cop => cop.Supplier).ThenInclude(csu => csu.Company)
+                .Include(op => op.ChildOrderPositions).ThenInclude(cop => cop.Supplier).ThenInclude(csu => csu.City)
+                .Include(op => op.ChildOrderPositions).ThenInclude(cop => cop.Price)
+                .Include(op => op.ChildOrderPositions).ThenInclude(cop => cop.PricePosition).ThenInclude(cpp => cpp.PricePositionType)
+                .Include(op => op.ChildOrderPositions).ThenInclude(cop => cop.GraphicPositions).ThenInclude(cgp => cgp.Graphic)
+                .Include(op => op.ChildOrderPositions).ThenInclude(cop => cop.RubricPositions).ThenInclude(crp => crp.Rubric)
+                .Where(
+                    op =>
+                        op.ParentOrderPositionId == null &&
+                        op.Order.ClientLegalPersonId == clientLegalPersonId &&
+                        (orderPositionIds == null || orderPositionIds.Contains(op.Id)) &&
+                        (accountId == 0 || op.Order.AccountOrder.AccountId == accountId) &&
+                        (activityTypeId == 0 || op.Order.ActivityTypeId == activityTypeId) &&
+                        (description == null || op.Order.Description == description));
+
+            return query;
         }
 
         #endregion

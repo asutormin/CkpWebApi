@@ -10,7 +10,6 @@ namespace CkpServices.Processors.Interfaces
     {
         Order GetOrderById(int orderId);
         Order GetBasketOrder(int clientLegalPersonId, int supplierId);
-        IQueryable<OrderPosition> GetBasketOrderPositionsQuery(int clientLegalPersonId);
         Order CreateBasketOrder(OrderPositionData opd, DbTransaction dbTran);
         Order CreateClientOrder(Order basketOrder, IEnumerable<OrderPosition> orderPositions, DbTransaction dbTran);
         void UpdateOrder(int orderId, DbTransaction dbTran);

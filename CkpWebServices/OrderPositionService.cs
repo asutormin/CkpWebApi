@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -77,6 +75,7 @@ namespace CkpServices
                 rubricProcessor,
                 graphicProcessor,
                 positionImProcessor,
+                appParamsAccessor.Value.BasketOrderDescription,
                 businessUnitIdByPriceIdProvider);
         }
 
@@ -94,7 +93,7 @@ namespace CkpServices
 
         public IEnumerable<OrderPositionInfo> GetBasket(int clientLegalPersonId)
         {
-            var result = _orderProcessor
+            var result = _orderPositionProcessor
                 .GetBasketOrderPositionsQuery(clientLegalPersonId)
                 .SelectPositions();
 
@@ -153,7 +152,8 @@ namespace CkpServices
             {
                 var dbTran = сontextTransaction.GetDbTransaction();
 
-                var orderPosition = _orderPositionProcessor.GetOrderPositionsByIds(new[] { opd.OrderPositionId }).Single();
+                var orderPosition = _orderPositionProcessor
+                    .GetInnerOperationsOrderPositionsByIds(new[] { opd.OrderPositionId }).Single();
 
                 var basketOrder = _orderProcessor.GetBasketOrder(opd.ClientLegalPersonId, opd.PriceId);
 
@@ -163,7 +163,8 @@ namespace CkpServices
                 // Перебираем переданные пакетные позиции
                 foreach (var child in opd.Childs)
                 {
-                    var childOrderPosition = _orderPositionProcessor.GetOrderPositionsByIds(new[] { child.OrderPositionId }).SingleOrDefault();
+                    var childOrderPosition = _orderPositionProcessor
+                        .GetInnerOperationsOrderPositionsByIds(new[] { child.OrderPositionId }).SingleOrDefault();
 
                     // Если переданной позиции не существует - создаём её, иначе - обновляем
                     if (_orderPositionProcessor.NeedCreateFullOrderPosition(childOrderPosition))
@@ -196,7 +197,7 @@ namespace CkpServices
             {
                 var dbTran = сontextTransaction.GetDbTransaction();
 
-                var orderPosition = _orderPositionProcessor.GetOrderPositionsByIds(new[] { orderPositionId })
+                var orderPosition = _orderPositionProcessor.GetInnerOperationsOrderPositionsByIds(new[] { orderPositionId })
                     .SingleOrDefault();
 
                 if (orderPosition == null)
