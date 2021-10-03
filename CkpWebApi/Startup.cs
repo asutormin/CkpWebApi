@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.SqlServer;
 using CkpDAL;
 using CkpServices.Interfaces;
 using CkpServices;
@@ -29,14 +30,14 @@ namespace CkpWebApi
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<BPFinanceContext>(opt =>
+            services.AddDbContext<BPFinanceContext>(options =>
             {
                 var appSettings = new AppSettings();
                 Configuration.GetSection("AppSettings").Bind(appSettings);
                 var dbName = appSettings.DatabaseName;
                 var connectionString = string.Format(Configuration.GetConnectionString("BPFinance"), dbName);
 
-                opt.UseSqlServer(connectionString);
+                options.UseSqlServer(connectionString);
             });
 
             // configure strongly typed settings objects
@@ -78,6 +79,7 @@ namespace CkpWebApi
             services.AddScoped<IModuleService, ModuleService>();
             services.AddScoped<IStringService, StringService>();
             services.AddScoped<IPaymentService, PaymentService>();
+            services.AddScoped<ISearchService, SearchService>();
 
             services.AddControllers();
         }
