@@ -77,6 +77,7 @@ namespace CkpServices
                 .Include(op => op.PositionIm).ThenInclude(pim => pim.StringPosition).ThenInclude(sp => sp.Webs)
                 .Where(
                     op =>
+                        op.Order.OrderDate.Year > 2018 &&
                         op.Order.ActivityTypeId == 1 &&
                         op.Order.ClientLegalPersonId == clientLegalPersonId &&
                         (
@@ -107,13 +108,13 @@ namespace CkpServices
                                     op.PositionIm.StringPosition.VacancyAdditional.ToUpper().Contains(value) ||
                                     op.PositionIm.StringPosition.Requirement.ToUpper().Contains(value) ||
                                     op.PositionIm.StringPosition.Responsibility.ToUpper().Contains(value) ||
-                                    op.PositionIm.StringPosition.Condition.ToUpper().Contains(value) /*||
-                                    op.PositionIm.StringPosition.Addresses
-                                        .Any(addr => addr.Description.ToUpper().Contains(value)) ||
+                                    op.PositionIm.StringPosition.Condition.ToUpper().Contains(value) ||
+                                    // op.PositionIm.StringPosition.Addresses
+                                    //     .Any(addr => addr.Description.ToUpper().Contains(value)) ||
                                     op.PositionIm.StringPosition.Phones
                                         .Any(ph => (ph.Code + ph.Number).Contains(value)) ||
                                     op.PositionIm.StringPosition.Phones
-                                        .Any(ph => ph.Description.ToUpper().Contains(value))*/
+                                        .Any(ph => ph.Description.ToUpper().Contains(value))
                                 )
                             )
                         )
