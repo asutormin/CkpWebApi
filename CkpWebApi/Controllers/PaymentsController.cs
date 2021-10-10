@@ -28,7 +28,7 @@ namespace CkpWebApi.Controllers
         {
             var clientLegalPersonId = _httpContextAccessor.HttpContext.GetClientLegalPersonId();
 
-            var balances = _paymentService.GetBalance(clientLegalPersonId);
+            var balances = _paymentService.GetBalances(clientLegalPersonId);
 
             return balances;
         }

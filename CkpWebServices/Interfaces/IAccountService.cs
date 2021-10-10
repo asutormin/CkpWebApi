@@ -9,9 +9,11 @@ namespace CkpServices.Interfaces
     public interface IAccountService
     {
         bool ExistsById(int accountId);
+        void ApplyPaymentInTimeDiscount(int accountId);
         Task<ActionResult<IEnumerable<AccountInfoLight>>> GetAccountsAsync(int clientLegalPersonId, int startAccountId, int quantity);
         Task<ActionResult<AccountInfo>> GetAccountByIdAsync(int accountId);
         Task<ActionResult<Account>> GetFullAccountByIdAsync(int accountId);
+        int GetAccountBusinessUnitIdAsync(int accountId);
         int CreateClientAccount(int[] orderPositionIds);
     }
 }

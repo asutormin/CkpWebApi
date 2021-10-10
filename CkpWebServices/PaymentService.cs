@@ -28,7 +28,7 @@ namespace CkpServices
                 appParamsAccessor.Value.BusinessUnitIds);
         }
 
-        public List<BalanceInfo> GetBalance(int clientLegalPersonId)
+        public List<BalanceInfo> GetBalances(int clientLegalPersonId)
         {
             var legalPersonsZeroBalance = _paymentProcessor
                 .GetLegalPersonsZeroBalance()
@@ -128,6 +128,18 @@ namespace CkpServices
                 _context.SaveChanges();
                 dbTran.Commit();
             }
+        }
+
+        public bool CanApplyInTimeDiscount(int clientLegalPersonId, int accountId)
+        {
+            var balances = GetBalances(clientLegalPersonId);
+
+            var account = _context.Accounts.Single(ac => ac.Id == accountId);
+
+            var balance = balances
+                .SingleOrDefault(b => b.BusinessUnitId == account.BusinessUnitId);
+
+            return balance.BalanceSum >= account.Sum;
         }
     }
 }

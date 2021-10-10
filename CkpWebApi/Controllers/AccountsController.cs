@@ -21,6 +21,7 @@ namespace CkpWebApi.Controllers
         private readonly IAccountService _accountService;
         private readonly IAccountSettingsService _accountSettingsService;
         private readonly IOrderPositionService _orderPositionService;
+        private readonly IPaymentService _paymentService;
         private readonly IUserService _userService;
 
         public AccountsController(
@@ -28,12 +29,14 @@ namespace CkpWebApi.Controllers
             IAccountService accountService,
             IAccountSettingsService accountSettingsService,
             IOrderPositionService orderPositionService,
+            IPaymentService paymentService,
             IUserService userService)
         {
             _httpContextAccessor = httpContextAccessor;
             _accountService = accountService;
             _accountSettingsService = accountSettingsService;
             _orderPositionService = orderPositionService;
+            _paymentService = paymentService;
             _userService = userService;
         }
 
@@ -90,8 +93,14 @@ namespace CkpWebApi.Controllers
                         new { message = string.Format("Создание счёта. Доступ к позиции заказа {0} запрещён.", orderPositionId) }); ;
             }
 
+            // Фомируем счёт
             var accountId = _accountService.CreateClientAccount(orderPositionIds);
 
+            // Применяем скидку за своевременную оплату
+            if (_paymentService.CanApplyInTimeDiscount(clientLegalPersonId, accountId))
+                _accountService.ApplyPaymentInTimeDiscount(accountId);
+
+            // Устанавливаем признак "Оплата из аванса"
             _accountSettingsService.ResetIsNeedPrepayment(clientLegalPersonId);
 
             return StatusCode((int)HttpStatusCode.OK, accountId);

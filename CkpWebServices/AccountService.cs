@@ -17,12 +17,15 @@ using CkpServices.Processors;
 using CkpServices.Processors.String;
 using CkpDAL.Repository;
 using CkpServices.Helpers.Providers;
+using CkpInfrastructure.Providers.Interfaces;
 
 namespace CkpServices
 {
     public class AccountService : IAccountService
     {
         private readonly BPFinanceContext _context;
+
+        private readonly IKeyedProvider<int, float> _paymentInTimeDiscountProvider;
 
         private readonly IClientAccountProcessor _clientAccountProcessor;
         private readonly IAccountSettingsProcessor _accountSettingsProcessor;
@@ -41,6 +44,8 @@ namespace CkpServices
             _businessUnitIds = appParamsAccessor.Value.BusinessUnitIds;
             
             var businessUnitIdByPriceIdProvider = new BusinessUnitIdByPriceIdProvider(_context);
+
+            _paymentInTimeDiscountProvider = new PaymentInTimeDiscountProvider(appParamsAccessor.Value.BusinessUnitSettings);
 
             _clientAccountProcessor = new ClientAccountProcessor(
                 _context,
@@ -87,13 +92,18 @@ namespace CkpServices
 
         public void ApplyPaymentInTimeDiscount(int accountId)
         {
-            var discount = 2;
-
             var account = _context.Accounts
                 .Include(ac => ac.AccountOrders)
                     .ThenInclude(ao => ao.Order)
                     .ThenInclude(o => o.OrderPositions)
+                .Include(ac => ac.AccountPositions)
                 .Single(ac => ac.Id == accountId);
+
+            var discount = _paymentInTimeDiscountProvider.GetByValue(account.BusinessUnitId);
+
+            if (discount == 0) return;
+
+            var description = string.Format("Доп. скидка {0}%.", discount);
 
             using (var сontextTransaction = _context.Database.BeginTransaction())
             {
@@ -112,7 +122,8 @@ namespace CkpServices
                     }
 
                     // Пересчитываем сумму заказа
-                    order.Sum *= discount / 100;
+                    order.Sum = order.Sum * (1 - discount / 100);
+                    order.AccountDescription = description;
 
                     _orderProcessor.UpdateOrder(order, dbTran);
                 }
@@ -120,15 +131,15 @@ namespace CkpServices
                 // Проходим по всем позициям счёта и пересчитваем цену и сумму
                 foreach (var accountPosition in account.AccountPositions)
                 {
-                    accountPosition.Cost *= discount / 100;
-                    accountPosition.Sum *= discount / 100;
+                    accountPosition.Cost = accountPosition.Cost * (1 - discount / 100);
+                    accountPosition.Sum = accountPosition.Sum * (1 - discount / 100);
 
                     _clientAccountProcessor.UpdateAccountPosition(accountPosition, dbTran);
                 }
 
                 // Пересчитываем сумму счёта
-                account.Sum *= discount / 100;
-                account.Description = string.Format("Доп. скидка {0}%.", discount);
+                account.Sum = account.Sum * (1 - discount / 100);
+                account.Description = description;
 
                 _clientAccountProcessor.UpdateClientAccout(account, dbTran);
 
@@ -289,6 +300,15 @@ namespace CkpServices
                 .ToListAsync();
 
             return accounts;
+        }
+
+        public int GetAccountBusinessUnitIdAsync(int accountId)
+        {
+            var businessUnitId = _context.Accounts
+                .Single(ac => ac.Id == accountId)
+                .BusinessUnitId;
+
+            return businessUnitId;
         }
 
         #endregion
