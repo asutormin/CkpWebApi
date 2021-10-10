@@ -136,6 +136,11 @@ namespace CkpServices.Processors
             RefreshOrder(order, dbTran);
         }
 
+        public void UpdateOrder(Order order, DbTransaction dbTran)
+        {
+            _repository.SetOrder(order, isActual: true, dbTran);
+        }
+
         #endregion
 
         #region Refresh
@@ -151,7 +156,7 @@ namespace CkpServices.Processors
             order.Sum = sum;
             order.MaxExitDate = maxExitDate;
 
-            _repository.SetOrder(order, true, dbTran);
+            _repository.SetOrder(order, isActual:true, dbTran);
             _context.Entry(order).Reload();
         }
 

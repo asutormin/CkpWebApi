@@ -52,5 +52,15 @@ namespace CkpServices.Processors
 
             return accountOrder;
         }
+
+        public void UpdateClientAccout(Account account, DbTransaction dbTran)
+        {
+            _repository.SetAccount(account, isActual: true, dbTran);
+        }
+
+        public void UpdateAccountPosition(AccountPosition accountPosition, DbTransaction dbTran)
+        {
+            _repository.SetAccountPosition(accountPosition, isActual: true, dbTran);
+        }
     }
 }

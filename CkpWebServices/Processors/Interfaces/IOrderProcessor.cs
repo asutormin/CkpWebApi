@@ -13,6 +13,7 @@ namespace CkpServices.Processors.Interfaces
         Order CreateBasketOrder(OrderPositionData opd, DbTransaction dbTran);
         Order CreateClientOrder(Order basketOrder, IEnumerable<OrderPosition> orderPositions, DbTransaction dbTran);
         void UpdateOrder(int orderId, DbTransaction dbTran);
+        void UpdateOrder(Order order, DbTransaction dbTran);
         void RefreshOrder(Order order, DbTransaction dbTran);
     }
 }
