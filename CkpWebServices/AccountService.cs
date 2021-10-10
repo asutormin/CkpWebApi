@@ -83,7 +83,58 @@ namespace CkpServices
                 _positionImProcessor,
                 appParamsAccessor.Value.BasketOrderDescription,
                 businessUnitIdByPriceIdProvider);
+        }
 
+        public void ApplyPaymentInTimeDiscount(int accountId)
+        {
+            var discount = 2;
+
+            var account = _context.Accounts
+                .Include(ac => ac.AccountOrders)
+                    .ThenInclude(ao => ao.Order)
+                    .ThenInclude(o => o.OrderPositions)
+                .Single(ac => ac.Id == accountId);
+
+            using (var сontextTransaction = _context.Database.BeginTransaction())
+            {
+                var dbTran = сontextTransaction.GetDbTransaction();
+
+                foreach (var accountOrder in account.AccountOrders)
+                {
+                    var order = accountOrder.Order;
+
+                    foreach (var orderPosition in order.OrderPositions)
+                    {
+                        orderPosition.Discount += discount;
+
+                        // Сохраняем позицию заказа
+                        _orderPositionProcessor.UpdateOrderPosition(orderPosition, order.Id, dbTran);
+                    }
+
+                    // Пересчитываем сумму заказа
+                    order.Sum *= discount / 100;
+
+                    _orderProcessor.UpdateOrder(order, dbTran);
+                }
+
+                // Проходим по всем позициям счёта и пересчитваем цену и сумму
+                foreach (var accountPosition in account.AccountPositions)
+                {
+                    accountPosition.Cost *= discount / 100;
+                    accountPosition.Sum *= discount / 100;
+
+                    _clientAccountProcessor.UpdateAccountPosition(accountPosition, dbTran);
+                }
+
+                // Пересчитываем сумму счёта
+                account.Sum *= discount / 100;
+                account.Description = string.Format("Доп. скидка {0}%.", discount);
+
+                _clientAccountProcessor.UpdateClientAccout(account, dbTran);
+
+                _context.SaveChanges();
+                dbTran.Commit();
+            }
         }
 
         public bool ExistsById(int accountId)
