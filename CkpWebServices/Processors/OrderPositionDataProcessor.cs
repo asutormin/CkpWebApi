@@ -241,6 +241,7 @@ namespace CkpServices.Processors
                                             OrderBy = o.OrderBy
                                         })
                         })
+                .AsSingleQuery()
                 .SingleAsync();
 
             return stringData;
