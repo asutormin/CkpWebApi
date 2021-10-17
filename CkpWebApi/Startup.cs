@@ -37,7 +37,7 @@ namespace CkpWebApi
                 var dbName = appSettings.DatabaseName;
                 var connectionString = string.Format(Configuration.GetConnectionString("BPFinance"), dbName);
 
-                options.UseSqlServer(connectionString);
+                options.UseSqlServer(connectionString, opt => opt.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
             });
 
             // configure strongly typed settings objects
