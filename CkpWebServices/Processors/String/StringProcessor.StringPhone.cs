@@ -75,16 +75,16 @@ namespace CkpServices.Processors.String
 
         #region Update
 
-        private void UpdateStringPhones(int stringId, int companyId, IEnumerable<StringPhone> stringPhones, IEnumerable<PhoneData> advPhones,
+        private void UpdateStringPhones(int stringId, int companyId, IEnumerable<StringPhone> stringPhones, IEnumerable<PhoneData> phonesData,
             DbTransaction dbTran)
         {
             var stringPhonesList = stringPhones.GetActualItems().ToList();
 
             for (int i = stringPhonesList.Count - 1; i >= 0; i--)
-                if (NeedDeleteStringPhone(stringPhonesList[i], advPhones))
+                if (NeedDeleteStringPhone(stringPhonesList[i], phonesData))
                     DeleteStringPhone(stringPhonesList[i], dbTran);
 
-            foreach (var advPhone in advPhones)
+            foreach (var advPhone in phonesData)
                 if (NeedCreateStringPhone(advPhone, stringPhones))
                     CreateStringPhone(stringId, companyId, advPhone, dbTran);
         }
