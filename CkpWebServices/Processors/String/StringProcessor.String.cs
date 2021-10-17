@@ -11,14 +11,15 @@ namespace CkpServices.Processors.String
     {
         #region Get
 
-        public StringPosition GetString(int orderPositionId)
+        public StringPosition GetStringPosition(int orderPositionId)
         {
             var stringPosition = _context.StringPositions
-            .Include(sp => sp.Addresses)
-            .Include(sp => sp.Occurrences)
-            .Include(sp => sp.Phones)
-            .Include(sp => sp.Webs)
-            .SingleOrDefault(sp => sp.OrderPositionId == orderPositionId);
+                .Include(sp => sp.OrderPosition)
+                .Include(sp => sp.Addresses.Where(a => a.IsActual))
+                .Include(sp => sp.Occurrences)
+                .Include(sp => sp.Phones.Where(p => p.IsActual))
+                .Include(sp => sp.Webs.Where(w => w.IsActual))
+                .SingleOrDefault(sp => sp.OrderPositionId == orderPositionId);
 
             return stringPosition;
         }

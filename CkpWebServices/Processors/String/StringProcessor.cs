@@ -41,23 +41,6 @@ namespace CkpServices.Processors.String
             _stringWebFactory = new StringWebFactory();
         }
 
-        #region Get
-
-        public StringPosition GetStringPosition(int orderPositionId)
-        {
-            var stringPosition = _context.StringPositions
-                .Include(sp => sp.OrderPosition)
-                .Include(sp => sp.Addresses)
-                .Include(sp => sp.Occurrences)
-                .Include(sp => sp.Phones)
-                .Include(sp => sp.Webs)
-                .SingleOrDefault(sp => sp.OrderPositionId == orderPositionId);
-
-            return stringPosition;
-        }        
-
-        #endregion
-
         #region Create
 
         public void CreateFullString(int businessUnitId, int companyId, int orderPositionId, StringData stringData, DbTransaction dbTran)
@@ -81,7 +64,7 @@ namespace CkpServices.Processors.String
 
         public void UpdateFullString(int orderPositionId, StringData stringData, DbTransaction dbTran)
         {
-            var stringPosition = GetString(orderPositionId);
+            var stringPosition = GetStringPosition(orderPositionId);
 
             if (stringPosition == null)
                 return;
@@ -100,7 +83,7 @@ namespace CkpServices.Processors.String
 
         public void DeleteFullString(int orderPositionId, DbTransaction dbTran)
         {
-            var stringPosition = GetString(orderPositionId);
+            var stringPosition = GetStringPosition(orderPositionId);
 
             if (stringPosition == null)
                 return;
