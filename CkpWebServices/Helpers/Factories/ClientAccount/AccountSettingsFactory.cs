@@ -17,6 +17,7 @@ namespace CkpServices.Helpers.Factories.ClientAccount
                 UnloadingDateMethod = legalPersonAccountSettings.UnloadingDateMethod,
                 UnloadingTypeId = legalPersonAccountSettings.UnloadingTypeId,
                 UnloadingDayNumber = legalPersonAccountSettings.UnloadingDayNumber,
+                UnloadingTo1CActionId = legalPersonAccountSettings.UnloadingTo1CActionId,
                 AdditionalDescription = legalPersonAccountSettings.AdditionalDescription,
                 AccountDescription = legalPersonAccountSettings.AccountDescription,
                 ActDescription = legalPersonAccountSettings.ActDescription,

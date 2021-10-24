@@ -99,6 +99,7 @@ namespace CkpDAL.Repository
                 unloadingDateMethod: accountSettings.UnloadingDateMethod,
                 unloadingTo1CTypeId: accountSettings.UnloadingTypeId,
                 unloadingTo1CDayNumber: accountSettings.UnloadingDayNumber,
+                unloadingTo1CActionId: accountSettings.UnloadingTo1CActionId,
                 additionalDescription: accountSettings.AdditionalDescription,
                 accountDescription: accountSettings.AccountDescription,
                 actDescription: accountSettings.ActDescription,
@@ -589,6 +590,7 @@ namespace CkpDAL.Repository
             int unloadingDateMethod, // Метод выбора даты выгрузки счета
             int unloadingTo1CTypeId, // Тип выгрузки в 1С ("День в день", "По факту", "Раз в месяц")
             int unloadingTo1CDayNumber, // Какого числа выгружать в 1С
+            int unloadingTo1CActionId, // Идентификатор действия при загрузке в 1С
             string additionalDescription,
             string accountDescription,
             string actDescription,
@@ -679,6 +681,15 @@ namespace CkpDAL.Repository
                         SqlDbType = SqlDbType.Int,
                         Direction = ParameterDirection.Input,
                         SqlValue = unloadingTo1CDayNumber
+                    });
+
+                cmd.Parameters.Add(
+                    new SqlParameter
+                    {
+                        ParameterName = "@UnloadingTo1CActionId",
+                        SqlDbType = SqlDbType.Int,
+                        Direction = ParameterDirection.Input,
+                        SqlValue = unloadingTo1CActionId
                     });
 
                 cmd.Parameters.Add(
