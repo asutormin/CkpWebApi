@@ -46,8 +46,9 @@ namespace CkpServices.Processors
                 .Select(g => g.Id);
 
             // Находим минимальную дату выхода позиций пакета
+            // с поставщиком пакета
             var minOutDate = _context.Graphics
-                .Where(g => graphicIds.Contains(g.Id))
+                .Where(g => graphicIds.Contains(g.Id) && g.SupplierId == opd.SupplierId)
                 .Min(g => g.OutDate);
 
             // Находим график выхода пакета - его дата выхода меньше
