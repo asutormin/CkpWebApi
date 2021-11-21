@@ -479,6 +479,7 @@ namespace CkpWebApi.Services
         public List<CurrencyInfo> GetCurrencies()
         {
             return _handbookProcessor.GetCurrencies()
+                 .Where(h => h.Id == 23 || h.Id == 29) // RUR и т.р.
                  .Select(h => new CurrencyInfo { Id = h.Id, Name = h.HandbookValue })
                  .ToList();
         }
@@ -527,7 +528,7 @@ namespace CkpWebApi.Services
 
         private static string GetSupplierNameWithCity(Supplier supplier)
         {
-            var name = supplier.Company.Name + " - " + supplier.City.Name;
+            var name = supplier.Company.Name.Replace(" регионы", "") + " - " + supplier.City.Name;
 
             return name;
         }
