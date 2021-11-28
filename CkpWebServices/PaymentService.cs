@@ -93,6 +93,9 @@ namespace CkpServices
                 // Перебираем не оплаченные заказы с оплатой из аванса
                 foreach (var order in unpaidOrders)
                 {
+                    if (order.AccountOrder == null)
+                        continue;
+
                     var undisposedPayments = _paymentProcessor
                         .GetUndisposedPaymentsByOrder(order)
                         .OrderBy(p => p.PaymentDate);
