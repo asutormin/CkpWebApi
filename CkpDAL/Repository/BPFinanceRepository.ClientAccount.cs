@@ -119,6 +119,7 @@ namespace CkpDAL.Repository
                 showDiscount: accountSettings.ShowDiscount,
                 addressId: accountSettings.AddressId,
                 isNeedPrepayment: accountSettings.IsNeedPrepayment,
+                interactionBusinessUnitId: accountSettings.InteractionBusinessUnitId,
                 isActual: isActual,
                 lastEditDate: ref lastEditDate,
                 editUserId: _editUserId);
@@ -610,6 +611,7 @@ namespace CkpDAL.Repository
             bool showDiscount,
             int addressId,
             bool isNeedPrepayment,
+            int interactionBusinessUnitId,
             bool isActual,
             ref DateTime lastEditDate,
             int editUserId)
@@ -868,6 +870,15 @@ namespace CkpDAL.Repository
                         SqlDbType = SqlDbType.Bit,
                         Direction = ParameterDirection.Input,
                         SqlValue = isNeedPrepayment
+                    });
+
+                cmd.Parameters.Add(
+                    new SqlParameter
+                    {
+                        ParameterName = "@CkpressInteractionBusinessUnitId",
+                        SqlDbType = SqlDbType.Int,
+                        Direction = ParameterDirection.Input,
+                        SqlValue = interactionBusinessUnitId
                     });
 
                 cmd.Parameters.Add(

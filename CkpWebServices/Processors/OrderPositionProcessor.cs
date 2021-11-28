@@ -24,7 +24,6 @@ namespace CkpServices.Processors
         private readonly IPositionImProcessor _positionImProcessor;
 
         private readonly string _basketOrderDescription;
-        private readonly IKeyedProvider<int, int> _businessUnitIdByPriceIdProvider;
 
         private readonly IOrderPositionFactory _orderPositionFactory;
 
@@ -34,8 +33,7 @@ namespace CkpServices.Processors
             IRubricProcessor rubricProcessor,
             IGraphicProcessor graphicProcessor,
             IPositionImProcessor positionImProcessor,
-            string basketOrderDescription,
-            IKeyedProvider<int, int> businessUnitIdByPriceIdProvider)
+            string basketOrderDescription)
         {
             _context = context;
             _repository = repository;
@@ -45,7 +43,6 @@ namespace CkpServices.Processors
             _positionImProcessor = positionImProcessor;
 
             _basketOrderDescription = basketOrderDescription;
-            _businessUnitIdByPriceIdProvider = businessUnitIdByPriceIdProvider;
 
             _orderPositionFactory = new OrderPositionFactory();
         }
@@ -121,7 +118,7 @@ namespace CkpServices.Processors
 
         #region Create
 
-        public int CreateFullOrderPosition(int orderId, int? parentOrderPositionId, float clientDiscount, OrderPositionData opd,
+        public int CreateFullOrderPosition(int businessUnitId, int orderId, int? parentOrderPositionId, float clientDiscount, OrderPositionData opd,
             DbTransaction dbTran)
         {
             // Создаём позицию заказа
@@ -137,8 +134,7 @@ namespace CkpServices.Processors
                 opd.GraphicsData = _graphicProcessor.GetPackageGraphicsData(opd);
 
             _graphicProcessor.CreateGraphicPositions(orderPosition.Id, opd.GraphicsData, dbTran);
-
-            var businessUnitId = _businessUnitIdByPriceIdProvider.GetByValue(opd.PriceId);
+             
             _positionImProcessor.CreatePositionIm(businessUnitId, orderId, orderPosition.Id, opd, dbTran);
 
             return orderPosition.Id;

@@ -8,6 +8,7 @@ using CkpServices.Helpers.Factories;
 using CkpServices.Helpers.Factories.Interfaces;
 using CkpServices.Processors.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
@@ -22,14 +23,14 @@ namespace CkpServices.Processors
         private readonly int _defaultOrderManagerId;
         private readonly IBasketOrderFactory _basketOrderFactory;
         private readonly IClientOrderFactory _clientOrderFactory;
-        private readonly IKeyedProvider<int, int> _businessUnitByPriceIdProvider;
+        private readonly IKeyedProvider<Tuple<int, int>, int> _basketBusinessUnitIdProvider;
 
         public OrderProcesor(
             BPFinanceContext context,
             IBPFinanceRepository repository,
             string basketOrderDescription,
             int defaultOrderManagerId,
-            IKeyedProvider<int, int> businessUnitByPriceIdProvider)
+            IKeyedProvider<Tuple<int, int>, int> basketBusinessUnitIdProvider)
         {
             _context = context;
             _repository = repository;
@@ -37,7 +38,7 @@ namespace CkpServices.Processors
             _basketOrderDescription = basketOrderDescription;
             _defaultOrderManagerId = defaultOrderManagerId;
 
-            _businessUnitByPriceIdProvider = businessUnitByPriceIdProvider;
+            _basketBusinessUnitIdProvider = basketBusinessUnitIdProvider;
 
             _basketOrderFactory = new BasketOrderFactory(_basketOrderDescription);
             _clientOrderFactory = new ClientOrderFactory();
@@ -59,7 +60,9 @@ namespace CkpServices.Processors
 
         public Order GetBasketOrder(int clientLegalPersonId, int priceId)
         {
-            var businessUnitId = _businessUnitByPriceIdProvider.GetByValue(priceId);
+            // Ищем бизнес юнит заказа корзины
+            var businessUnitId = _basketBusinessUnitIdProvider.GetByValue(
+                new Tuple<int, int>(clientLegalPersonId, priceId));
 
             // Ищем ПЗ заказ клиента с примечанием "Корзина_ЛК"
             var order = _context.Orders
@@ -81,8 +84,11 @@ namespace CkpServices.Processors
 
         public Order CreateBasketOrder(OrderPositionData opd, DbTransaction dbTran)
         {
-            var businessUnitId = _businessUnitByPriceIdProvider.GetByValue(opd.PriceId);
             var clientLegalPersonId = opd.ClientLegalPersonId;
+
+            // Ищем бизнес юнит заказа корзины
+            var businessUnitId = _basketBusinessUnitIdProvider.GetByValue(
+                new Tuple<int, int>(clientLegalPersonId, opd.PriceId));
 
             var clientCompanyId = _context.LegalPersons
                 .Include(lp => lp.Company)

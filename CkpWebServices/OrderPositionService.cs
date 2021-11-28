@@ -34,7 +34,7 @@ namespace CkpServices
             var orderImFolderTemplate = appSettingsAccessor.Value.OrderImFolderTemplate;
             var dbName = appSettingsAccessor.Value.DatabaseName;
 
-            var businessUnitIdByPriceIdProvider = new BusinessUnitIdByPriceIdProvider(_context);
+            var basketBusinessUnitIdProvider = new BasketBusinessUnitIdProvider(_context);
 
              _orderPositionDataProcessor = new OrderPositionDataProcessor(
                 _context,
@@ -47,7 +47,7 @@ namespace CkpServices
                 repository,
                 appParamsAccessor.Value.BasketOrderDescription,
                 appParamsAccessor.Value.ManagerId,
-                businessUnitIdByPriceIdProvider);
+                basketBusinessUnitIdProvider);
             var rubricProcessor = new RubricProcessor(
                 _context,
                 repository);
@@ -75,8 +75,7 @@ namespace CkpServices
                 rubricProcessor,
                 graphicProcessor,
                 positionImProcessor,
-                appParamsAccessor.Value.BasketOrderDescription,
-                businessUnitIdByPriceIdProvider);
+                appParamsAccessor.Value.BasketOrderDescription);
         }
 
         public bool ExistsById(int orderPositionId)
@@ -129,11 +128,13 @@ namespace CkpServices
                     opd.FormatData.FormatTypeId);
 
                 // Сохраняем позицию заказа
-                int orderPositionId = _orderPositionProcessor.CreateFullOrderPosition(basketOrder.Id, null, clientDiscount, opd, dbTran);
+                int orderPositionId = _orderPositionProcessor.CreateFullOrderPosition(
+                    basketOrder.BusinessUnitId, basketOrder.Id, null, clientDiscount, opd, dbTran);
 
                 // Сохраняем пакетные позиции заказа
                 foreach (var child in opd.Childs)
-                    _orderPositionProcessor.CreateFullOrderPosition(basketOrder.Id, orderPositionId, clientDiscount, child, dbTran);
+                    _orderPositionProcessor.CreateFullOrderPosition(
+                        basketOrder.BusinessUnitId, basketOrder.Id, orderPositionId, clientDiscount, child, dbTran);
 
                 // Обновляем заказ-корзину
                 _orderProcessor.UpdateOrder(basketOrder.Id, dbTran);
@@ -168,7 +169,8 @@ namespace CkpServices
 
                     // Если переданной позиции не существует - создаём её, иначе - обновляем
                     if (_orderPositionProcessor.NeedCreateFullOrderPosition(childOrderPosition))
-                        _orderPositionProcessor.CreateFullOrderPosition(basketOrder.Id, orderPosition.Id, 0, child, dbTran);
+                        _orderPositionProcessor.CreateFullOrderPosition(
+                            basketOrder.BusinessUnitId, basketOrder.Id, orderPosition.Id, 0, child, dbTran);
                     else
                         _orderPositionProcessor.UpdateFullOrderPosition(childOrderPosition, child, dbTran);
                 }

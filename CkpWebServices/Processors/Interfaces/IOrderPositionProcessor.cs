@@ -13,7 +13,7 @@ namespace CkpServices.Processors.Interfaces
         IQueryable<OrderPosition> GetAccountOrderPositionsQuery(int clientLegalPersonId, int accountId);
         IQueryable<OrderPosition> GetOrderPositionsByIdsOuery(int clientLegalPersonId, int[] orderPositionIds);
         bool NeedCreateFullOrderPosition(OrderPosition orderPosition);
-        int CreateFullOrderPosition(int orderId, int? parentOrderPositionId, float clientDiscount, OrderPositionData opd, DbTransaction dbTran);
+        int CreateFullOrderPosition(int businessUnitId, int orderId, int? parentOrderPositionId, float clientDiscount, OrderPositionData opd, DbTransaction dbTran);
         void UpdateFullOrderPosition(OrderPosition orderPosition, OrderPositionData opd, DbTransaction dbTran);
         void UpdateOrderPosition(OrderPosition orderPosition, int orderId, DbTransaction dbTran);
         bool NeedDeleteFullOrderPosition(int orderPositionId, List<OrderPositionData> opds);

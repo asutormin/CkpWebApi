@@ -98,6 +98,9 @@ namespace CkpDAL.Entities
 		[Column("is_need_prepayment", TypeName = "bit")]
 		public bool IsNeedPrepayment { get; set; }
 
+		[Column("ckpress_interaction_business_unit_id", TypeName = "int")]
+		public int InteractionBusinessUnitId { get; set; }
+
 		[Column("begin_date", TypeName = "datetime")]
 		public DateTime BeginDate { get; set; }
 

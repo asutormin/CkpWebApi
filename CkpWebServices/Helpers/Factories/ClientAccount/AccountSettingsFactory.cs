@@ -35,6 +35,8 @@ namespace CkpServices.Helpers.Factories.ClientAccount
                 ShowExitNumber = legalPersonAccountSettings.ShowExitNumber,
                 ShowContract = legalPersonAccountSettings.ShowContract,
                 ShowDiscount = legalPersonAccountSettings.ShowDiscount,
+                IsNeedPrepayment = legalPersonAccountSettings.IsNeedPrepayment,
+                InteractionBusinessUnitId = legalPersonAccountSettings.InteractionBusinessUnitId,
                 BeginDate = DateTime.Now
             };
 

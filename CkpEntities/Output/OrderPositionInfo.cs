@@ -5,6 +5,7 @@ namespace CkpModel.Output
     public class OrderPositionInfo
     {
         public int Id { get; set; }
+        public int OrderId { get; set; }
         public int? ParentId { get; set; }
         public float ClientCost { get; set; }
         public int Quantity { get; set; }

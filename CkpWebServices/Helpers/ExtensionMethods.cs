@@ -94,6 +94,7 @@ namespace CkpServices.Helpers
                         new OrderPositionInfo
                         {
                             Id = op.Id,
+                            OrderId = op.OrderId,
                             ParentId = op.ParentOrderPositionId,
                             ClientCost = op.GetClientPrice(),
                             Quantity = op.GetQuantity(),

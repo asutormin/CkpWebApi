@@ -55,8 +55,7 @@ namespace CkpServices
                 rubricProcessor,
                 graphicProcessor,
                 positionImProcessor,
-                appParamsAccessor.Value.BasketOrderDescription,
-                businessUnitIdByPriceIdProvider);
+                appParamsAccessor.Value.BasketOrderDescription);
         }
 
         public List<OrderPositionInfo> Search(int clientLegalPersonId, string value, int skipCount)

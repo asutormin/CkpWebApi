@@ -42,8 +42,8 @@ namespace CkpServices
             var repository = new BPFinanceRepository(_context, appParamsAccessor.Value.EditUserId);
 
             _businessUnitIds = appParamsAccessor.Value.BusinessUnitIds;
-            
-            var businessUnitIdByPriceIdProvider = new BusinessUnitIdByPriceIdProvider(_context);
+
+            var basketBusinessUnitIdProvider = new BasketBusinessUnitIdProvider(_context);
 
             _paymentInTimeDiscountProvider = new PaymentInTimeDiscountProvider(appParamsAccessor.Value.BusinessUnitSettings);
 
@@ -58,7 +58,7 @@ namespace CkpServices
                 repository,
                 appParamsAccessor.Value.BasketOrderDescription,
                 appParamsAccessor.Value.ManagerId,
-                businessUnitIdByPriceIdProvider);
+                basketBusinessUnitIdProvider);
             var rubricProcessor = new RubricProcessor(
                 _context,
                 repository);
@@ -86,8 +86,7 @@ namespace CkpServices
                 rubricProcessor,
                 graphicProcessor,
                 _positionImProcessor,
-                appParamsAccessor.Value.BasketOrderDescription,
-                businessUnitIdByPriceIdProvider);
+                appParamsAccessor.Value.BasketOrderDescription);
         }
 
         public void ApplyPaymentInTimeDiscount(int accountId)
