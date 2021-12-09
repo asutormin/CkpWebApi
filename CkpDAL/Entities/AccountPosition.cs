@@ -39,7 +39,7 @@ namespace CkpDAL.Entities
 		public int ActCount { get; set; }
 
 		[Column("first_out_date", TypeName = "datetime")]
-		public DateTime FirstOutDate { get; set; }
+		public DateTime? FirstOutDate { get; set; }
 
 		[Column("begin_date", TypeName = "datetime")]
 		public DateTime BeginDate { get; set; }
