@@ -28,20 +28,20 @@ namespace CkpServices.Processors
 
         #region Create
 
-        public RubricPosition CreateRubricPosition(int orderPositionId, RubricData advRubric, DbTransaction dbTran)
+        public RubricPosition CreateRubricPosition(int orderPositionId, RubricData rubricData, DbTransaction dbTran)
         {
-            var rubricPosition = _rubricPositionFactory.Create(orderPositionId, advRubric.Id, advRubric.Version);
+            var rubricPosition = _rubricPositionFactory.Create(orderPositionId, rubricData.Id, rubricData.Version);
             rubricPosition = _repository.SetRubricPosition(rubricPosition, isActual: true, dbTran);
 
             return rubricPosition;
         }
 
-        private bool NeedCreateRubricPosition(IEnumerable<RubricPosition> rubricPositions, RubricData advRubric)
+        private bool NeedCreateRubricPosition(IEnumerable<RubricPosition> rubricPositions, RubricData rubricData)
         {
             if (rubricPositions.Any(
                 rp =>
-                    rp.RubricId == advRubric.Id &&
-                    rp.RubricVersion == advRubric.Version))
+                    rp.RubricId == rubricData.Id &&
+                    rp.RubricVersion == rubricData.Version))
                 return false;
 
             return true;
@@ -51,21 +51,21 @@ namespace CkpServices.Processors
 
         #region Update
 
-        public void UpdateRubricPosition(int orderPositionId, IEnumerable<RubricPosition> rubricPositions, RubricData advRubric, DbTransaction dbTran)
+        public void UpdateRubricPosition(int orderPositionId, IEnumerable<RubricPosition> rubricPositions, RubricData rubricData, DbTransaction dbTran)
         {
             var rubricPositionsList = rubricPositions.ToList();
 
             // Удаляем все позиции рубрик, у которых не совпадает RubricId и RubricVersion
             for (int i = rubricPositionsList.Count - 1; i >= 0; i--)
-                if (advRubric == null || NeedDeleteRubricPosition(rubricPositionsList[i], advRubric))
+                if (rubricData == null || NeedDeleteRubricPosition(rubricPositionsList[i], rubricData))
                     DeleteRubricPosition(rubricPositionsList[i], dbTran);
 
             // Если позиция рубрики с RubricId и RubricVersion существует - выходим
-            if (!NeedCreateRubricPosition(rubricPositions, advRubric))
+            if (!NeedCreateRubricPosition(rubricPositions, rubricData))
                 return;
 
             // Иначе создаём новую позицию рубрики
-            CreateRubricPosition(orderPositionId, advRubric, dbTran);
+            CreateRubricPosition(orderPositionId, rubricData, dbTran);
         }
 
         #endregion
@@ -86,10 +86,10 @@ namespace CkpServices.Processors
             _context.Entry(rubricPosition).Reload();
         }
 
-        private bool NeedDeleteRubricPosition(RubricPosition rubricPosition, RubricData advRubric)
+        private bool NeedDeleteRubricPosition(RubricPosition rubricPosition, RubricData rubricData)
         {
-            if (rubricPosition.RubricId != advRubric.Id ||
-                rubricPosition.RubricVersion != advRubric.Version)
+            if (rubricPosition.RubricId != rubricData.Id ||
+                rubricPosition.RubricVersion != rubricData.Version)
                 return true;
 
             return false;
