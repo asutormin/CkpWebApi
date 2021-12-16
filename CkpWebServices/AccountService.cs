@@ -108,6 +108,10 @@ namespace CkpServices
             {
                 var dbTran = сontextTransaction.GetDbTransaction();
 
+                // Удаляем старые позиции счёта
+                foreach (var accountPosition in account.AccountPositions)
+                    _clientAccountProcessor.DeleteAccountPosition(accountPosition, dbTran);
+
                 foreach (var accountOrder in account.AccountOrders)
                 {
                     var order = accountOrder.Order;
@@ -118,26 +122,26 @@ namespace CkpServices
 
                         // Сохраняем позицию заказа
                         _orderPositionProcessor.UpdateOrderPosition(orderPosition, order.Id, dbTran);
+
+                        // Создаём позицию счёта
+                        var accountPosition = _clientAccountProcessor.CreateAccountPosition(account.Id, orderPosition, dbTran);
                     }
 
                     // Пересчитываем сумму заказа
-                    order.Sum = order.Sum * (1 - discount / 100);
+                    order.Sum = order.OrderPositions
+                        .Sum(
+                            op =>
+                                op.Price.Value * op.GraphicPositions
+                                    .Where(gp => gp.ParenGraphicPositiontId == gp.Id)
+                                    .Sum(gp => gp.Count) * (1 - op.Discount / 100));
+
                     order.AccountDescription = description;
 
                     _orderProcessor.UpdateOrder(order, dbTran);
                 }
 
-                // Проходим по всем позициям счёта и пересчитваем цену и сумму
-                foreach (var accountPosition in account.AccountPositions)
-                {
-                    accountPosition.Cost = accountPosition.Cost * (1 - discount / 100);
-                    accountPosition.Sum = accountPosition.Sum * (1 - discount / 100);
-
-                    _clientAccountProcessor.UpdateAccountPosition(accountPosition, dbTran);
-                }
-
                 // Пересчитываем сумму счёта
-                account.Sum = account.Sum * (1 - discount / 100);
+                account.Sum = account.AccountOrders.Sum(o => o.Order.Sum);
                 account.Description = description;
 
                 _clientAccountProcessor.UpdateClientAccout(account, dbTran);

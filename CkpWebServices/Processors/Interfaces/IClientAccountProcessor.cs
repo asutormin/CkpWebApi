@@ -10,5 +10,6 @@ namespace CkpServices.Processors.Interfaces
         AccountOrder CreateAccountOrder(int accountId, int orderId, DbTransaction dbTran);
         void UpdateClientAccout(Account account, DbTransaction dbTran);
         void UpdateAccountPosition(AccountPosition accountPosition, DbTransaction dbTran);
+        void DeleteAccountPosition(AccountPosition accountPosition, DbTransaction dbTran);
     }
 }

@@ -62,5 +62,10 @@ namespace CkpServices.Processors
         {
             _repository.SetAccountPosition(accountPosition, isActual: true, dbTran);
         }
+
+        public void DeleteAccountPosition(AccountPosition accountPosition, DbTransaction dbTran)
+        {
+            _repository.SetAccountPosition(accountPosition, isActual: false, dbTran);
+        }
     }
 }
