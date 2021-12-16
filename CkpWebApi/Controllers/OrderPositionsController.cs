@@ -4,9 +4,11 @@ using CkpServices.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using NLog;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -75,6 +77,9 @@ namespace CkpWebApi.Controllers
                 return StatusCode(
                     (int)HttpStatusCode.Forbidden,
                     new { message = "Создание позиции заказа запрещено." });
+
+            var logger = LogManager.GetCurrentClassLogger();
+            logger.Info(JsonSerializer.Serialize(orderPosition));
 
             _orderPositionService.CreateOrderPosition(orderPosition);
 
