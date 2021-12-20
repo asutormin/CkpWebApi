@@ -11,5 +11,6 @@ namespace CkpModel.Output
         public float Nds { get; set; }
         public float Sum { get; set; }
         public float Debt { get; set; }
+        public int TypeId { get; set; }
     }
 }

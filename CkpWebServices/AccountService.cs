@@ -208,7 +208,8 @@ namespace CkpServices
                                         .SettlementAccount
                                 },
                             Sum = ac.Sum,
-                            Debt = ac.Debt
+                            Debt = ac.Debt,
+                            TypeId = ac.TypeId
                         })
                 .SingleAsync();
 
@@ -298,7 +299,8 @@ namespace CkpServices
                             Sum = ac.Sum,
                             Debt = ac.TypeId == 2
                                 ? 0
-                                : ac.Sum - ac.AccountOrders.Sum(ao => ao.Order.Paid)
+                                : ac.Sum - ac.AccountOrders.Sum(ao => ao.Order.Paid),
+                            TypeId = ac.TypeId
                         })
                 .ToListAsync();
 
