@@ -2,6 +2,7 @@
 using CkpDAL.Repository;
 using CkpInfrastructure.Configuration;
 using CkpModel.Output;
+using CkpServices.Helpers.Providers;
 using CkpServices.Interfaces;
 using CkpServices.Processors;
 using CkpServices.Processors.Interfaces;
@@ -16,16 +17,26 @@ namespace CkpServices
     {
         private readonly BPFinanceContext _context;
         private readonly IPaymentProcessor _paymentProcessor;
+        private readonly IOrderProcessor _orderProcessor;
 
         public PaymentService(BPFinanceContext context, IOptions<AppParams> appParamsAccessor)
         {
             _context = context;
             var repository = new BPFinanceRepository(_context, appParamsAccessor.Value.EditUserId);
 
+            var basketBusinessUnitIdProvider = new BasketBusinessUnitIdProvider(_context);
+
             _paymentProcessor = new PaymentProcessor(
                 _context,
                 repository,
                 appParamsAccessor.Value.BusinessUnitIds);
+
+            _orderProcessor = new OrderProcesor(
+                _context,
+                repository,
+                appParamsAccessor.Value.BasketOrderDescription,
+                appParamsAccessor.Value.ManagerId,
+                basketBusinessUnitIdProvider);
         }
 
         public List<BalanceInfo> GetBalances(int clientLegalPersonId)
@@ -122,8 +133,11 @@ namespace CkpServices
                         _paymentProcessor.UpdateUndisposedSum(payment, undisposedSum, dbTran);
 
                         _paymentProcessor.CreateOrderPayment(order, payment, orderPaymentSum, dbTran);
-                        _paymentProcessor.UpdateOrderPaidSum(order, dbTran);
-
+                        
+                        // Увеличиваем оплаченную сумму заказа
+                        order.Paid += orderPaymentSum;
+                        _orderProcessor.UpdateOrder(order, dbTran);
+                        
                         orderDebt -= orderPaymentSum;
                     }
                 }
@@ -142,7 +156,7 @@ namespace CkpServices
             var balance = balances
                 .SingleOrDefault(b => b.BusinessUnitId == account.BusinessUnitId);
 
-            return balance.BalanceSum >= account.Sum;
+            return balance.BalanceSum > 0;
         }
     }
 }
