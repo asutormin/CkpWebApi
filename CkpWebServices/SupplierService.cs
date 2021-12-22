@@ -414,6 +414,7 @@ namespace CkpWebApi.Services
                     gr =>
                         gr.SupplierId == supplierId &&
                         gr.PricePositionTypeId == formatTypeId &&
+                        gr.ClosingDate >= now.Date &&
                         gr.DeliverDate.Date >= now.Date &&
                         gr.Number != "ПЗ" &&
                         gr.DeliverDate < date999 && gr.ClosingDate < date999 && gr.OutDate < date999 && gr.FinishDate < date999 &&
