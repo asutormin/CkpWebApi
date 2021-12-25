@@ -19,5 +19,7 @@ namespace CkpModel.Input
         public float? SecondSize { get; set; }
 
         public int PackageLength { get; set; }
+
+        public string Description { get; set; }
     }
 }

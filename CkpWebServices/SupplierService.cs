@@ -333,6 +333,7 @@ namespace CkpWebApi.Services
                                     PackageLength = p.PricePosition.PackageLength,
                                     FirstSize = pricePosition.FirstSize,
                                     SecondSize = pricePosition.SecondSize,
+                                    Description = pricePosition.Description,
                                     Type =
                                         new FormatTypeInfoLight
                                         {
@@ -380,6 +381,7 @@ namespace CkpWebApi.Services
                                 PackageLength = pkg.Price.PricePosition.PackageLength,
                                 FirstSize = pkg.Price.PricePosition.FirstSize,
                                 SecondSize = pkg.Price.PricePosition.SecondSize,
+                                Description = pkg.PricePosition.Description,
                                 Version = pkg.Price.PricePosition.BeginDate,
                                 Type =
                                     new FormatTypeInfoLight

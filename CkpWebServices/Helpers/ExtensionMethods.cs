@@ -114,6 +114,7 @@ namespace CkpServices.Helpers
                                     PackageLength = op.PricePosition.PackageLength,
                                     FirstSize = op.PricePosition.FirstSize,
                                     SecondSize = op.PricePosition.SecondSize,
+                                    Description = op.PricePosition.Description,
                                     Version = op.PricePosition.BeginDate,
                                     Type =
                                         new FormatTypeInfoLight
