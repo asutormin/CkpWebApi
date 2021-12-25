@@ -2,6 +2,7 @@
 using CkpServices.Helpers.Factories.Interfaces.ClientAccount;
 using System;
 using System.Linq;
+using System.Text;
 
 namespace CkpServices.Helpers.Factories.ClientAccount
 {
@@ -67,16 +68,7 @@ namespace CkpServices.Helpers.Factories.ClientAccount
 
         private string GetAccountPositionName(OrderPosition orderPosition)
         {
-            var pricePositionName = orderPosition.PricePosition.PricePositionType.EnableSecondSize
-            ? string.Format("{0} ({1}x{2} {3})",
-                orderPosition.PricePosition.Name,
-                orderPosition.PricePosition.FirstSize,
-                orderPosition.PricePosition.SecondSize,
-                orderPosition.PricePosition.Unit.Name)
-            : string.Format("{0} ({1} {2})",
-                orderPosition.PricePosition.Name,
-                orderPosition.PricePosition.FirstSize,
-                orderPosition.PricePosition.Unit.Name);
+            var pricePositionName = GetPricePositionName(orderPosition);
 
             var outs = string.Join("; ", orderPosition.GraphicPositions
                 .Select(gp => string.Format("{0}({1})", gp.Graphic.Number, gp.Graphic.OutDate.ToString("dd.MM.yyyy"))));
@@ -89,6 +81,39 @@ namespace CkpServices.Helpers.Factories.ClientAccount
                 outs);
 
             return formulation;
+        }
+
+        private string GetPricePositionName(OrderPosition orderPosition)
+        {
+            var builder = new StringBuilder();
+            
+            builder.Append(orderPosition.PricePosition.Name);
+
+            if (orderPosition.PricePosition.PricePositionTypeId == 26)
+                return builder.ToString();
+
+            if (orderPosition.PricePosition.PricePositionType.EnableSecondSize)
+            {
+                builder.Append(
+                    string.Format("{0} ({1}x{2} {3})",
+                        orderPosition.PricePosition.Name,
+                        orderPosition.PricePosition.FirstSize,
+                        orderPosition.PricePosition.SecondSize,
+                        orderPosition.PricePosition.Unit.Name)
+                    );
+            }
+            else
+            {
+                builder.Append(
+                    string.Format("{0} ({1}x{2} {3})",
+                        orderPosition.PricePosition.Name,
+                        orderPosition.PricePosition.FirstSize,
+                        orderPosition.PricePosition.SecondSize,
+                        orderPosition.PricePosition.Unit.Name)
+                    );
+            }
+
+            return builder.ToString();
         }
 
         private int GetPositionsCount(OrderPosition orderPosition)
