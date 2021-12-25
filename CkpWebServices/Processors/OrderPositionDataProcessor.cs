@@ -86,7 +86,8 @@ namespace CkpServices.Processors
                     FormatTypeId = orderPosition.PricePosition.PricePositionTypeId,
                     FirstSize = orderPosition.PricePosition.FirstSize,
                     SecondSize = orderPosition.PricePosition.SecondSize,
-                    PackageLength = orderPosition.PricePosition.PackageLength
+                    PackageLength = orderPosition.PricePosition.PackageLength,
+                    Description = orderPosition.PricePosition.Description
                 },
                 PriceId = orderPosition.PriceId,
                 RubricData = GetRubricData(orderPosition),
