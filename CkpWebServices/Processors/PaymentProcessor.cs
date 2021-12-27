@@ -114,10 +114,12 @@ namespace CkpServices.Processors
         public void AddOrderToPayment(Payment payment, Order order)
         {
             var orderNumber = order.Id.ToString();
-
-            payment.OrdersNumber = string.IsNullOrEmpty(payment.OrdersNumber)
+            
+            var ordersNumber = string.IsNullOrEmpty(payment.OrdersNumber)
                 ? orderNumber
                 : string.Format("{0}, {1}", payment.OrdersNumber, orderNumber);
+
+            payment.OrdersNumber = ordersNumber.Substring(0, Math.Min(100, ordersNumber.Length));
         }
 
         public void UpdateOrderPaidSum(Order order, DbTransaction dbTran)
