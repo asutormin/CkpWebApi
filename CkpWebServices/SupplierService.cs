@@ -496,7 +496,10 @@ namespace CkpWebApi.Services
                             h => new { MetroId = h.HandbookId, h.HandbookTypeId },
                             m => new { MetroId = m.Id, HandbookTypeId = m.TypeId },
                             (h, m) => new { Handbook = h, Metro = m })
-                        .Where(hm => hm.Handbook.CompanyId == supplierId)
+                        .Where(
+                            hm =>
+                                hm.Handbook.CompanyId == supplierId &&
+                                hm.Metro.Id != 1009) // Исключаем "Вне Москвы"
                         .Select(hm => new OccurrenceInfo { Id = hm.Metro.Id, Name = hm.Metro.Name, TypeId = hm.Metro.TypeId })
                     .Union(
                     _context.HandbookRelations
