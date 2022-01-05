@@ -1,6 +1,7 @@
 ﻿using CkpDAL.Entities;
 using CkpServices.Helpers.Factories.Interfaces.ClientAccount;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
@@ -8,7 +9,7 @@ namespace CkpServices.Helpers.Factories.ClientAccount
 {
     class AccountPositionFactory : IAccountPositionFactory
     {
-        public AccountPosition Create(int accountId, OrderPosition orderPosition)
+        public AccountPosition Create(int accountId, OrderPosition orderPosition, List<OrderPosition> packagePositions)
         {
             var count = GetPositionsCount(orderPosition);
             var sum = orderPosition.GetClientSum();
@@ -19,7 +20,7 @@ namespace CkpServices.Helpers.Factories.ClientAccount
                 Id = 0,
                 AccountId = accountId,
                 Nomenclature = GetAccountNumenclature(orderPosition),
-                Name = GetAccountPositionName(orderPosition),
+                Name = GetAccountPositionName(orderPosition, packagePositions),
                 Cost = cost,
                 Count = count,
                 Sum = sum,
@@ -66,21 +67,52 @@ namespace CkpServices.Helpers.Factories.ClientAccount
             return nomenclature;
         }
 
-        private string GetAccountPositionName(OrderPosition orderPosition)
+        private string GetAccountPositionName(OrderPosition orderPosition, List<OrderPosition> packagePositions)
         {
+            var isPackage = orderPosition.PricePosition.PricePositionEx.ShowPackagePositionsInAccount && packagePositions.Any();
+
             var pricePositionName = GetPricePositionName(orderPosition);
 
-            var outs = string.Join("; ", orderPosition.GraphicPositions
-                .Select(gp => string.Format("{0}({1})", gp.Graphic.Number, gp.Graphic.OutDate.ToString("dd.MM.yyyy"))));
+            var formulationBuilder = new StringBuilder();
 
-            var formulation = string.Format("Размещение объявлений о наборе персонала в издании \"{0}\" г. {1} формат {2} {3} №{4}",
-                orderPosition.Supplier.FullName,
-                orderPosition.Supplier.City.Name,
-                orderPosition.PricePosition.PricePositionType.Name,
-                pricePositionName,
-                outs);
+            formulationBuilder.Append(
+                string.Format("Размещение объявлений о наборе персонала в издании \"{0}\" г.{1} формат - {2} {3}",
+                    orderPosition.Supplier.FullName,
+                    orderPosition.Supplier.City.Name,
+                    orderPosition.PricePosition.PricePositionType.Name,
+                    pricePositionName));
 
-            return formulation;
+            if (isPackage)
+            {
+                formulationBuilder.Append(" (");
+
+                var packagePotionNames = new List<string>();
+                foreach (var packagePosition in packagePositions)
+                {
+                    var packagePricePositionName = GetPricePositionName(packagePosition);
+                    packagePotionNames.Add(
+                        string.Format("{0} - {1} {2}",
+                            packagePosition.Supplier.Company.Name,
+                            packagePosition.Supplier.City.Name,
+                            packagePricePositionName));
+                }
+
+                formulationBuilder.Append(string.Join(", ", packagePotionNames));
+                formulationBuilder.Append(")");
+            }
+
+            formulationBuilder.Append(" ");
+
+            var outs = string.Join(", ", orderPosition.GraphicPositions
+                .Select(
+                    gp =>
+                        string.Format(
+                            isPackage ? "({1})" : "№ {0}({1})",
+                            gp.Graphic.Number, gp.Graphic.OutDate.ToString("dd.MM.yyyy"))));
+
+            formulationBuilder.Append(outs);
+
+            return formulationBuilder.ToString();
         }
 
         private string GetPricePositionName(OrderPosition orderPosition)
@@ -95,8 +127,7 @@ namespace CkpServices.Helpers.Factories.ClientAccount
             if (orderPosition.PricePosition.PricePositionType.EnableSecondSize)
             {
                 builder.Append(
-                    string.Format("{0} ({1}x{2} {3})",
-                        orderPosition.PricePosition.Name,
+                    string.Format(" ({0}x{1} {2})",
                         orderPosition.PricePosition.FirstSize,
                         orderPosition.PricePosition.SecondSize,
                         orderPosition.PricePosition.Unit.Name)
@@ -105,15 +136,15 @@ namespace CkpServices.Helpers.Factories.ClientAccount
             else
             {
                 builder.Append(
-                    string.Format("{0} ({1}x{2} {3})",
-                        orderPosition.PricePosition.Name,
+                    string.Format(" ({0} {1})",
                         orderPosition.PricePosition.FirstSize,
-                        orderPosition.PricePosition.SecondSize,
                         orderPosition.PricePosition.Unit.Name)
                     );
             }
 
-            return builder.ToString();
+            builder.Append(string.Format(" {0}", orderPosition.PricePosition.Description));
+
+            return builder.ToString().Trim();
         }
 
         private int GetPositionsCount(OrderPosition orderPosition)

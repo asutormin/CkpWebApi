@@ -4,6 +4,7 @@ using CkpDAL.Repository;
 using CkpServices.Helpers.Factories.ClientAccount;
 using CkpServices.Helpers.Factories.Interfaces.ClientAccount;
 using CkpServices.Processors.Interfaces;
+using System.Collections.Generic;
 using System.Data.Common;
 
 namespace CkpServices.Processors
@@ -37,9 +38,9 @@ namespace CkpServices.Processors
             return account;
         }
 
-        public AccountPosition CreateAccountPosition(int accountId, OrderPosition orderPosition, DbTransaction dbTran)
+        public AccountPosition CreateAccountPosition(int accountId, OrderPosition orderPosition, List<OrderPosition> packagePositions, DbTransaction dbTran)
         {
-            var accountPosition = _accountPositionFactory.Create(accountId, orderPosition);
+            var accountPosition = _accountPositionFactory.Create(accountId, orderPosition, packagePositions);
             accountPosition =_repository.SetAccountPosition(accountPosition, isActual: true, dbTran);
 
             return accountPosition;

@@ -12,5 +12,8 @@ namespace CkpDAL.Entities.PricePosition
 
         [Column("order_by", TypeName = "int")]
         public int OrderBy { get; set; }
+
+        [Column("show_package_positions_in_account", TypeName = "bit")]
+        public bool ShowPackagePositionsInAccount { get; set; }
     }
 }

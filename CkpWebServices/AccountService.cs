@@ -92,10 +92,22 @@ namespace CkpServices
         public void ApplyPaymentInTimeDiscount(int accountId)
         {
             var account = _context.Accounts
+                .Include(ac => ac.AccountPositions)
                 .Include(ac => ac.AccountOrders)
                     .ThenInclude(ao => ao.Order)
-                    .ThenInclude(o => o.OrderPositions)
-                .Include(ac => ac.AccountPositions)
+                    .ThenInclude(o => o.OrderPositions).ThenInclude(op => op.Supplier).ThenInclude(su => su.Company)
+                .Include(ac => ac.AccountOrders)
+                    .ThenInclude(ao => ao.Order)
+                    .ThenInclude(o => o.OrderPositions).ThenInclude(op => op.Supplier).ThenInclude(su => su.City)
+                .Include(ac => ac.AccountOrders)
+                    .ThenInclude(ao => ao.Order)
+                    .ThenInclude(o => o.OrderPositions).ThenInclude(op => op.PricePosition).ThenInclude(pp => pp.PricePositionEx)
+                .Include(ac => ac.AccountOrders)
+                    .ThenInclude(ao => ao.Order)
+                    .ThenInclude(o => o.OrderPositions).ThenInclude(op => op.PricePosition).ThenInclude(pp => pp.PricePositionType)
+                .Include(ac => ac.AccountOrders)
+                    .ThenInclude(ao => ao.Order)
+                    .ThenInclude(o => o.OrderPositions).ThenInclude(op => op.PricePosition).ThenInclude(pp => pp.Unit)
                 .Single(ac => ac.Id == accountId);
 
             var discount = _paymentInTimeDiscountProvider.GetByValue(account.BusinessUnitId);
@@ -115,16 +127,27 @@ namespace CkpServices
                 foreach (var accountOrder in account.AccountOrders)
                 {
                     var order = accountOrder.Order;
+                    var orderPositions = order.OrderPositions;
 
-                    foreach (var orderPosition in order.OrderPositions)
+                    foreach (var orderPosition in orderPositions)
                     {
                         orderPosition.Discount += discount;
 
                         // Сохраняем позицию заказа
                         _orderPositionProcessor.UpdateOrderPosition(orderPosition, order.Id, dbTran);
 
-                        // Создаём позицию счёта
-                        var accountPosition = _clientAccountProcessor.CreateAccountPosition(account.Id, orderPosition, dbTran);
+                        // Если позиция заказа - не часть пакета
+                        if (orderPosition.ParentOrderPositionId == null)
+                        {
+                            // находим её пакетные позиции
+                            var packagePositions = orderPositions
+                                .Where(op => op.ParentOrderPositionId == orderPosition.Id)
+                                .ToList();
+
+                            // Создаём позицию счёта
+                            var accountPosition = _clientAccountProcessor
+                                .CreateAccountPosition(account.Id, orderPosition, packagePositions, dbTran);
+                        }
                     }
 
                     // Пересчитываем сумму заказа
@@ -132,7 +155,10 @@ namespace CkpServices
                         .Sum(
                             op =>
                                 op.Price.Value * op.GraphicPositions
-                                    .Where(gp => gp.ParenGraphicPositiontId == gp.Id)
+                                    .Where(
+                                        gp =>
+                                            gp.ParenGraphicPositiontId == gp.Id &&
+                                            op.ParentOrderPositionId == null)
                                     .Sum(gp => gp.Count) * (1 - op.Discount / 100));
 
                     order.AccountDescription = description;
@@ -215,7 +241,7 @@ namespace CkpServices
 
             var accountPositions = await _context.AccountPositions
                 .Where(ap => ap.AccountId == accountId)
-                .Select(ap => 
+                .Select(ap =>
                     new AccountPositionInfo
                     {
                         Id = ap.Id,
@@ -319,7 +345,7 @@ namespace CkpServices
         #endregion
 
         #region Create
-        
+
         public int CreateClientAccount(int[] orderPositionIds)
         {
             using (var сontextTransaction = _context.Database.BeginTransaction())
@@ -337,7 +363,14 @@ namespace CkpServices
 
                 // Создаём позиции счёта
                 foreach (var orderPosition in orderPositions)
-                    _clientAccountProcessor.CreateAccountPosition(account.Id, orderPosition, dbTran);
+                {
+                    // Позиция счёта создаётся только на позицию заказа, не входящую в пакет
+                    if (orderPosition.ParentOrderPositionId == null)
+                    {
+                        var packagePositions = orderPosition.ChildOrderPositions.ToList();
+                        _clientAccountProcessor.CreateAccountPosition(account.Id, orderPosition, packagePositions, dbTran);
+                    }
+                }
 
                 // Создаём настройки счёта
                 _accountSettingsProcessor.CreateAccountSettings(account.Id, basketOrder.ClientLegalPerson.AccountSettings, dbTran);

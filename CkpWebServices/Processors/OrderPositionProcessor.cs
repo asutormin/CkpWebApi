@@ -56,12 +56,18 @@ namespace CkpServices.Processors
                 .Include(op => op.Supplier).ThenInclude(su => su.Company)
                 .Include(op => op.Supplier).ThenInclude(su => su.City)
                 .Include(op => op.Price)
+                .Include(op => op.PricePosition).ThenInclude(op => op.PricePositionEx)
                 .Include(op => op.PricePosition).ThenInclude(pp => pp.PricePositionType)
                 .Include(op => op.PricePosition).ThenInclude(pp => pp.Unit)
                 .Include(op => op.GraphicPositions).ThenInclude(gp => gp.Graphic)
                 .Include(op => op.RubricPositions)
                 .Include(op => op.PositionIm).ThenInclude(pi => pi.PositionImType).ThenInclude(pit => pit.OrderImType)
+                .Include(op => op.ChildOrderPositions).ThenInclude(cop => cop.Supplier).ThenInclude(csu => csu.Company)
+                .Include(op => op.ChildOrderPositions).ThenInclude(cop => cop.Supplier).ThenInclude(csu => csu.City)
                 .Include(op => op.ChildOrderPositions).ThenInclude(cop => cop.Price)
+                .Include(op => op.ChildOrderPositions).ThenInclude(cop => cop.PricePosition).ThenInclude(cpp => cpp.PricePositionEx)
+                .Include(op => op.ChildOrderPositions).ThenInclude(cop => cop.PricePosition).ThenInclude(cpp => cpp.PricePositionType)
+                .Include(op => op.ChildOrderPositions).ThenInclude(cop => cop.PricePosition).ThenInclude(cpp => cpp.Unit)
                 .Include(op => op.ChildOrderPositions).ThenInclude(cop => cop.RubricPositions)
                 .Include(op => op.ChildOrderPositions).ThenInclude(cop => cop.GraphicPositions).ThenInclude(cgp => cgp.Graphic)
                 .Include(op => op.ChildOrderPositions).ThenInclude(cop => cop.PositionIm).ThenInclude(cpi => cpi.PositionImType).ThenInclude(pit => pit.OrderImType)
@@ -129,8 +135,8 @@ namespace CkpServices.Processors
             if (opd.RubricData != null)
                 _rubricProcessor.CreateRubricPosition(orderPosition.Id, opd.RubricData, dbTran);
 
-            // Если графики не переданы - ищем график на основе пакетных позиций
-            if (!opd.GraphicsData.Any())
+            // Если передан пакет - ищем график на основе его позиций
+            if (opd.Childs.Any())
                 opd.GraphicsData = _graphicProcessor.GetPackageGraphicsData(opd);
 
             _graphicProcessor.CreateGraphicPositions(orderPosition.Id, opd.GraphicsData, dbTran);
@@ -172,8 +178,8 @@ namespace CkpServices.Processors
             else
                 _rubricProcessor.UpdateRubricPosition(orderPosition.Id, orderPosition.RubricPositions, opd.RubricData, dbTran);
 
-            // Если графики не переданы - ищем график на основе пакетных позиций
-            if (opd.GraphicsData == null)
+            // Если переданы есть пакетные позиции - вычисляем график на их основе
+            if (opd.Childs.Any())
                 opd.GraphicsData = _graphicProcessor.GetPackageGraphicsData(opd);
 
             _graphicProcessor.UpdateGraphicPositions(orderPosition.Id, orderPosition.GraphicPositions, opd.GraphicsData, dbTran);
