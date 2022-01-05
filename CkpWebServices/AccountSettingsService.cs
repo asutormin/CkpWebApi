@@ -28,6 +28,13 @@ namespace CkpServices
             return accountSettings.IsNeedPrepayment;
         }
 
+        public int GetInteractionBusinessUnitId(int clientLegalPersonId)
+        {
+            var accountSettings = _accountSettingsProcessor.GetAccountSettingsByLegalPersonId(clientLegalPersonId);
+
+            return accountSettings.InteractionBusinessUnitId;
+        }
+
         public void ResetIsNeedPrepayment(int clientLegalPersonId)
         {
             var accountSettings = _accountSettingsProcessor.GetAccountSettingsByLegalPersonId(clientLegalPersonId);

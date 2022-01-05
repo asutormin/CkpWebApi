@@ -31,5 +31,15 @@ namespace CkpWebApi.Controllers
 
             return isNeedPrepayment;
         }
+
+        [HttpGet("interaction-business-unit-id")]
+        public ActionResult<int> GetInteractionBusinessUnit()
+        {
+            var clientLegalPersonId = _httpContextAccessor.HttpContext.GetClientLegalPersonId();
+
+            var interactionBusinessUnitId = _accountSettingsService.GetInteractionBusinessUnitId(clientLegalPersonId);
+
+            return interactionBusinessUnitId;
+        }
     }
 }
