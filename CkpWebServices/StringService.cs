@@ -228,9 +228,13 @@ namespace CkpServices
         private List<string> GetPhones(List<StringPhone> stringPhones)
         {
             var phones = new List<string>();
+            var sortedStringPhones = stringPhones.OrderBy(p => p.OrderBy);
 
-            foreach (var stringPhone in stringPhones)
+            foreach (var stringPhone in sortedStringPhones)
             {
+                if (!stringPhone.IsActual)
+                    continue;
+
                 var phoneBuilder = new StringBuilder();
 
                 phoneBuilder.Append(string.Format("{0} ({1}) {2}", stringPhone.CountryCode, stringPhone.Code, stringPhone.Number));
@@ -255,6 +259,9 @@ namespace CkpServices
 
             foreach (var stringWeb in stringWebs)
             {
+                if (stringWeb.IsActual)
+                    continue;
+
                 var email = stringWeb.Description;
                 emails.Add(email);
             }
