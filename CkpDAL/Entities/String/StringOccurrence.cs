@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CkpDAL.Entities.String
 {
-    [Table("t_s_string_occurrences")]
+    [Table("vwa_string_occurrences")]
     public class StringOccurrence
     {
         [Key]
@@ -29,9 +29,6 @@ namespace CkpDAL.Entities.String
         [Required]
         [Column("begin_date", TypeName = "datetime")]
         public DateTime BeginDate { get; set; }
-
-        [Column("end_date", TypeName = "datetime")]
-        public DateTime EndDate { get; set; }
 
         [Required]
         [Column("order_by", TypeName = "int")]

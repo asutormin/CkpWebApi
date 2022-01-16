@@ -193,20 +193,6 @@ namespace CkpServices.Helpers
             return actualItems;
         }
 
-        public static IEnumerable<StringOccurrence> GetActualItems(this IEnumerable<StringOccurrence> items)
-        {
-            var now = DateTime.Now;
-
-            var actualItems = items
-                .Where(
-                    i =>
-                        i.BeginDate <= now &&
-                        i.EndDate >= now)
-                .AsEnumerable();
-
-            return actualItems;
-        }
-
         public static DateTime? GetMaxExitDate(this IEnumerable<OrderPosition> orderPositions)
         {
             var maxExitDate = orderPositions.Count() == 0

@@ -232,7 +232,6 @@ namespace CkpServices.Processors
                                             OrderBy = a.OrderBy
                                         }),
                             OccurrencesData = s.Occurrences
-                                .Where(o => o.EndDate > DateTime.Now)
                                 .Select(
                                     o =>
                                         new OccurrenceData

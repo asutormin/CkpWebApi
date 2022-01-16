@@ -20,12 +20,11 @@ namespace CkpServices.Processors.String
         private bool NeedCreateStringOccurrence(IEnumerable<StringOccurrence> stringOccurrences, OccurrenceData advOccurrence)
         {
             return !stringOccurrences
-                .GetActualItems()
                 .Any(
-                so =>
-                    so.OccurrenceId == advOccurrence.Id &&
-                    so.TypeId == advOccurrence.TypeId &&
-                    so.OrderBy == advOccurrence.OrderBy);
+                    so =>
+                        so.OccurrenceId == advOccurrence.Id &&
+                        so.TypeId == advOccurrence.TypeId &&
+                        so.OrderBy == advOccurrence.OrderBy);
         }
 
         private StringOccurrence CreateStringOccurrence(int stringId, OccurrenceData advOccurrence, DbTransaction dbTran)
@@ -44,7 +43,7 @@ namespace CkpServices.Processors.String
         private void UpdateStringOccurences(int stringId, IEnumerable<StringOccurrence> stringOccurrences, IEnumerable<OccurrenceData> advOccurrences,
             DbTransaction dbTran)
         {
-            var stringOccurrencesList = stringOccurrences.GetActualItems().ToList();
+            var stringOccurrencesList = stringOccurrences.ToList();
 
             for (int i = stringOccurrencesList.Count - 1; i >= 0; i--)
                 if (NeedDeleteStringOccurrence(stringOccurrencesList[i], advOccurrences))
@@ -61,7 +60,7 @@ namespace CkpServices.Processors.String
 
         private void DeleteStringOccurrences(IEnumerable<StringOccurrence> stringOccurrences, DbTransaction dbTran)
         {
-            var stringOccurrencesList = stringOccurrences.GetActualItems().ToList();
+            var stringOccurrencesList = stringOccurrences.ToList();
 
             for (int i = stringOccurrencesList.Count - 1; i >= 0; i--)
                 DeleteStringOccurrence(stringOccurrencesList[i], dbTran);
