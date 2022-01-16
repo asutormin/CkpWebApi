@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using NLog;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -57,7 +58,7 @@ namespace CkpWebApi.Controllers
                 return StatusCode(
                     (int)HttpStatusCode.Forbidden,
                     new { message = string.Format("Доступ к позиции заказа {0} запрещён.", orderPositionId) });
-            
+
             var orderPosition = await _orderPositionService.GetOrderPositionDataAsync(orderPositionId);
 
             return orderPosition;
@@ -80,6 +81,9 @@ namespace CkpWebApi.Controllers
 
             var logger = LogManager.GetCurrentClassLogger();
             logger.Info(JsonSerializer.Serialize(orderPosition));
+
+            if (orderPosition.StringData != null && !orderPosition.StringData.PhonesData.Any())
+                throw new Exception("В строку не переданы телефоны.");
 
             _orderPositionService.CreateOrderPosition(orderPosition);
 
