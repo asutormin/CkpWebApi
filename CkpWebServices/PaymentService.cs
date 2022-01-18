@@ -8,6 +8,7 @@ using CkpServices.Processors;
 using CkpServices.Processors.Interfaces;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Options;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -111,7 +112,7 @@ namespace CkpServices
                         .GetUndisposedPaymentsByOrder(order)
                         .OrderBy(p => p.PaymentDate);
 
-                    var orderDebt = order.Sum - order.Paid;
+                    var orderDebt = (float)Math.Round(order.Sum - order.Paid, 2);
 
                     // Перебираем платежи и распределяем их на заказ
                     foreach (var payment in undisposedPayments)
