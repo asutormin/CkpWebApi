@@ -205,17 +205,17 @@ namespace CkpServices
 
             foreach (var stringOccurrence in stringOccurrences)
             {
-                if (stringOccurrence.TypeId == 11)
+                if (stringOccurrence.TypeId == 10)
                 {
-                    var occurrence = _context.Metros.SingleOrDefault(m => m.Id == stringOccurrence.OccurrenceId);
+                    var occurrence = _context.Cities.SingleOrDefault(ct => ct.Id == stringOccurrence.OccurrenceId);
 
                     if (occurrence != null)
                         occurrenceNames.Add(occurrence.Name);
                 }
 
-                if (stringOccurrence.TypeId == 12)
+                if (stringOccurrence.TypeId == 11)
                 {
-                    var occurrence = _context.Cities.SingleOrDefault(ct => ct.Id == stringOccurrence.OccurrenceId);
+                    var occurrence = _context.Metros.SingleOrDefault(m => m.Id == stringOccurrence.OccurrenceId);
 
                     if (occurrence != null)
                         occurrenceNames.Add(occurrence.Name);
