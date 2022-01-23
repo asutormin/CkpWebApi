@@ -93,21 +93,7 @@ namespace CkpServices
         {
             var account = _context.Accounts
                 .Include(ac => ac.AccountPositions)
-                .Include(ac => ac.AccountOrders)
-                    .ThenInclude(ao => ao.Order)
-                    .ThenInclude(o => o.OrderPositions).ThenInclude(op => op.Supplier).ThenInclude(su => su.Company)
-                .Include(ac => ac.AccountOrders)
-                    .ThenInclude(ao => ao.Order)
-                    .ThenInclude(o => o.OrderPositions).ThenInclude(op => op.Supplier).ThenInclude(su => su.City)
-                .Include(ac => ac.AccountOrders)
-                    .ThenInclude(ao => ao.Order)
-                    .ThenInclude(o => o.OrderPositions).ThenInclude(op => op.PricePosition).ThenInclude(pp => pp.PricePositionEx)
-                .Include(ac => ac.AccountOrders)
-                    .ThenInclude(ao => ao.Order)
-                    .ThenInclude(o => o.OrderPositions).ThenInclude(op => op.PricePosition).ThenInclude(pp => pp.PricePositionType)
-                .Include(ac => ac.AccountOrders)
-                    .ThenInclude(ao => ao.Order)
-                    .ThenInclude(o => o.OrderPositions).ThenInclude(op => op.PricePosition).ThenInclude(pp => pp.Unit)
+                .Include(ac => ac.AccountOrders).ThenInclude(ao => ao.Order)
                 .Single(ac => ac.Id == accountId);
 
             var discount = _paymentInTimeDiscountProvider.GetByValue(account.BusinessUnitId);
@@ -127,7 +113,14 @@ namespace CkpServices
                 foreach (var accountOrder in account.AccountOrders)
                 {
                     var order = accountOrder.Order;
-                    var orderPositions = order.OrderPositions;
+                    var orderPositions = _context.OrderPositions
+                        .Include(op => op.Supplier).ThenInclude(op => op.Company)
+                        .Include(op => op.Supplier).ThenInclude(op => op.City)
+                        .Include(op => op.PricePosition).ThenInclude(pp => pp.PricePositionEx)
+                        .Include(op => op.PricePosition).ThenInclude(pp => pp.PricePositionType)
+                        .Include(op => op.PricePosition).ThenInclude(pp => pp.Unit)
+                        .Where(op => op.OrderId == order.Id)
+                        .ToList();
 
                     foreach (var orderPosition in orderPositions)
                     {
@@ -151,7 +144,7 @@ namespace CkpServices
                     }
 
                     // Пересчитываем сумму заказа
-                    order.Sum = order.OrderPositions
+                    order.Sum = orderPositions
                         .Sum(
                             op =>
                                 op.Price.Value * op.GraphicPositions
