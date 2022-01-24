@@ -247,7 +247,8 @@ namespace CkpWebApi.Services
                         p.ActualBegin <= now &&
                         p.ActualEnd >= now &&
                         (p.PermissionFlag & _pricePermissionFlag) > 0)
-                .OrderBy(p => p.PricePosition.PricePositionEx.OrderBy)
+                .OrderBy(p => p.SupplierProjectRelation.SupplierProject.OrderBy)
+                .ThenBy(p => p.PricePosition.PricePositionEx.OrderBy)
                 .Select(
                         p =>
                             new TariffInfo
