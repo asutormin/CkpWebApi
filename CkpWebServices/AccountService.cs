@@ -18,6 +18,7 @@ using CkpServices.Processors.String;
 using CkpDAL.Repository;
 using CkpServices.Helpers.Providers;
 using CkpInfrastructure.Providers.Interfaces;
+using System;
 
 namespace CkpServices
 {
@@ -144,7 +145,8 @@ namespace CkpServices
                     }
 
                     // Пересчитываем сумму заказа
-                    order.Sum = orderPositions
+                    order.Sum = (float)Math.Round(
+                        orderPositions
                         .Sum(
                             op =>
                                 op.Price.Value * op.GraphicPositions
@@ -152,7 +154,7 @@ namespace CkpServices
                                         gp =>
                                             gp.ParenGraphicPositiontId == gp.Id &&
                                             op.ParentOrderPositionId == null)
-                                    .Sum(gp => gp.Count) * (1 - op.Discount / 100));
+                                    .Sum(gp => gp.Count) * (1 - op.Discount / 100)), 2);
 
                     order.AccountDescription = description;
 
@@ -160,7 +162,7 @@ namespace CkpServices
                 }
 
                 // Пересчитываем сумму счёта
-                account.Sum = account.AccountOrders.Sum(o => o.Order.Sum);
+                account.Sum = (float)Math.Round(account.AccountOrders.Sum(o => o.Order.Sum), 2);
                 account.Description = description;
 
                 _clientAccountProcessor.UpdateClientAccout(account, dbTran);
