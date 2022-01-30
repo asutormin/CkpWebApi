@@ -24,7 +24,7 @@ namespace CkpDAL.Repository
         public Account SetAccount(Account account, bool isActual, DbTransaction dbTran)
         {
             var accountId = account.Id;
-            var lastEditDate = DateTime.Now;
+            var lastEditDate = account.BeginDate;
 
             SetAccount(
                 dbTran: dbTran,
