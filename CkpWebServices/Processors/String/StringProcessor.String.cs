@@ -61,7 +61,10 @@ namespace CkpServices.Processors.String
                 stringPosition.SalaryFrom != stringData.ConditionsData.SalaryData.From ||
                 stringPosition.SalaryTo != stringData.ConditionsData.SalaryData.To ||
                 stringPosition.SalaryDescription != stringData.ConditionsData.SalaryData.Description ||
+                stringPosition.IsSalaryPercent != stringData.ConditionsData.SalaryData.IsSalaryPercent ||
                 stringPosition.ContactFirstName != stringData.ContactData.FirstName ||
+                stringPosition.IsFood != stringData.ConditionsData.IsFood ||
+                stringPosition.IsHousing != stringData.ConditionsData.IsHousing ||
                 stringPosition.ContactSecondName != stringData.ContactData.SecondName ||
                 stringPosition.ContactLastName != stringData.ContactData.LastName ||
                 stringPosition.Logo != Base64ToBytesConverter.Convert(stringData.LogoData.Base64String) ||
