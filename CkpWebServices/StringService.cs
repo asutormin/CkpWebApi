@@ -58,7 +58,7 @@ namespace CkpServices
             if (!string.IsNullOrEmpty(requirements))
             {
                 requirements = RemoveLastDot(stringPosition.Requirement);
-                requirementsBuilder.Append(string.Format("{0}.", requirements));
+                requirementsBuilder.Append(string.Format(" {0}.", requirements));
             }
 
             // Для изданий не РРД
@@ -94,6 +94,40 @@ namespace CkpServices
                 stringPositionInfo.Responsibilities = string.Format("{0}.", responsibilities);
             }
 
+            var salaryBuilder = new StringBuilder();
+
+            if (!IsRrd(stringPosition.OrderPosition.SupplierId))
+            {
+                if (stringPosition.SalaryFrom.HasValue && stringPosition.SalaryTo.HasValue)
+                {
+                    if (stringPosition.SalaryFrom.Value == stringPosition.SalaryTo.Value)
+                        salaryBuilder.Append(stringPosition.SalaryFrom.Value.ToString());
+                    else
+                        salaryBuilder.Append(string.Format(
+                            "от {0} до {1}", stringPosition.SalaryFrom.Value, stringPosition.SalaryTo.Value));
+                }
+                else
+                {
+                    if (stringPosition.SalaryFrom.HasValue)
+                        salaryBuilder.Append(string.Format("от {0}", stringPosition.SalaryFrom.Value));
+                    else if (stringPosition.SalaryTo.HasValue)
+                        salaryBuilder.Append(string.Format("до {0}", stringPosition.SalaryTo.Value));
+                    else
+                        salaryBuilder.Append("договорная");
+                }
+
+                if (stringPosition.CurrencyId.HasValue)
+                {
+                    var currency = _handbookProcessor.GetCurrency(stringPosition.CurrencyId.Value);
+                    salaryBuilder.Append(string.Format(" {0}", currency));
+                }
+
+                if (stringPosition.IsSalaryPercent)
+                    salaryBuilder.Append(" +%");
+            }
+
+            stringPositionInfo.Salary = salaryBuilder.ToString();
+
             var conditionsBuilder = new StringBuilder();
 
             var condition = stringPosition.Condition;
@@ -105,40 +139,10 @@ namespace CkpServices
 
             if (!IsRrd(stringPosition.OrderPosition.SupplierId))
             {
-                if (stringPosition.SalaryFrom.HasValue && stringPosition.SalaryTo.HasValue)
-                {
-                    if (stringPosition.SalaryFrom.Value == stringPosition.SalaryTo.Value)
-                        conditionsBuilder.Append(string.Format(
-                            " Оплата: {0}", stringPosition.SalaryFrom.Value));
-                    else
-                        conditionsBuilder.Append(string.Format(
-                            " Оплата: от {0} до {1}", stringPosition.SalaryFrom.Value, stringPosition.SalaryTo.Value));
-                }
-                else
-                {
-                    if (stringPosition.SalaryFrom.HasValue)
-                        conditionsBuilder.Append(string.Format(" Оплата: от {0}", stringPosition.SalaryFrom.Value));
-                    else if (stringPosition.SalaryTo.HasValue)
-                        conditionsBuilder.Append(string.Format(" Оплата: до {0}", stringPosition.SalaryTo.Value));
-                    else
-                        conditionsBuilder.Append(" Оплата: договорная");
-                }
-
-                if (stringPosition.CurrencyId.HasValue)
-                {
-                    var currency = _handbookProcessor.GetCurrency(stringPosition.CurrencyId.Value);
-                    conditionsBuilder.Append(string.Format(" {0}", currency));
-                }
-
-                if (stringPosition.IsSalaryPercent)
-                    conditionsBuilder.Append(" +%");
-
-                conditionsBuilder.Append(".");
-
                 if (stringPosition.WorkGraphicId.HasValue)
                 {
                     var workGraphic = _handbookProcessor.GetWorkGraphic(stringPosition.WorkGraphicId.Value);
-                    conditionsBuilder.Append(string.Format("График работы: {0}", workGraphic));
+                    conditionsBuilder.Append(string.Format(" График работы: {0}", workGraphic));
 
                     var workGraphicDescription = stringPosition.WorkGraphic;
                     if (!string.IsNullOrEmpty(workGraphicDescription))
@@ -151,10 +155,10 @@ namespace CkpServices
                 }
 
                 if (stringPosition.IsFood)
-                    conditionsBuilder.Append(" Предоставляется питание.");
+                    stringPositionInfo.IsFood = stringPosition.IsFood;
 
                 if (stringPosition.IsHousing)
-                    conditionsBuilder.Append(" Предоставляется жильё.");
+                    stringPositionInfo.IsHousing = stringPosition.IsHousing;
             }
 
             var conditions = conditionsBuilder.ToString();
@@ -167,7 +171,7 @@ namespace CkpServices
 
             var address = stringPosition.Addresses.FirstOrDefault();
             if (address != null)
-                stringPositionInfo.Address = address.Description;
+                stringPositionInfo.Address = " " + address.Description;
 
             if (!IsRrd(stringPosition.OrderPosition.SupplierId))
             {
@@ -188,11 +192,11 @@ namespace CkpServices
                 stringPositionInfo.ContactPerson = contactBuilder.ToString();
             }
 
-            var phones = string.Join(", ", GetPhones(stringPosition.Phones.ToList()));
+            var phones = " " + string.Join(", ", GetPhones(stringPosition.Phones.ToList()));
             if (!string.IsNullOrEmpty(phones))
                 stringPositionInfo.Phones = RemoveLastDot(phones);
 
-            var emails = string.Join(", ", GetEmails(stringPosition.Webs.ToList()));
+            var emails = " " + string.Join(", ", GetEmails(stringPosition.Webs.ToList()));
             if (!string.IsNullOrEmpty(emails))
                 stringPositionInfo.Email = emails;
 
