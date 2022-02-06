@@ -149,6 +149,17 @@ namespace CkpServices.Helpers
                                             Number = rp.Rubric.Number,
                                             Name = rp.Rubric.Name
                                         }),
+                            Account = op.Order.AccountOrder == null || op.Order.AccountOrder.Account == null
+                                ? null
+                                : new AccountInfoLight
+                                    {
+                                        Id = op.Order.AccountOrder.Account.Id,
+                                        Number = op.Order.AccountOrder.Account.Number,
+                                        Date = op.Order.AccountOrder.Account.Date,
+                                        Sum = op.Order.AccountOrder.Account.Sum,
+                                        Debt = op.Order.AccountOrder.Account.Debt,
+                                        TypeId = op.Order.AccountOrder.Account.TypeId
+                                    },
                             Childs = op.ChildOrderPositions == null
                                 ? new OrderPositionInfo[0]
                                 : op.ChildOrderPositions.SelectPositions(),

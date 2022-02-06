@@ -95,7 +95,7 @@ namespace CkpServices.Processors
         private IQueryable<OrderPosition> GetOrderPositionsQuery(int clientLegalPersonId, int[] orderPositionIds, int accountId, int activityTypeId, string description)
         {
             var query = _context.OrderPositions
-                .Include(op => op.Order.AccountOrder)
+                .Include(op => op.Order.AccountOrder.Account)
                 .Include(op => op.Supplier).ThenInclude(su => su.Company)
                 .Include(op => op.Supplier).ThenInclude(su => su.City)
                 .Include(op => op.Price)

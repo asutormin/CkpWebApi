@@ -14,6 +14,7 @@ namespace CkpModel.Output
         public SupplierInfoLight Supplier { get; set; }
         public FormatInfo Format { get; set; }
         public PriceInfo Price { get; set; }
+        public AccountInfoLight Account { get; set; }
         public IEnumerable<RubricInfoLight> Rubrics { get; set; }
         public IEnumerable<GraphicInfoLight> Graphics { get; set; }
         public IEnumerable<OrderPositionInfo> Childs { get; set; }
