@@ -7,9 +7,9 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace CkpServices.Processors
+namespace CkpServices.Processors.Module
 {
-    class ModuleProcessor : IModuleProcessor
+    class ModuleMaketProcessor : IModuleMaketProcessor
     {
         private readonly string _orderImFolder;
         private readonly string _positionImSampleTemplate;
@@ -18,7 +18,7 @@ namespace CkpServices.Processors
         private readonly OrderImSampleNameProvider _orderImSampleNameProvider;
         private readonly OrderImGraphicsFolderPathProvider _orderImGraphicsFolderPathProvider;
 
-        public ModuleProcessor(string orderImFolderTemplate, string dbName)
+        public ModuleMaketProcessor(string orderImFolderTemplate, string dbName)
         {
             _orderImFolder = string.Format(orderImFolderTemplate, dbName);
 

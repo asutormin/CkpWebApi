@@ -7,6 +7,7 @@ using CkpServices.Helpers.Providers;
 using CkpServices.Interfaces;
 using CkpServices.Processors;
 using CkpServices.Processors.Interfaces;
+using CkpServices.Processors.Module;
 using CkpServices.Processors.String;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -40,6 +41,9 @@ namespace CkpServices
                 _context,
                 repository);
             var moduleProcessor = new ModuleProcessor(
+                _context,
+                repository);
+            var moduleMaketProcessor = new ModuleMaketProcessor(
                 appSettingsAccessor.Value.OrderImFolderTemplate,
                 appSettingsAccessor.Value.DatabaseName);
             var positionImProcessor = new PositionImProcessor(
@@ -47,7 +51,8 @@ namespace CkpServices
                 repository,
                 orderImProcessor,
                 stringProcessor,
-                moduleProcessor);
+                moduleProcessor,
+                moduleMaketProcessor);
 
             _orderPositionProcessor = new OrderPositionProcessor(
                 _context,

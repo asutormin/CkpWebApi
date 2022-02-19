@@ -19,6 +19,7 @@ using CkpDAL.Repository;
 using CkpServices.Helpers.Providers;
 using CkpInfrastructure.Providers.Interfaces;
 using System;
+using CkpServices.Processors.Module;
 
 namespace CkpServices
 {
@@ -73,6 +74,9 @@ namespace CkpServices
                 _context,
                 repository);
             var moduleProcessor = new ModuleProcessor(
+                _context,
+                repository);
+            var moduleMaketProcessor = new ModuleMaketProcessor(
                 appSettingsAccessor.Value.OrderImFolderTemplate,
                 appSettingsAccessor.Value.DatabaseName);
             _positionImProcessor = new PositionImProcessor(
@@ -80,7 +84,8 @@ namespace CkpServices
                 repository,
                 _orderImProcessor,
                 stringProcessor,
-                moduleProcessor);
+                moduleProcessor,
+                moduleMaketProcessor);
             _orderPositionProcessor = new OrderPositionProcessor(
                 _context,
                 repository,

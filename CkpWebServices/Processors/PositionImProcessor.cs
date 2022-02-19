@@ -19,21 +19,25 @@ namespace CkpServices.Processors
         private readonly IOrderImProcessor _orderImProcessor;
         private readonly IStringProcessor _stringProcessor;
         private readonly IModuleProcessor _moduleProcessor;
+        private readonly IModuleMaketProcessor _moduleMaketProcessor;
         private readonly IPositionImFactory _positionImFactory;
-
+        
         public PositionImProcessor(
             BPFinanceContext context,
             IBPFinanceRepository repository,
             IOrderImProcessor orderImProcessor,
             IStringProcessor stringProcessor,
-            IModuleProcessor moduleProcessor)
+            IModuleProcessor moduleProcessor,
+            IModuleMaketProcessor moduleMaketProcessor)
         {
             _context = context;
             _repository = repository;
 
             _orderImProcessor = orderImProcessor;
             _stringProcessor = stringProcessor;
+
             _moduleProcessor = moduleProcessor;
+            _moduleMaketProcessor = moduleMaketProcessor;
 
             _positionImFactory = new PositionImFactory();
 
@@ -66,11 +70,13 @@ namespace CkpServices.Processors
                 var positionIm = _positionImFactory.Create(orderId, orderPositionId, positionImTypeId: 2);
                 positionIm = _repository.SetPositionIm(positionIm, newTaskFile: true, newMaketFile: false, isActual: true, dbTran);
 
+                _moduleProcessor.CreateModule(opd.ClientId, businessUnitId, orderPositionId, dbTran);
+
                 var bytes = Base64ToBytesConverter.Convert(opd.ModuleData.Base64String);
                 var taskFileDate = (DateTime)positionIm.TaskFileDate;
 
-                _moduleProcessor.CreateSampleImage(orderPositionId, bytes, "ImgTask", taskFileDate);
-                _moduleProcessor.CreateModuleGraphics(orderPositionId, bytes, opd.ModuleData.Name);
+                _moduleMaketProcessor.CreateSampleImage(orderPositionId, bytes, "ImgTask", taskFileDate);
+                _moduleMaketProcessor.CreateModuleGraphics(orderPositionId, bytes, opd.ModuleData.Name);
 
                 setOrderIm(orderId, 2, dbTran);
             }
@@ -95,7 +101,7 @@ namespace CkpServices.Processors
                 _stringProcessor.UpdateFullString(positionIm.OrderPositionId, opd.StringData, dbTran);
             }
 
-            if (_moduleProcessor.CanUpdateModule(positionIm))
+            if (_moduleMaketProcessor.CanUpdateModule(positionIm))
             {
                 positionIm = _repository.SetPositionIm(positionIm, newTaskFile: true, newMaketFile: false, isActual: true, dbTran);
                 
@@ -103,8 +109,8 @@ namespace CkpServices.Processors
                 var taskFileDate = (DateTime)positionIm.TaskFileDate;
                 var bytes = Base64ToBytesConverter.Convert(opd.ModuleData.Base64String);
 
-                _moduleProcessor.CreateSampleImage(positionIm.OrderPositionId, bytes, "ImgTask", taskFileDate);
-                _moduleProcessor.UpdateModuleGraphics(positionIm.OrderPositionId, bytes, opd.ModuleData.Name);
+                _moduleMaketProcessor.CreateSampleImage(positionIm.OrderPositionId, bytes, "ImgTask", taskFileDate);
+                _moduleMaketProcessor.UpdateModuleGraphics(positionIm.OrderPositionId, bytes, opd.ModuleData.Name);
             }
         }
 
@@ -132,7 +138,8 @@ namespace CkpServices.Processors
                 return;
 
             _stringProcessor.DeleteFullString(positionIm.OrderPositionId, dbTran);
-            _moduleProcessor.DeleteModuleGraphics(positionIm.OrderPositionId);
+            _moduleProcessor.DeleteModule(positionIm.OrderPositionId, dbTran);
+            _moduleMaketProcessor.DeleteModuleGraphics(positionIm.OrderPositionId);
 
             _repository.SetPositionIm(positionIm, newTaskFile: false, newMaketFile: false, isActual: false, dbTran);
             _context.Entry(positionIm).Reload();

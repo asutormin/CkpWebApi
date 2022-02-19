@@ -1,4 +1,5 @@
-﻿using CkpDAL.Entities.String;
+﻿using CkpDAL.Entities.Module;
+using CkpDAL.Entities.String;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -101,5 +102,8 @@ namespace CkpDAL.Entities
 
 		[ForeignKey("OrderPositionId")]
 		public StringPosition StringPosition { get; set; }
+
+		[ForeignKey("OrderPositionId")]
+		public ModulePosition ModulePosition { get; set; }
 	}
 }

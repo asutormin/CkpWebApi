@@ -1,4 +1,5 @@
 ﻿using CkpDAL.Entities;
+using CkpDAL.Entities.Module;
 using CkpDAL.Entities.String;
 using System.Data.Common;
 
@@ -28,6 +29,8 @@ namespace CkpDAL.Repository
         StringPhone SetStringPhone(StringPhone stringPhone, bool isActual, DbTransaction dbTran);
         Web SetWeb(Web web, bool isActual, DbTransaction dbTran);
         StringWeb SetStringWeb(StringWeb stringWeb, bool isActual, DbTransaction dbTran);
+
+        ModulePosition SetModule(ModulePosition modulePosition, bool isActual, DbTransaction dbTran);
 
         /// <summary>
         /// Сохранение объекта платежа.

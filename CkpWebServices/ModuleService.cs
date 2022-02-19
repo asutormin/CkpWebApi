@@ -3,8 +3,8 @@ using CkpModel.Input.Module;
 using CkpModel.Output;
 using CkpServices.Helpers.Builders;
 using CkpServices.Interfaces;
-using CkpServices.Processors;
 using CkpServices.Processors.Interfaces;
+using CkpServices.Processors.Module;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using System;
@@ -16,11 +16,11 @@ namespace CkpServices
 {
     public class ModuleService : IModuleService
     {
-        private readonly IModuleProcessor _moduleProcessor;
+        private readonly IModuleMaketProcessor _moduleMaketProcessor;
 
         public ModuleService(IOptions<AppSettings> appSettingsAccessor)
         {
-            _moduleProcessor = new ModuleProcessor(
+            _moduleMaketProcessor = new ModuleMaketProcessor(
                 appSettingsAccessor.Value.OrderImFolderTemplate,
                 appSettingsAccessor.Value.DatabaseName);
         }
@@ -71,10 +71,10 @@ namespace CkpServices
 
         public ActionResult<ImageInfo> GetSampleImageById(int orderPositionId)
         {
-            var bytes = _moduleProcessor.GetSampleImageBytesById(orderPositionId, "ImgMaket");
+            var bytes = _moduleMaketProcessor.GetSampleImageBytesById(orderPositionId, "ImgMaket");
 
             if (bytes.Length == 0)
-                bytes = _moduleProcessor.GetSampleImageBytesById(orderPositionId, "ImgTask");
+                bytes = _moduleMaketProcessor.GetSampleImageBytesById(orderPositionId, "ImgTask");
 
             var sample = CreateImageSample(bytes, ImageFormat.Jpeg);
 

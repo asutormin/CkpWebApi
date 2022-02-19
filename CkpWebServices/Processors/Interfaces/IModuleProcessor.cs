@@ -1,15 +1,11 @@
-﻿using CkpDAL.Entities;
-using System;
+﻿using CkpDAL.Entities.Module;
+using System.Data.Common;
 
 namespace CkpServices.Processors.Interfaces
 {
-    public interface IModuleProcessor
+    interface IModuleProcessor
     {
-        byte[] GetSampleImageBytesById(int orderPositionId, string fileName);
-        void CreateSampleImage(int orderPositionId, byte[] bytes, string name, DateTime version);
-        void CreateModuleGraphics(int orderPositionId, byte[] bytes, string fileName);
-        bool CanUpdateModule(PositionIm positionIm);
-        void UpdateModuleGraphics(int orderPositionId, byte[] bytes, string fileName);
-        void DeleteModuleGraphics(int orderPositionId);
+        ModulePosition CreateModule(int clientId, int businessUnitId, int orderPositionId, DbTransaction dbTran);
+        void DeleteModule(int orderPositionId, DbTransaction dbTran);
     }
 }

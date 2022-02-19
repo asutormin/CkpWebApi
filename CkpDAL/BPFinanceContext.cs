@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using CkpDAL.Entities;
 using CkpDAL.Entities.String;
+using CkpDAL.Entities.Module;
 
 namespace CkpDAL
 {
@@ -52,6 +53,8 @@ namespace CkpDAL
         public DbSet<Address> Addresses { get; set; }
         public DbSet<StringAddress> StringAddresses { get; set; }
         public DbSet<StringOccurrence> StringOccurrences { get; set; }
+
+        public DbSet<ModulePosition> ModulePositions { get; set; }
 
         public DbSet<Handbook> Handbooks { get; set; }
         public DbSet<HandbookRelation> HandbookRelations { get; set; }
