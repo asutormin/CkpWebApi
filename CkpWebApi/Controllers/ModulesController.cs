@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Net;
+using System.Runtime.InteropServices;
 
 namespace CkpWebApi.Controllers
 {
@@ -39,12 +41,21 @@ namespace CkpWebApi.Controllers
             if (module.Length == 0)
                 return BadRequest("module.Length == 0");
             
-            using (var stream = new MemoryStream())
+            try
             {
-                module.CopyTo(stream);
-                var sample = _moduleService.CreateImageSample(stream.ToArray(), ImageFormat.Jpeg);
+                using (var stream = new MemoryStream())
+                {
+                    module.CopyTo(stream);
+                    var sample = _moduleService.CreateImageSample(stream.ToArray(), ImageFormat.Jpeg);
 
-                return sample;
+                    return sample;
+                }
+            }
+            catch (ExternalException)
+            {
+                return StatusCode(
+                    (int)HttpStatusCode.UnsupportedMediaType,
+                    new { message = string.Format("Передано некорректное изображение. Подгрузка не возможна.") });
             }
         }
 
