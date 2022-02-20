@@ -1,7 +1,6 @@
 ﻿using CkpDAL;
 using CkpDAL.Entities.String;
 using CkpDAL.Repository;
-using CkpModel.Output.String;
 using CkpServices.Processors.Interfaces;
 using System.Collections.Generic;
 using System.Linq;
