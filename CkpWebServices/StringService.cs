@@ -243,9 +243,9 @@ namespace CkpServices
 
                 phoneBuilder.Append(string.Format("{0} ({1}) {2}", stringPhone.CountryCode, stringPhone.Code, stringPhone.Number));
 
-                var additionalNamber = stringPhone.AdditionalNumber;
-                if (!string.IsNullOrEmpty(additionalNamber))
-                    phoneBuilder.Append(string.Format(" {0}", additionalNamber));
+                var additionalNumber = stringPhone.AdditionalNumber;
+                if (!string.IsNullOrEmpty(additionalNumber))
+                    phoneBuilder.Append(string.Format(" доб. {0}", additionalNumber));
 
                 var description = stringPhone.Description;
                 if (!string.IsNullOrEmpty(description))

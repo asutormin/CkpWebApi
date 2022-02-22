@@ -209,6 +209,7 @@ namespace CkpServices.Processors
                                             CountryCode = p.CountryCode,
                                             Code = p.Code,
                                             Number = p.Number,
+                                            AdditionalNumber = p.AdditionalNumber,
                                             Description = p.Description,
                                             OrderBy = p.OrderBy
                                         }),

@@ -5,7 +5,7 @@ namespace CkpServices.Helpers.Factories.String
 {
     class PhoneFactory : IPhoneFactory
     {
-        public Phone Create(int companyId, string countryCode, string code, string number, string description)
+        public Phone Create(int companyId, string countryCode, string code, string number, string additionalNamber, string description)
         {
             var phone = new Phone
             {
@@ -15,7 +15,7 @@ namespace CkpServices.Helpers.Factories.String
                 CountryCode = countryCode,
                 Code = code,
                 Number = number,
-                AdditionalNumber = null,
+                AdditionalNumber = additionalNamber,
                 Description = description
             };
 
