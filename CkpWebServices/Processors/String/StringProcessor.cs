@@ -1,14 +1,11 @@
 ﻿using CkpDAL;
 using CkpDAL.Entities;
-using CkpDAL.Entities.String;
 using CkpDAL.Repository;
 using CkpModel.Input.String;
 using CkpServices.Helpers.Factories.Interfaces.String;
 using CkpServices.Helpers.Factories.String;
 using CkpServices.Processors.Interfaces;
-using Microsoft.EntityFrameworkCore;
 using System.Data.Common;
-using System.Linq;
 
 namespace CkpServices.Processors.String
 {
