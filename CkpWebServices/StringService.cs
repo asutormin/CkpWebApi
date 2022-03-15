@@ -263,10 +263,10 @@ namespace CkpServices
 
             foreach (var stringWeb in stringWebs)
             {
-                if (stringWeb.IsActual)
+                if (!stringWeb.IsActual)
                     continue;
 
-                var email = stringWeb.Description;
+                var email = stringWeb.WebValue;
                 emails.Add(email);
             }
 
